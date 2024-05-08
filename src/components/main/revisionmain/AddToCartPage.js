@@ -18,7 +18,10 @@ import {
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
 // import 'slick-carousel/slick/slick-theme.css';
-import { useParams } from "react-router-dom";
+import { useParams, Routes, Route } from "react-router-dom";
+import CartItem from "./CartItem";
+import CartListPage from "./CartListPage";
+import Navigation from "./Navigation";
 
 const AddToCartPage = ({ route }) => {
   const { id } = useParams(); // Get the product ID from the URL
@@ -27,10 +30,19 @@ const AddToCartPage = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [cartItemCount, setCartItemCount] = useState(0);
+  // const addToCart = (item) => {
+  //   setCartItems([...cartItems, item]);
+  // };
 
   const addToCart = (item) => {
-    setCartItems([...cartItems, item]);
+    setCartItemCount(cartItemCount + 1);
+    const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const updatedItems = [...existingItems, item];
+    localStorage.setItem("wishlist", JSON.stringify(updatedItems));
+    setCartItems(updatedItems);
   };
+  
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -45,13 +57,18 @@ const AddToCartPage = ({ route }) => {
         }
       } catch (error) {
         setError("Error fetching product: " + error.message);
-      // }
+        // }
       } finally {
         setLoading(false);
       }
     };
     fetchProduct();
   }, [id]);
+
+  useEffect(() => {
+    const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
+    setCartItems(existingItems);
+  }, []);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -65,61 +82,108 @@ const AddToCartPage = ({ route }) => {
     afterChange: (current) => setCurrentSlide(current),
   };
 
-
   return (
     <>
-      {product && (
-        <Center>
-          <Flex p="20" mx="10px">
-        {/* <Flex justify="center" align="center" mt="64px"> */}
-          <Box flex="1" minWidth="600px">
-          <Slider {...settings}>
-            <Image
-              objectFit="cover"
-              src={product.postImage}
-              alt="Post Image"
-              mb="24px"
-            />
-             </Slider>
-             </Box>
-             <Box flex="2" pl="12">
-             <VStack align="stretch" spacing="4">
-            <Heading fontSize="50px" color="blue.500" fontFamily="Poppins" mb="4">
-              {product.postTitle}
-            </Heading>
-            
-            <Text fontSize="28px" fontWeight="bold" mb="4">Product Description</Text>
+      <Box>
+        <Navigation />
 
-            <Text color="#6e6e6e" mb="16px">
-              {product.postContent}
-            </Text>
-            <Text as="i" fontSize="sm" color="#6e6e6e" >
-              {product.tag}
-            </Text>
-            <Text fontSize="50px" fontWeight="bold" color="red.500" mb="2">
-              Price: P{product.price}
-            </Text>
+        {product && (
+          <Center>
+            <Box>
+              <Flex p="10" mx="50px" bg="#f8f9fa">
+                {/* <Flex justify="center" align="center" mt="64px"> */}
+                <Box flex="1" minWidth="600px">
+                  <Slider {...settings}>
+                    <Image
+                      objectFit="cover"
+                      src={product.postImage}
+                      alt="Post Image"
+                      mb="24px"
+                    />
+                    <Box display="flex" justifyContent="space-between">
+                      <Image
+                        objectFit="cover"
+                        src={product.postImage}
+                        alt="Image 1"
+                        w="32%"
+                        h="auto"
+                      />
+                      <Image
+                        objectFit="cover"
+                        src={product.postImage}
+                        alt="Image 2"
+                        w="32%"
+                        h="auto"
+                      />
+                      <Image
+                        objectFit="cover"
+                        src={product.postImage}
+                        alt="Image 3"
+                        w="32%"
+                        h="auto"
+                      />
+                    </Box>
+                  </Slider>
+                </Box>
+                <Box flex="2" pl="12">
+                  <VStack align="stretch" spacing="4">
+                    <Heading
+                      fontSize="50px"
+                      color="blue.500"
+                      fontFamily="Poppins"
+                      mb="2"
+                    >
+                      {product.postTitle}
+                    </Heading>
 
-            <HStack spacing="4">
-              <Button onClick={() => addToCart('Item 1')} colorScheme="teal">Add to Cart</Button>
-              <Button onClick={() => addToCart('Item 1')} colorScheme="blue">Buy Now</Button>
-            </HStack>
-            {/* <Button bg="#FFC947" w="100%">
-              Add to Cart
-            </Button> */}
-            </VStack>
-            <Heading mt="8" size="md">Cart Items</Heading>
-          <List>
-            {cartItems.map((item, index) => (
-              <ListItem key={index}>
-                <Text>{item}</Text>
-              </ListItem>
-            ))}
-          </List>
-          </Box>
-        </Flex>
-        </Center>
-      )}
+                    <Text fontSize="28px" fontWeight="bold" mb="4">
+                      Product Description
+                    </Text>
+
+                    <Text
+                      color="#6e6e6e"
+                      mb="16px"
+                      bg="#e9ecef"
+                      w="100%"
+                      h="auto"
+                      p="3"
+                    >
+                      {product.postContent}
+                    </Text>
+                    <Text as="i" fontSize="sm" color="#6e6e6e">
+                      {product.tag}
+                    </Text>
+                    <Text
+                      fontSize="50px"
+                      fontWeight="bold"
+                      color="red.500"
+                      mb="2"
+                    >
+                      Price: P{product.price}
+                    </Text>
+
+                    <HStack spacing="4">
+                      <Button
+                        onClick={() => addToCart(product)}
+                        colorScheme="teal"
+                      >
+                        Add to Wishlist
+                      </Button>
+                      <Button
+                        onClick={() => addToCart(product)}
+                        colorScheme="blue"
+                      >
+                        Buy Now
+                      </Button>
+                    </HStack>
+                  </VStack>
+                  {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
+                </Box>
+              </Flex>
+            </Box>
+          </Center>
+        )}
+      </Box>
     </>
   );
 };

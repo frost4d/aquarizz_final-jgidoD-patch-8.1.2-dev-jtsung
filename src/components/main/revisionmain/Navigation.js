@@ -1,4 +1,5 @@
 import "./Navigation.css";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
@@ -7,6 +8,7 @@ import {
   Heading,
   Input,
   Button,
+  Badge,
   Grid,
   GridItem,
   Card,
@@ -56,6 +58,14 @@ const Navigation = () => {
   const secondaryFont = '"Montserrat", sans-serif';
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
+
+  const [cartItemCount, setCartItemCount] = useState(0);
+
+  const incrementBadgeCount = () => {
+    setCartItemCount(cartItemCount + 1);
+  };
+  
+
 
   const handleLogout = async () => {
     if (!user) return;
@@ -118,13 +128,13 @@ const Navigation = () => {
               </Button>
             </NavLink>
 
-            <NavLink
+            {/* <NavLink
               className={({ isActive }) =>
                 isActive ? "navlink_isActive" : "navlink_inactive"
               }
-              to="/discover"
+              to="/CartList"
             >
-              <Button
+              <Button 
                 borderRadius="0"
                 // variant="ghost"
                 color="#000"
@@ -132,7 +142,21 @@ const Navigation = () => {
               >
                 
               </Button>
-            </NavLink>
+            </NavLink> */}
+
+            <NavLink to="/CartPage">
+            <Button
+              borderRadius="0"
+              color="#000"
+              rightIcon={
+                <Badge colorScheme="red" borderRadius="full" px="2">
+                  {cartItemCount}
+                </Badge>
+              }
+            >
+              <ShoppingCart size={16} />
+            </Button>
+          </NavLink>
 
             {userProfile ? (
               <>

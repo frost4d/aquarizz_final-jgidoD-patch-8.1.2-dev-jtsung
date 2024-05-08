@@ -17,7 +17,9 @@ import Create from "./components/main/revisionmain/listing/Create.js";
 import Discover from "./components/main/revisionmain/Discover.js";
 import Shop from "./components/main/revisionmain/Shop.js";
 import AddToCartPage from "./components/main/revisionmain/AddToCartPage.js";
-
+import CartItem from "./components/main/revisionmain/CartItem.js";
+import CartListPage from "./components/main/revisionmain/CartListPage.js";
+import CartPage from "./components/main/revisionmain/CartPage.js";
 function App() {
   return (
     <>
@@ -30,6 +32,9 @@ function App() {
             <Route path="/discover" element={<Discover />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/AddToCart/:id" element={<AddToCartPage />} />
+            <Route path="/CartItem/:id" element={<CartItem />} />
+            <Route path="/CartList" element={<CartListPage />} />
+            <Route path="/CartPage" element={<CartPage />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
 
