@@ -64,8 +64,6 @@ const Navigation = () => {
   const incrementBadgeCount = () => {
     setCartItemCount(cartItemCount + 1);
   };
-  
-
 
   const handleLogout = async () => {
     if (!user) return;
@@ -145,18 +143,18 @@ const Navigation = () => {
             </NavLink> */}
 
             <NavLink to="/CartPage">
-            <Button
-              borderRadius="0"
-              color="#000"
-              rightIcon={
-                <Badge colorScheme="red" borderRadius="full" px="2">
-                  {cartItemCount}
-                </Badge>
-              }
-            >
-              <ShoppingCart size={16} />
-            </Button>
-          </NavLink>
+              <Button
+                borderRadius="0"
+                color="#000"
+                rightIcon={
+                  <Badge colorScheme="red" borderRadius="full" px="2">
+                    {cartItemCount}
+                  </Badge>
+                }
+              >
+                <ShoppingCart size={16} />
+              </Button>
+            </NavLink>
 
             {userProfile ? (
               <>
@@ -166,6 +164,9 @@ const Navigation = () => {
                     <MenuGroup title="Profile">
                       <MenuItem>My Account</MenuItem>
                       <MenuItem>My Shop</MenuItem>
+                      <MenuItem>
+                        <Link to="/ItemStatusPage">Check Item Status</Link>
+                      </MenuItem>
                     </MenuGroup>
                     <MenuDivider />
                     <MenuGroup title="Support">

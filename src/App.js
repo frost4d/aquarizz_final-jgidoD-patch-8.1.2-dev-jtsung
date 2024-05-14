@@ -20,6 +20,9 @@ import AddToCartPage from "./components/main/revisionmain/AddToCartPage.js";
 import CartItem from "./components/main/revisionmain/CartItem.js";
 import CartListPage from "./components/main/revisionmain/CartListPage.js";
 import CartPage from "./components/main/revisionmain/CartPage.js";
+import ItemStatusPage from "./components/main/revisionmain/ItemStatusPage.js";
+import CheckoutDetailsPage from "./components/main/revisionmain/CheckoutDetailsPage.js";
+import PaymentPage from "./components/main/revisionmain/PaymentPage.js";
 function App() {
   return (
     <>
@@ -35,6 +38,9 @@ function App() {
             <Route path="/CartItem/:id" element={<CartItem />} />
             <Route path="/CartList" element={<CartListPage />} />
             <Route path="/CartPage" element={<CartPage />} />
+            <Route path="/ItemStatusPage" element={<ItemStatusPage />} />
+            <Route path="/checkout" element={<CheckoutDetailsPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
 

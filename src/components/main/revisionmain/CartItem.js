@@ -1,7 +1,7 @@
 import React from "react";
 import { VStack, Text, List, ListItem, Button, Image, Flex, Divider } from "@chakra-ui/react";
 
-const CartItem = ({ item, onRemove }) => {
+const CartItem = ({ item, onRemove, isChecked, onCheckboxChange }) => {
   const handleRemove = () => {
     // Call the onRemove function with the item's id to remove it permanently
     onRemove(item.id);
