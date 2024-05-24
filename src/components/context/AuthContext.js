@@ -58,15 +58,20 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const getPosts = async () => {
-    const collectionRef = collection(db, "posts");
-    const querySnapshot = await getDocs(
-      query(collectionRef, orderBy("createdAt", "desc"))
-    );
-    let tempVar = [];
-    querySnapshot.forEach((doc) => {
-      tempVar.push(doc.data());
-      setPosts(tempVar);
-    });
+    try {
+      const collectionRef = collection(db, "posts");
+      const querySnapshot = await getDocs(
+        query(collectionRef, orderBy("createdAt", "desc"))
+      );
+      let tempVar = [];
+      querySnapshot.forEach((doc) => {
+        tempVar.push(doc.data());
+        setPosts(tempVar);
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+
     // console.log(posts);
   };
 

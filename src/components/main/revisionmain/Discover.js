@@ -36,13 +36,17 @@ const Discover = () => {
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
-      const postsCollection = collection(db, "discover");
-      const querySnapshot = await getDocs(postsCollection);
-      const tempPosts = [];
-      querySnapshot.forEach((doc) => {
-        tempPosts.push({ id: doc.id, ...doc.data() });
-      });
-      setDiscoverPosts(tempPosts);
+      try {
+        const postsCollection = collection(db, "discover");
+        const querySnapshot = await getDocs(postsCollection);
+        const tempPosts = [];
+        querySnapshot.forEach((doc) => {
+          tempPosts.push({ id: doc.id, ...doc.data() });
+        });
+        setDiscoverPosts(tempPosts);
+      } catch (err) {
+        console.log(err.message);
+      }
     };
     fetchDiscoverPosts();
   }, []);
@@ -135,7 +139,12 @@ const Discover = () => {
               flexWrap="wrap"
             >
               {discoverPosts.map((post) => (
-                <Card key={post.id} w="400px" h="600px" border="1px solid #e1e1e1">
+                <Card
+                  key={post.id}
+                  w="400px"
+                  h="600px"
+                  border="1px solid #e1e1e1"
+                >
                   <CardBody>
                     <Flex>
                       <Box w="100%">
