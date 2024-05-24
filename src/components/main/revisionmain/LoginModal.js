@@ -47,7 +47,7 @@ const LoginModal = (props) => {
       switch (err.code) {
         case "auth/invalid-credential":
           toast({
-            title: "Sorry, ",
+            title: "Invalid Credentials",
             description: "Please check your email and password",
             status: "error",
             duration: 5000,
