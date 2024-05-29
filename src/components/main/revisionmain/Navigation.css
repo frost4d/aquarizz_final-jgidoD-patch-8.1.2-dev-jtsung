@@ -1,7 +1,22 @@
-.navbarButtons > * {
+.navbarButtons__dashboard > * {
   margin: 0 24px;
 }
 
 .navlink_isActive {
   border-bottom: 2px solid #ffc947;
+}
+
+@media only screen and (max-width: 950px) {
+  .navWrapper__dashboard .navbarButtons__dashboard {
+    display: none;
+  }
+}
+
+@media only screen and (min-width: 950px) {
+  .mainWrapper .navbarMobiles {
+    display: none;
+  }
+}
+
+.mainWrapper .navbarMobiles .navlink_isActive__mobile {
 }

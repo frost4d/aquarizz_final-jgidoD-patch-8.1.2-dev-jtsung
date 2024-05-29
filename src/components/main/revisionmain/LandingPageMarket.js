@@ -27,6 +27,11 @@ import {
   MenuItem,
   MenuGroup,
   MenuDivider,
+  Drawer,
+  DrawerOverlay,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
 } from "@chakra-ui/react";
 import {
   User,
@@ -38,13 +43,13 @@ import {
   Mail,
   Twitter,
 } from "react-feather";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import LoginModal from "./LoginModal";
 import { UserAuth } from "../../context/AuthContext";
 import Navigation from "./Navigation";
 import SearchInput from "./components/SearchInput";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
@@ -56,6 +61,8 @@ const LandingPageMarket = () => {
   const navigate = useNavigate();
   const [isUser, setIsUser] = useState(false);
   const { user, userProfile } = UserAuth();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  // const [windowSize, setWindowSize] = useState();
   const {
     register,
     handleSubmit,
@@ -68,8 +75,20 @@ const LandingPageMarket = () => {
     setIsUser(true);
   };
 
+  // const getWindowWidth = () => {
+  //   const { innerWidth: width } = window;
+  //   return width;
+  // };
+
   useEffect(() => {
     checkUser();
+
+    // function handleResize() {
+    //   setWindowSize(getWindowWidth());
+    // }
+
+    // window.addEventListener("resize", handleResize);
+    // return () => window.removeEventListener("resize", handleResize);
   }, []);
   const handleLogout = async () => {
     if (!user) return;
@@ -84,9 +103,6 @@ const LandingPageMarket = () => {
   const handleSearchClick = (data) => {
     console.log(data);
   };
-
-  console.log(user);
-
   return (
     <>
       <Box
@@ -115,30 +131,35 @@ const LandingPageMarket = () => {
             w="100%"
             mr="42px"
           >
-            <Button
-              variant="ghost"
-              color="#000"
-              rightIcon={<ShoppingBag size={16} />}
-              _hover={{ bg: "rgba(255,255,255,.3)" }}
-              onClick={() => {
-                navigate("/shop");
-              }}
-            >
-              Shop
-            </Button>
-            <Button
-              variant="ghost"
-              color="#000"
-              rightIcon={<Compass size={16} />}
-              _hover={{
-                bg: "rgba(255,255,255,.3)",
-              }}
-              onClick={() => {
-                navigate("/discover");
-              }}
-            >
-              Discover
-            </Button>
+            <NavLink to="/shop">
+              <Button
+                variant="ghost"
+                color="#000"
+                rightIcon={<ShoppingBag size={16} />}
+                _hover={{ bg: "rgba(255,255,255,.3)" }}
+                // onClick={() => {
+                //   navigate("/shop");
+                // }}
+              >
+                Shop
+              </Button>
+            </NavLink>
+
+            <NavLink to="discover">
+              <Button
+                variant="ghost"
+                color="#000"
+                rightIcon={<Compass size={16} />}
+                _hover={{
+                  bg: "rgba(255,255,255,.3)",
+                }}
+                // onClick={() => {
+                //   navigate("/discover");
+                // }}
+              >
+                Discover
+              </Button>
+            </NavLink>
 
             {userProfile ? (
               <>
@@ -182,7 +203,7 @@ const LandingPageMarket = () => {
               bg={primaryColor}
               color="#000"
               rightIcon={<Edit size={16} />}
-              _hover={{ bg: "rgba(255,255,255,.3)" }}
+              _hover={{ bg: "#ffd36b" }}
               onClick={() => {
                 user ? (
                   navigate("/shop")
@@ -200,6 +221,114 @@ const LandingPageMarket = () => {
               Create listing
             </Button>
           </Flex>
+          <Box className="navbarMobiles" mr="42px">
+            <Button color="#000" onClick={onOpen} variant="ghost">
+              <HamburgerIcon size={32} />
+            </Button>
+            <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
+              <DrawerOverlay />
+              <DrawerContent>
+                <DrawerHeader>
+                  <Flex
+                    flexDirection="column"
+                    justify="center"
+                    align="center"
+                    my="14px"
+                  >
+                    <Flex
+                      justify="center"
+                      align="center"
+                      h="100px"
+                      w="100px"
+                      bg="gray.300"
+                      borderRadius="50%"
+                    >
+                      <User color="#ffff" size={60} />
+                    </Flex>
+                    <Box mt="12px">
+                      {!userProfile ? (
+                        <Text fontSize="md">Please login to continue</Text>
+                      ) : (
+                        <Menu>
+                          <MenuButton>{userProfile.email}</MenuButton>
+                          <MenuList>
+                            <MenuGroup title="Profile">
+                              <MenuItem>My Account</MenuItem>
+                              <MenuItem>My Shop</MenuItem>
+                            </MenuGroup>
+                            <MenuDivider />
+                            <MenuGroup title="Support">
+                              <MenuItem>Contact Us</MenuItem>
+                              <MenuItem>FAQs</MenuItem>
+                              <MenuItem>Return & Exchanges</MenuItem>
+                              <MenuItem>Privacy Policy</MenuItem>
+                              <MenuItem>Terms of Service</MenuItem>
+                            </MenuGroup>
+                            <MenuDivider />
+                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                          </MenuList>
+                        </Menu>
+                      )}
+                    </Box>
+                  </Flex>
+                </DrawerHeader>
+                <DrawerBody>
+                  <Flex w="100%" align="start" flexDirection="column">
+                    <Button
+                      variant="ghost"
+                      color="#000"
+                      leftIcon={<ShoppingBag size={20} />}
+                      _hover={{ bg: "rgba(255,255,255,.3)" }}
+                      onClick={() => {
+                        navigate("/shop");
+                      }}
+                      size="lg"
+                    >
+                      Shop
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      color="#000"
+                      leftIcon={<Compass size={20} />}
+                      _hover={{
+                        bg: "rgba(255,255,255,.3)",
+                      }}
+                      onClick={() => {
+                        navigate("/discover");
+                      }}
+                      size="lg"
+                    >
+                      Discover
+                    </Button>
+
+                    <Button
+                      w="100%"
+                      bg={primaryColor}
+                      color="#000"
+                      leftIcon={<Edit size={16} />}
+                      _hover={{ bg: "rgba(255,255,255,.3)" }}
+                      onClick={() => {
+                        user ? (
+                          navigate("/shop")
+                        ) : (
+                          <>
+                            {loginModal.onOpen()}
+                            <LoginModal
+                              isOpen={loginModal.isOpen}
+                              onClose={loginModal.onClose}
+                            />
+                          </>
+                        );
+                      }}
+                      size="lg"
+                    >
+                      Create listing
+                    </Button>
+                  </Flex>
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
+          </Box>
         </Flex>
         <Box className="contentWrapper">
           <Box className="titleText" textAlign="center" p="120px 0" w="100%">
@@ -238,22 +367,22 @@ const LandingPageMarket = () => {
                 Become a part now!
               </Button>
             </Box>
-            <Box w="100%">
-              <Box>
+            <Box w="100%" className="info">
+              {/* <Box>
                 <Image
                   h="560px"
                   src={require("../../../assets/contentInfo.png")}
                 />
-              </Box>
+              </Box> */}
             </Box>
-            <Image
+            {/* <Image
               position="absolute"
               bottom="-50px"
               right="-20px"
               h="500px"
               zIndex="-1"
               src={require("../../../assets/fish swimming(1).png")}
-            />
+            /> */}
           </Flex>
           <SearchInput />
 

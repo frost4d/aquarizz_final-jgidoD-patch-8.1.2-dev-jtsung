@@ -131,9 +131,7 @@ const Shop = () => {
                     </CardHeader>
                     <CardBody>
                       <Flex className="cardContent">
-                        <Box w="100%"
-                        className="imageWrapper"
-                        >
+                        <Box w="100%" className="imageWrapper">
                           <Image
                             objectFit="cover"
                             w="300px"
@@ -160,10 +158,13 @@ const Shop = () => {
                       </Flex>
                     </CardBody>
                     <Box m="0 16px 32px 24px">
-                      <Button bg={primaryColor} w="100%" 
-                      onClick={() => {
-                        navigate("/AddToCart/" + post.id);
-                      }}>
+                      <Button
+                        bg={primaryColor}
+                        w="100%"
+                        onClick={() => {
+                          navigate("/AddToCart/" + post.id);
+                        }}
+                      >
                         View Product
                       </Button>
                     </Box>
