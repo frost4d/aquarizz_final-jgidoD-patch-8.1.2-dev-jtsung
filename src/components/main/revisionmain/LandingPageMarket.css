@@ -76,9 +76,9 @@
   background-color: #fff;
 }
 
-.footerWrapper > * {
+/* .footerWrapper > * {
   margin: 24px 70px;
-}
+} */
 
 .socialLink > * {
   margin: 12px 12px 0 0;
@@ -105,6 +105,14 @@
   background-size: 100%;
   height: 26em;
 }
+.footer__imageWrapper {
+  background: url("../../../assets//logo2.png") no-repeat;
+  height: 35px;
+  width: 31em;
+  background-position: center;
+}
+.footer__interaction {
+}
 
 @media only screen and (max-width: 1140px) {
   .info {
@@ -123,6 +131,21 @@
 
 @media only screen and (min-width: 950px) {
   .mainWrapper .navbarMobiles {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .footerWrapper {
+    flex-direction: column-reverse;
+  }
+  .footerWrapper .footer__interaction {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 350px) {
+  .footer__imageWrapper {
     display: none;
   }
 }

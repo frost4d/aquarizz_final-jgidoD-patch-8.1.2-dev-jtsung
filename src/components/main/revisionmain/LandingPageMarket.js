@@ -32,6 +32,12 @@ import {
   DrawerBody,
   DrawerContent,
   DrawerHeader,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
+  background,
 } from "@chakra-ui/react";
 import {
   User,
@@ -476,70 +482,124 @@ const LandingPageMarket = () => {
         <Flex
           className="footerWrapper"
           bg="#efefef"
-          justify="space-evenly"
           align="center"
+          justify="space-evenly"
+          flexWrap="wrap"
+          border="1px solid red"
         >
-          <Box>
-            <Box mb="16px">
-              <Image
-                src={require("../../../assets/logo2.png")}
-                alt="aquarizz-logo"
-              />
-            </Box>
+          <Flex
+            className="footerContents"
+            flexWrap="wrap"
+            align="center"
+            justify="center"
+            flexDirection="column"
+            flex="1"
+          >
+            <Flex align="center" justify="center" mt="12px" w="100%">
+              <Box className="footer__imageWrapper" mb="16px"></Box>
+            </Flex>
             <Box className="addressWrapper">
               <Text fontSize="xs" color="#333333">
-                Gordon College
+                Gordon College, Olongapo City
               </Text>
-              <Text fontSize="xs" color="#333333">
-                Olongapo City
-              </Text>
+              {/* <Text fontSize="xs" color="#333333">
+                
+              </Text> */}
+              <Flex
+                flexWrap="wrap"
+                className="socialLink"
+                justify="space-evenly"
+                align="center"
+              >
+                <Box>
+                  <Facebook size="18px" color="#3B5998" />
+                </Box>
+                <Box>
+                  <Mail size="18px" color="#FF0000" />
+                </Box>
+                <Box>
+                  <Twitter size="18px" color="#1DA1F2" />
+                </Box>
+              </Flex>
             </Box>
-            <Flex className="socialLink" justify="start" align="center">
-              <Box>
-                <Facebook size="18px" color="#3B5998" />
-              </Box>
-              <Box>
-                <Mail size="18px" color="#FF0000" />
-              </Box>
-              <Box>
-                <Twitter size="18px" color="#1DA1F2" />
+          </Flex>
+
+          <Flex
+            className="footer__interaction"
+            flex="1"
+            justify="space-between"
+            align="center"
+          >
+            <Flex flexDirection="column" ml="32px">
+              <Heading fontSize="xl" my="8px">
+                Shop
+              </Heading>
+              <Box className="shopLink">
+                <Text color="#333333" fontSize="sm">
+                  Fish
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  Accessories
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  Feeds
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  Aquarium
+                </Text>
               </Box>
             </Flex>
+            <Flex className="supportLink" flexDirection="column" mr="32px">
+              <Heading fontSize="xl" my="8px">
+                About Us
+              </Heading>
+              <Box>
+                <Text color="#333333" fontSize="sm">
+                  Contact Us
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  FAQs
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  Returns & Exchanges
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  Privacy Policy
+                </Text>
+                <Text color="#333333" fontSize="sm">
+                  Terms of Service
+                </Text>
+              </Box>
+            </Flex>
+          </Flex>
+
+          <Box className="footer_accordion">
+            <Accordion defaultIndex={[0]} allowMultiple>
+              <AccordionItem>
+                <AccordionButton _hover={{ bg: "none" }}>
+                  <Heading size="md">Shop</Heading>
+
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel>
+                  <Box className="shopLink">
+                    <Text color="#333333" fontSize="sm">
+                      Fish
+                    </Text>
+                    <Text color="#333333" fontSize="sm">
+                      Accessories
+                    </Text>
+                    <Text color="#333333" fontSize="sm">
+                      Feeds
+                    </Text>
+                    <Text color="#333333" fontSize="sm">
+                      Aquarium
+                    </Text>
+                  </Box>
+                </AccordionPanel>
+              </AccordionItem>
+            </Accordion>
           </Box>
-          <Flex flexDirection="column" align="start">
-            <Heading fontSize="xl">Shop</Heading>
-            <Box className="shopLink">
-              <Text color="#333333" fontSize="xs">
-                Fish
-              </Text>
-              <Text color="#333333" fontSize="xs">
-                Accessories
-              </Text>
-              <Text color="#333333" fontSize="xs">
-                Feeds
-              </Text>
-              <Text color="#333333" fontSize="xs">
-                Aquarium
-              </Text>
-            </Box>
-          </Flex>
-          <Flex className="supportLink" flexDirection="column">
-            <Text color="#333333" fontSize="xs">
-              Contact Us
-            </Text>
-            <Text color="#333333" fontSize="xs">
-              FAQs
-            </Text>
-            <Text color="#333333" fontSize="xs">
-              Returns & Exchanges
-            </Text>
-            <Text color="#333333" fontSize="xs">
-              Privacy Policy
-            </Text>
-            <Text color="#333333" fontSize="xs">
-              Terms of Service
-            </Text>
-          </Flex>
         </Flex>
       </Box>
     </>
