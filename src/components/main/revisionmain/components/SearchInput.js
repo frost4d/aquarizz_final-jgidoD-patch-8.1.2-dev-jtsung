@@ -2,7 +2,7 @@ import { Box, Flex, Button, Input } from "@chakra-ui/react";
 import { MapPin, Search } from "react-feather";
 import { useForm } from "react-hook-form";
 
-const SearchInput = () => {
+const SearchInput = ({ handleSearch }) => {
   const {
     register,
     handleSubmit,
@@ -11,7 +11,7 @@ const SearchInput = () => {
   } = useForm();
 
   const handleSearchClick = (data) => {
-    console.log(data);
+    handleSearch(data.search, data.location);
   };
   return (
     <>

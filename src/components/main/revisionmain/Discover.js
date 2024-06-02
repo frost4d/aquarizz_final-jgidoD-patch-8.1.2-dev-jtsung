@@ -31,6 +31,8 @@ const Discover = () => {
   const addDiscover = useDisclosure();
   const toast = useToast();
   const [discoverPosts, setDiscoverPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
 
@@ -43,12 +45,17 @@ const Discover = () => {
         tempPosts.push({ id: doc.id, ...doc.data() });
       });
       setDiscoverPosts(tempPosts);
+      setFilteredPosts(tempPosts);
     };
     fetchDiscoverPosts();
   }, []);
 
-  const handleSearchDiscover = (data) => {
-    console.log(data);
+  const handleSearchDiscover = (e) => {
+    e.preventDefault();
+    const filtered = discoverPosts.filter((post) =>
+      post.tag.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPosts(filtered);
   };
 
   const handleAddDiscover = (formData) => {
@@ -57,6 +64,8 @@ const Discover = () => {
     const docRef = addDoc(collection(db, "discover"), formData);
     // For example, you can update the discoverPosts state with the new data
     setDiscoverPosts([...discoverPosts, formData]);
+    // setDiscoverPosts([...discoverPosts, { id: docRef.id, ...formData }]);
+    // setFilteredPosts([...discoverPosts, { id: docRef.id, ...formData }]);
     addDiscover.onClose(); // Close the modal after submitting
     toast({
       title: "Post Created.",
@@ -120,7 +129,8 @@ const Discover = () => {
             <Flex w="100%" justify="center" p="12px 24px">
               <form onSubmit={handleSearchDiscover}>
                 <Flex w="100%" justify="space-between">
-                  <Input borderRadius="24px" placeholder="Search" />
+                  <Input borderRadius="24px" placeholder="Search" value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)} />
                   <Button p="12px 24px" type="submit" borderRadius="24px">
                     Search
                   </Button>
@@ -134,7 +144,7 @@ const Discover = () => {
               align="center"
               flexWrap="wrap"
             >
-              {discoverPosts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Card key={post.id} w="400px" h="600px" border="1px solid #e1e1e1">
                   <CardBody>
                     <Flex>
@@ -160,8 +170,11 @@ const Discover = () => {
                         {/* {post.createdAt.toDate().toLocaleString()} */}
                       </Text>
                     </Flex>
+                    <Text fontSize="sm" color="#6e6e6e" mt="12px">
+                      Tag: {post.tag}
+                    </Text>
                     <Box mt="12px">
-                      <Text fontSize="sm" color="#6e6e6e">
+                      <Text fontSize="sm" color="#6e6e6e" className="truncate" textAlign="justify">
                         {post.postContent}
                       </Text>
                     </Box>

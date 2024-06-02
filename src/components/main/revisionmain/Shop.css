@@ -18,3 +18,10 @@
   flex: 1;
   min-width: min(100%, 20em);
 }
+
+.truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

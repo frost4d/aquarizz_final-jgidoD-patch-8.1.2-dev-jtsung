@@ -23,6 +23,8 @@ import CartPage from "./components/main/revisionmain/CartPage.js";
 import ItemStatusPage from "./components/main/revisionmain/ItemStatusPage.js";
 import CheckoutDetailsPage from "./components/main/revisionmain/CheckoutDetailsPage.js";
 import PaymentPage from "./components/main/revisionmain/PaymentPage.js";
+import FilteredItemsPage from "./components/main/revisionmain/FilteredItemsPage.js";
+
 function App() {
   return (
     <>
@@ -30,6 +32,7 @@ function App() {
         <ChakraProvider>
           <Routes>
             <Route path="/" element={<MarketPage />} />
+            <Route path="/category/:categoryName" element={<FilteredItemsPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
             <Route path="/discover" element={<Discover />} />

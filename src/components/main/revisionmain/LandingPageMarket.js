@@ -63,6 +63,10 @@ const LandingPageMarket = () => {
     formState: { errors },
   } = useForm();
 
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/category/${categoryName}`);
+  };
+
   const checkUser = () => {
     if (!user) return;
     setIsUser(true);
@@ -268,7 +272,7 @@ const LandingPageMarket = () => {
               flexWrap="wrap"
               flexGrow="shrink"
             >
-              <Box className="fishWrapper">
+              <Box className="fishWrapper" onClick={() => handleCategoryClick('Fish')} cursor="pointer">
                 <Box overflow="hidden">
                   <Image
                     h="400px"
@@ -287,7 +291,7 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="decorWrapper">
+              <Box className="decorWrapper" onClick={() => handleCategoryClick('Accessories')} cursor="pointer">
                 <Box overflow="hidden">
                   <Image
                     h="400px"
@@ -305,7 +309,7 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="feedsWrapper">
+              <Box className="feedsWrapper" onClick={() => handleCategoryClick('Feeds')} cursor="pointer">
                 <Box overflow="hidden">
                   <Image
                     h="400px"
@@ -323,7 +327,7 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="aquariumWrapper">
+              <Box className="aquariumWrapper" onClick={() => handleCategoryClick('Aquarium')} cursor="pointer">
                 <Box overflow="hidden">
                   <Image
                     h="400px"
