@@ -28,6 +28,7 @@ import { UserAuth } from "../../context/AuthContext";
 import { Plus } from "react-feather";
 import Create from "./listing/Create";
 import { formatDistanceToNow } from "date-fns";
+import Footer from "./Footer";
 const Shop = () => {
   const { user } = UserAuth();
   const addShop = useDisclosure();
@@ -74,7 +75,7 @@ const Shop = () => {
 
   return (
     <>
-      <Box>
+      <Box h="100vh" overflowY="auto">
         <Navigation />
         <Flex justify="space-between" p="0 86px 0 64px">
           <Heading fontFamily={primaryFont}>Shop</Heading>
@@ -174,6 +175,7 @@ const Shop = () => {
           </Flex>
         </Box>
       </Box>
+      <Footer />
     </>
   );
 };

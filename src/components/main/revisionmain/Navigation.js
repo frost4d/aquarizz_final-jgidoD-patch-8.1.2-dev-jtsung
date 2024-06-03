@@ -89,7 +89,6 @@ const Navigation = () => {
           as="nav"
           align="center"
           justify="space-between"
-          p="32px 64px"
         >
           <Box
             className="logoWrapper"
@@ -97,8 +96,12 @@ const Navigation = () => {
               window.location.reload();
             }}
             cursor="pointer"
+            ml="-24px"
           >
-            <Image src={logo} />
+            <Image
+              src={require("../../../assets/logo.svg").default}
+              alt="aquarizz-logo"
+            />
           </Box>
           <Flex
             className="navbarButtons__dashboard"
@@ -223,9 +226,9 @@ const Navigation = () => {
               Create listing
             </Button>
           </Flex>
-          <Box>
-            <Button onClick={onOpen}>
-              <HamburgerIcon />
+          <Box mr="42px">
+            <Button variant="ghost" onClick={onOpen}>
+              <HamburgerIcon size={32} mr="-48px" />
             </Button>
             <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
               <DrawerOverlay />

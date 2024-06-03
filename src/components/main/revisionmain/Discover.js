@@ -23,6 +23,7 @@ import { Plus } from "react-feather";
 import AddDiscoverModal from "./AddDiscoverModal";
 import { UserAuth } from "../../context/AuthContext";
 import { formatDistanceToNow } from "date-fns";
+import Footer from "./Footer";
 const Discover = () => {
   const { user } = UserAuth();
   const primaryColor = "#FFC947";
@@ -90,7 +91,7 @@ const Discover = () => {
 
   return (
     <>
-      <Box h="100vh">
+      <Box h="100vh" overflowY="auto">
         <Navigation />
         <Flex justify="space-between" p="0 86px 0px 64px">
           <Heading>Discover</Heading>
@@ -181,6 +182,7 @@ const Discover = () => {
           </Flex>
         </Box>
       </Box>
+      <Footer />
     </>
   );
 };

@@ -22,6 +22,7 @@ import { useParams, Routes, Route } from "react-router-dom";
 import CartItem from "./CartItem";
 import CartListPage from "./CartListPage";
 import Navigation from "./Navigation";
+import Footer from "./Footer";
 
 const AddToCartPage = ({ route }) => {
   const { id } = useParams(); // Get the product ID from the URL
@@ -42,7 +43,6 @@ const AddToCartPage = ({ route }) => {
     localStorage.setItem("wishlist", JSON.stringify(updatedItems));
     setCartItems(updatedItems);
   };
-  
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -184,6 +184,7 @@ const AddToCartPage = ({ route }) => {
           </Center>
         )}
       </Box>
+      <Footer />
     </>
   );
 };

@@ -59,6 +59,7 @@ import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
+import Footer from "./Footer";
 const LandingPageMarket = () => {
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -81,20 +82,8 @@ const LandingPageMarket = () => {
     setIsUser(true);
   };
 
-  // const getWindowWidth = () => {
-  //   const { innerWidth: width } = window;
-  //   return width;
-  // };
-
   useEffect(() => {
     checkUser();
-
-    // function handleResize() {
-    //   setWindowSize(getWindowWidth());
-    // }
-
-    // window.addEventListener("resize", handleResize);
-    // return () => window.removeEventListener("resize", handleResize);
   }, []);
   const handleLogout = async () => {
     if (!user) return;
@@ -117,14 +106,8 @@ const LandingPageMarket = () => {
         fontFamily={primaryFont}
         overflowY="auto"
       >
-        {/* <Navigation /> */}
-        <Flex
-          justify="space-between"
-          align="center"
-          className="navWrapper"
-          pt="32px"
-        >
-          <Box w="100%" onClick={() => navigate("/")} cursor="pointer">
+        <Flex justify="space-between" align="center" className="navWrapper">
+          <Box onClick={() => navigate("/")} cursor="pointer" ml="-24px">
             <Image
               src={require("../../../assets/logo.svg").default}
               alt="aquarizz-logo"
@@ -134,8 +117,7 @@ const LandingPageMarket = () => {
             className="navbarButtons"
             justify="end"
             align="center"
-            w="100%"
-            mr="42px"
+            mr="24px"
           >
             <NavLink to="/shop">
               <Button
@@ -159,9 +141,6 @@ const LandingPageMarket = () => {
                 _hover={{
                   bg: "rgba(255,255,255,.3)",
                 }}
-                // onClick={() => {
-                //   navigate("/discover");
-                // }}
               >
                 Discover
               </Button>
@@ -229,7 +208,7 @@ const LandingPageMarket = () => {
           </Flex>
           <Box className="navbarMobiles" mr="42px">
             <Button color="#000" onClick={onOpen} variant="ghost">
-              <HamburgerIcon size={32} />
+              <HamburgerIcon size={32} mr="-48px" />
             </Button>
             <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
               <DrawerOverlay />
@@ -253,7 +232,13 @@ const LandingPageMarket = () => {
                     </Flex>
                     <Box mt="12px">
                       {!userProfile ? (
-                        <Text fontSize="md">Please login to continue</Text>
+                        <Button
+                          variant="link"
+                          fontSize="md"
+                          onClick={loginModal.onOpen}
+                        >
+                          Please&nbsp;<u>login</u>&nbsp;to continue
+                        </Button>
                       ) : (
                         <Menu>
                           <MenuButton>{userProfile.email}</MenuButton>
@@ -337,7 +322,7 @@ const LandingPageMarket = () => {
           </Box>
         </Flex>
         <Box className="contentWrapper">
-          <Box className="titleText" textAlign="center" p="120px 0" w="100%">
+          <Box className="titleText" textAlign="center" p="56px 12px" w="100%">
             <Heading fontFamily={primaryFont} fontWeight="600">
               Connecting for the love of having a healthy fish.
             </Heading>
@@ -381,20 +366,23 @@ const LandingPageMarket = () => {
                 />
               </Box> */}
             </Box>
-            {/* <Image
-              position="absolute"
-              bottom="-50px"
-              right="-20px"
-              h="500px"
-              zIndex="-1"
-              src={require("../../../assets/fish swimming(1).png")}
-            /> */}
           </Flex>
-          <SearchInput />
 
-          <Box my="32px" w="100%" textAlign="center">
+          {/* <Box className="cardWrapper__mobile" overflow="none">
+            <Heading className="slidingContent" size="lg">
+              A modern social media community that enables people to shop,
+              discover, and sell for your fishkeeping!
+            </Heading>
+          </Box> */}
+          <Box className="searchbarWrapper">
+            <SearchInput />
+          </Box>
+
+          <Box className="searchBoxes" my="32px" w="100%" textAlign="center">
             <Box my="56px">
-              <Heading fontFamily={primaryFont}>Explore the shop now!</Heading>
+              <Heading size="md" fontFamily={primaryFont}>
+                Explore the shop now!
+              </Heading>
             </Box>
             <Flex
               className="tagsWrapper"
@@ -403,18 +391,18 @@ const LandingPageMarket = () => {
               flexWrap="wrap"
               flexGrow="shrink"
             >
-              <Box className="fishWrapper">
-                <Box overflow="hidden">
+              <Box className="fishWrapper" mb="12px">
+                <Box overflow="hidden" borderRadius="4px">
                   <Image
-                    h="400px"
-                    w="300px"
+                    h="200px"
+                    w="200px"
                     objectFit="cover"
                     className="fish"
                     src={require("../../../assets/design/fishes.jpg")}
                   />
                 </Box>
 
-                <Heading fontSize="xl" mt="12px" color="#000">
+                <Heading fontSize="xl" mt="4px" color="#000">
                   Fish
                 </Heading>
                 <Flex justify="center" align="center">
@@ -422,17 +410,17 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="decorWrapper">
-                <Box overflow="hidden">
+              <Box className="decorWrapper" mb="12px">
+                <Box overflow="hidden" borderRadius="4px">
                   <Image
-                    h="400px"
-                    w="300px"
+                    h="200px"
+                    w="200px"
                     objectFit="cover"
                     className="decor"
                     src={require("../../../assets/design/decor.jpg")}
                   />
                 </Box>
-                <Heading fontSize="xl" mt="12px" color="#000">
+                <Heading fontSize="xl" mt="4px" color="#000">
                   Accessories
                 </Heading>
                 <Flex justify="center" align="center">
@@ -441,16 +429,16 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
               <Box className="feedsWrapper">
-                <Box overflow="hidden">
+                <Box overflow="hidden" borderRadius="4px">
                   <Image
-                    h="400px"
-                    w="300px"
+                    h="200px"
+                    w="200px"
                     objectFit="cover"
                     className="feeds"
                     src={require("../../../assets/design/feeds.jpg")}
                   />
                 </Box>
-                <Heading fontSize="xl" mt="12px" color="#000">
+                <Heading fontSize="xl" mt="4px" color="#000">
                   Feeds
                 </Heading>
                 <Flex justify="center" align="center">
@@ -459,16 +447,16 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
               <Box className="aquariumWrapper">
-                <Box overflow="hidden">
+                <Box overflow="hidden" borderRadius="4px">
                   <Image
-                    h="400px"
-                    w="300px"
+                    h="200px"
+                    w="200px"
                     objectFit="cover"
                     className="aquarium"
                     src={require("../../../assets/design/aquarium.png")}
                   />
                 </Box>
-                <Heading fontSize="xl" mt="12px" color="#000">
+                <Heading fontSize="xl" mt="4px" color="#000">
                   Aquarium
                 </Heading>
                 <Flex justify="center" align="center">
@@ -479,128 +467,7 @@ const LandingPageMarket = () => {
             </Flex>
           </Box>
         </Box>
-        <Flex
-          className="footerWrapper"
-          bg="#efefef"
-          align="center"
-          justify="space-evenly"
-          flexWrap="wrap"
-          border="1px solid red"
-        >
-          <Flex
-            className="footerContents"
-            flexWrap="wrap"
-            align="center"
-            justify="center"
-            flexDirection="column"
-            flex="1"
-          >
-            <Flex align="center" justify="center" mt="12px" w="100%">
-              <Box className="footer__imageWrapper" mb="16px"></Box>
-            </Flex>
-            <Box className="addressWrapper">
-              <Text fontSize="xs" color="#333333">
-                Gordon College, Olongapo City
-              </Text>
-              {/* <Text fontSize="xs" color="#333333">
-                
-              </Text> */}
-              <Flex
-                flexWrap="wrap"
-                className="socialLink"
-                justify="space-evenly"
-                align="center"
-              >
-                <Box>
-                  <Facebook size="18px" color="#3B5998" />
-                </Box>
-                <Box>
-                  <Mail size="18px" color="#FF0000" />
-                </Box>
-                <Box>
-                  <Twitter size="18px" color="#1DA1F2" />
-                </Box>
-              </Flex>
-            </Box>
-          </Flex>
-
-          <Flex
-            className="footer__interaction"
-            flex="1"
-            justify="space-between"
-            align="center"
-          >
-            <Flex flexDirection="column" ml="32px">
-              <Heading fontSize="xl" my="8px">
-                Shop
-              </Heading>
-              <Box className="shopLink">
-                <Text color="#333333" fontSize="sm">
-                  Fish
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  Accessories
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  Feeds
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  Aquarium
-                </Text>
-              </Box>
-            </Flex>
-            <Flex className="supportLink" flexDirection="column" mr="32px">
-              <Heading fontSize="xl" my="8px">
-                About Us
-              </Heading>
-              <Box>
-                <Text color="#333333" fontSize="sm">
-                  Contact Us
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  FAQs
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  Returns & Exchanges
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  Privacy Policy
-                </Text>
-                <Text color="#333333" fontSize="sm">
-                  Terms of Service
-                </Text>
-              </Box>
-            </Flex>
-          </Flex>
-
-          <Box className="footer_accordion">
-            <Accordion defaultIndex={[0]} allowMultiple>
-              <AccordionItem>
-                <AccordionButton _hover={{ bg: "none" }}>
-                  <Heading size="md">Shop</Heading>
-
-                  <AccordionIcon />
-                </AccordionButton>
-                <AccordionPanel>
-                  <Box className="shopLink">
-                    <Text color="#333333" fontSize="sm">
-                      Fish
-                    </Text>
-                    <Text color="#333333" fontSize="sm">
-                      Accessories
-                    </Text>
-                    <Text color="#333333" fontSize="sm">
-                      Feeds
-                    </Text>
-                    <Text color="#333333" fontSize="sm">
-                      Aquarium
-                    </Text>
-                  </Box>
-                </AccordionPanel>
-              </AccordionItem>
-            </Accordion>
-          </Box>
-        </Flex>
+        <Footer />
       </Box>
     </>
   );
