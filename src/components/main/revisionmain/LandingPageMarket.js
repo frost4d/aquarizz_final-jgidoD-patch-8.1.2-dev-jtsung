@@ -341,7 +341,7 @@ const LandingPageMarket = () => {
             m="0 auto"
             borderRadius="32px"
             p="81px 64px"
-            w="75%"
+            w="60%"
             className="cardWrapper"
             position="relative"
             overflow="hidden"

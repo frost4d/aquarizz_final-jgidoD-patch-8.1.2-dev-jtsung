@@ -108,7 +108,7 @@ const Footer = () => {
         </Flex>
 
         <Box className="footer_accordion">
-          <Accordion defaultIndex={[0]} allowMultiple>
+          <Accordion allowMultiple>
             <AccordionItem>
               <AccordionButton _hover={{ bg: "none" }}>
                 <Heading size="md">Shop</Heading>
@@ -132,8 +132,8 @@ const Footer = () => {
                 </Box>
               </AccordionPanel>
             </AccordionItem>
-          </Accordion>
-          <Accordion defaultIndex={[0]} allowMultiple>
+            {/* </Accordion> */}
+            {/* <Accordion defaultIndex={[0]} allowMultiple> */}
             <AccordionItem>
               <AccordionButton _hover={{ bg: "none" }}>
                 <Heading size="md">About us</Heading>
