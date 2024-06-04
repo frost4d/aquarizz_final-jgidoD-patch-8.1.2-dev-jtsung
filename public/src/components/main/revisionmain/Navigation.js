@@ -50,6 +50,7 @@ import logo from "../../../assets/logo2.png";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
+import Contact from "../../Contact";
 
 const Navigation = () => {
   const loginModal = useDisclosure();
@@ -58,6 +59,7 @@ const Navigation = () => {
   const secondaryFont = '"Montserrat", sans-serif';
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
@@ -162,7 +164,10 @@ const Navigation = () => {
                   <MenuButton>{userProfile.email}</MenuButton>
                   <MenuList>
                     <MenuGroup title="Profile">
-                      <MenuItem>My Account</MenuItem>
+                      <MenuItem onClick={() => {
+                    navigate(`/profile/${user.uid}`);
+                  }}
+                  icon={<User size={16} />}>My Account</MenuItem>
                       <MenuItem>My Shop</MenuItem>
                       <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
@@ -170,7 +175,8 @@ const Navigation = () => {
                     </MenuGroup>
                     <MenuDivider />
                     <MenuGroup title="Support">
-                      <MenuItem>Contact Us</MenuItem>
+                      <MenuItem onClick={() => setIsContactModalOpen(true)}>Contact Us</MenuItem>
+                      <Contact isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
                       <MenuItem>FAQs</MenuItem>
                       <MenuItem>Return & Exchanges</MenuItem>
                       <MenuItem>Privacy Policy</MenuItem>

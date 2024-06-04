@@ -119,7 +119,9 @@ const Shop = () => {
                 <ModalBody>Link to create listing</ModalBody>
               </ModalContent>
             </Modal>
-            <Button variant="ghost" color="#333333">
+            <Button variant="ghost" color="#333333"  onClick={() => {
+    navigate("/profile", { state: { shopPosts } });
+  }}>
               My Shop
             </Button>
           </Flex>

@@ -1,6 +1,7 @@
 import "./ProfilePage.css";
 import React, { useEffect, useRef, useState } from "react";
-import { Navigate, useNavigate, useParams, Link } from "react-router-dom";
+import { Navigate, useNavigate, useParams, Link, useLocation } from "react-router-dom";
+import Navigation from "./revisionmain/Navigation";
 import {
   collection,
   getDocs,
@@ -108,7 +109,7 @@ function EditableControls() {
 }
 
 function ProfilePage() {
-  const { userId, userProfile } = useParams();
+  const { userId } = useParams();
   // const { postId } = useParams();
   const { user } = UserAuth();
   const [userData, setUserData] = useState(null);
@@ -116,14 +117,13 @@ function ProfilePage() {
   const [newPassword, setNewPassword] = useState();
   const [profileImage, setProfileImage] = useState();
   const [imageUrl, setImageUrl] = useState();
-
   const navigate = useNavigate();
   const changePass = useDisclosure();
   const clear = useRef();
   const toast = useToast();
   const alert = useDisclosure();
   const profile = useDisclosure();
-
+  const [shopPosts, setShopPosts] = useState([]);
   const {
     register,
     reset,
@@ -192,21 +192,24 @@ function ProfilePage() {
     }
     reset();
   };
+
   useEffect(() => {
-    const getUserPosts = async () => {
-      const docRef = collection(db, "posts");
-      const docSnap = query(docRef, where("authorId", "==", userId));
+    const fetchUserShopPosts = async () => {
+      if (!userId) return;
+      const docRef = collection(db, "shop");
+      const docSnap = query(docRef, where("authorID", "==", userId));
       const postDataVar = await getDocs(docSnap);
-
       let tempArr = [];
-
-      let testData = postDataVar.forEach((doc) => {
+      postDataVar.forEach((doc) => {
         tempArr.push({ ...doc.data(), id: doc.id });
       });
-      setPostData(tempArr);
+      setShopPosts(tempArr);
     };
-    getUserPosts();
-  }, []);
+    fetchUserShopPosts();
+  }, [userId]);
+  
+  
+  
   const handleProfileChange = async (e) => {
     setProfileImage(e.target.files[0]);
     const imageRef = ref(
@@ -259,109 +262,10 @@ function ProfilePage() {
   return (
     <>
       <Box position="relative">
-        {/* <Box
-          zIndex="-2"
-          bg="#ededed"
-          h="100vh"
-          w="100vw"
-          position="absolute"
-        ></Box> */}
+      <Navigation />
         {userData && userData ? (
           <Box key={userData.id} zIndex="2">
-            <Box>
-              <Flex
-                className="navbar"
-                justify="space-between"
-                px="32px"
-                py="12px"
-                boxShadow="1px 0px 12px #aeaeae"
-                w="100vw"
-                overflow="hidden"
-                bg="#fff"
-              >
-                <Flex
-                  justify="center"
-                  align="center"
-                  onClick={() => {
-                    window.location.reload();
-                  }}
-                  cursor="pointer"
-                >
-                  <User size={32} />
-                  <Heading ml="12px" size="xl">
-                    Profile
-                  </Heading>
-                </Flex>
 
-                <Flex>
-                  <Menu>
-                    <MenuButton
-                      as={IconButton}
-                      variant="outline"
-                      icon={<HamburgerIcon />}
-                    ></MenuButton>
-                    <MenuList>
-                      <MenuItem
-                        onClick={() => {
-                          navigate("/dashboard");
-                        }}
-                        icon={<ShoppingCart size={16} />}
-                      >
-                        Buy/Sell
-                      </MenuItem>
-                      <Link to="/discover">
-                        <MenuItem icon={<Compass size={16} />}>
-                          Discover
-                        </MenuItem>
-                      </Link>
-
-                      <MenuDivider />
-                      <MenuGroup title="Account">
-                        {/* <MenuItem
-                          onClick={() => {
-                            navigate(`/profile/${user.uid}`);
-                          }}
-                          icon={<User size={16} />}
-                        >
-                          Profile
-                        </MenuItem> */}
-                        <MenuItem
-                          icon={<LogOut size={16} />}
-                          onClick={alert.onOpen}
-                        >
-                          Logout
-                          <AlertDialog
-                            isOpen={alert.isOpen}
-                            onClose={alert.onClose}
-                          >
-                            <AlertDialogOverlay />
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                Are you leaving?
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <Button
-                                  onClick={handleSignOut}
-                                  colorScheme="red"
-                                  mr="6px"
-                                >
-                                  Yes
-                                </Button>
-                                <Button ml="6px" onClick={alert.onClose}>
-                                  No
-                                </Button>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </MenuItem>
-                      </MenuGroup>
-                    </MenuList>
-                  </Menu>
-                </Flex>
-              </Flex>
-            </Box>
-
-            {/* ... display other user's information */}
             <Flex
               pt="24px"
               align="center"
@@ -535,7 +439,7 @@ function ProfilePage() {
                     </Text>
                     <Text>
                       <strong>Phone Number: </strong>
-                      {userData.phone}
+                      {userData.phoneNumber}
                     </Text>
                   </Box>
                 </Flex>
@@ -575,33 +479,6 @@ function ProfilePage() {
                                 onSubmit={handleSubmit(handleChangePassword)}
                               >
                                 <ModalBody>
-                                  {/* <Input
-                                    type="password"
-                                    placeholder="Enter old password"
-                                    {...register("currentPassword", {
-                                      required: true,
-                                      minLength: {
-                                        value: 6,
-                                        message:
-                                          "Password must be at least 6 characters.",
-                                      },
-                                    })}
-                                    aria-invalid={
-                                      errors.currentPassword ? " true" : "false"
-                                    }
-                                    id="currentPassword"
-                                  />
-                                  {errors.currentPassword?.type ===
-                                    "required" && (
-                                    <p
-                                      style={{
-                                        color: "#d9534f",
-                                        fontSize: "12px",
-                                      }}
-                                    >
-                                      Confirm Password is required
-                                    </p>
-                                  )} */}
                                   <Input
                                     mt="12px"
                                     type="password"
@@ -707,60 +584,20 @@ function ProfilePage() {
                       </>
                     )}
                   </Menu>
-
-                  {/* <Modal
-                    isOpen={editProfile.isOpen}
-                    onClose={editProfile.onClose}
-                  >
-                    <ModalHeader>Profile</ModalHeader>
-                    <ModalContent>
-                      <ModalBody>
-                        <form>
-                          <FormControl>
-                            <FormLabel>Name</FormLabel>
-                            <Editable defaultValue={userData.name}>
-                              <EditablePreview />
-                              <Input as={EditableInput} />
-                            </Editable>
-                            <FormLabel>Location</FormLabel>
-                            <Editable defaultValue={userData.location}>
-                              <EditablePreview />
-                              <Input as={EditableInput} />
-                            </Editable>
-                            <FormLabel>Email</FormLabel>
-                            <Editable defaultValue={userData.email}>
-                              <EditablePreview />
-                              <Input as={EditableInput} />
-                            </Editable>
-                            <FormLabel>Phone Number</FormLabel>
-                            <Editable defaultValue={userData.phone}>
-                              <EditablePreview />
-                              <Input as={EditableInput} />
-                              <EditableControls />
-                            </Editable>
-                          </FormControl>
-                        </form>
-                      </ModalBody>
-                      <ModalFooter>
-                        <Button onClick={editProfile.onClose}>Close</Button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal> */}
                 </Box>
               </Flex>
 
               <Flex
                 w="100%"
-                justify="center"
+                // h="70vh"
+                justif0y="center"
                 align="center"
                 flexDirection="column"
                 boxShadow="0px -4px 5px #e1e1e1"
                 mt="32px"
                 pt="24px"
-                // maxHeight="calc(100vh - 320px)"
-                // overflowY="auto"
               >
-                {postData && postData.length === 0 ? (
+                {shopPosts.length === 0 ? (
                   <Flex justify="center" align="center">
                     <Text color="#7f7f7f">It feels so lonely here...</Text>
                   </Flex>
@@ -771,8 +608,7 @@ function ProfilePage() {
                     align="center"
                     justify="center"
                   >
-                    {postData &&
-                      postData.map((post) => (
+                  {shopPosts.map((post) => (
                         <Card
                           key={post.id}
                           w="50%"
@@ -792,12 +628,17 @@ function ProfilePage() {
                               authorId={post.authorId}
                             />
                             <Text as="kbd" fontSize="10px" color="gray.500">
-                              {formatDistanceToNow(post.datePosted)} ago
+                              {formatDistanceToNow(post.createdAt)} ago
                             </Text>
+                            <Button variant="link" color="#333333">
+                          {post.authorName}
+                        </Button>
 
                             <Flex pl="32px" py="32px" justify="space-between">
                               <Box>
+                              <Link to={"/AddToCart/" + post.id}>
                                 <Heading size="md">{post.postTitle}</Heading>
+                                </Link>
                                 <br />
 
                                 <Text fontSize="16px">{post.postContent}</Text>
@@ -816,7 +657,7 @@ function ProfilePage() {
                             </Flex>
                             <Flex w="100%" align="center" justify="center">
                               <Image
-                                src={post.postImg}
+                                src={post.postImage}
                                 w="20em"
                                 alt="post image"
                                 onError={(e) =>
@@ -832,7 +673,7 @@ function ProfilePage() {
                             </Box>
                           </Flex>
                         </Card>
-                      ))}
+                    ))}
                   </Flex>
                 )}
               </Flex>

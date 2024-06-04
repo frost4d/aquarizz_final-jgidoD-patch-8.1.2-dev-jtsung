@@ -1,3 +1,4 @@
+import "./AddToCartPage.css";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
@@ -19,7 +20,7 @@ import {
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
 // import 'slick-carousel/slick/slick-theme.css';
-import { useParams, Routes, Route } from "react-router-dom";
+import { useParams, Routes, Route, useNavigate } from "react-router-dom";
 import CartItem from "./CartItem";
 import CartListPage from "./CartListPage";
 import Navigation from "./Navigation";
@@ -27,7 +28,7 @@ import Comments from "../mainComponents/Comment";
 import { UserAuth } from "../../context/AuthContext";
 const AddToCartPage = ({ route }) => {
   const { id } = useParams(); 
-  const { userProfile } = UserAuth();
+  const { user, userProfile } = UserAuth();
   const [post, setPost] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [product, setProduct] = useState(null);
@@ -35,6 +36,7 @@ const AddToCartPage = ({ route }) => {
   const [error, setError] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const navigate = useNavigate();
   // const addToCart = (item) => {
   //   setCartItems([...cartItems, item]);
   // };
@@ -205,8 +207,10 @@ const AddToCartPage = ({ route }) => {
                         <Text fontSize="16px" color="#6e6e6e">
                         {userProfile.email}
                         </Text>
-                        <Button colorScheme="blue" onClick={() => window.location.href = "/shop"}>
-                          Visit Shop
+                        <Button colorScheme="blue" onClick={() => {
+                    navigate(`/profile/${user.uid}`);
+                  }}>
+                          Visit Profile
                         </Button>
                       </VStack>
                     </HStack>
@@ -221,6 +225,9 @@ const AddToCartPage = ({ route }) => {
             </Box>
           </Center>
         )}
+        <Flex w="100%" h="100vh" align="center" justify="center">
+            <span className="loader"></span>
+          </Flex>
       </Box>
     </>
   );
