@@ -34,6 +34,7 @@ const AddToCartPage = ({ route }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sellerProfile, setSellerProfile] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [cartItemCount, setCartItemCount] = useState(0);
   const navigate = useNavigate();
@@ -49,6 +50,22 @@ const AddToCartPage = ({ route }) => {
     setCartItems(updatedItems);
   };
   
+  const fetchSellerProfile = async (authorID) => {
+    try {
+      console.log("Fetching seller profile with authorID:", authorID);
+      const sellerDocRef = doc(db, "users1", authorID);
+      const sellerDocSnap = await getDoc(sellerDocRef);
+      if (sellerDocSnap.exists()) {
+        setSellerProfile(sellerDocSnap.data());
+      } else {
+        setError(`No such seller with ID: ${authorID}`);
+        console.error(`No such seller with ID: ${authorID}`);
+      }
+    } catch (error) {
+      setError("Error fetching seller profile: " + error.message);
+      console.error("Error fetching seller profile:", error.message);
+    }
+  };
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -57,17 +74,21 @@ const AddToCartPage = ({ route }) => {
         const docRef = doc(db, "shop", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProduct(docSnap.data());
+          const productData = docSnap.data();
+          setProduct(productData);
+          fetchSellerProfile(productData.authorID);
         } else {
           setError("No such document!");
+          console.error("No such document!");
         }
       } catch (error) {
         setError("Error fetching product: " + error.message);
-        // }
+        console.error("Error fetching product:", error.message);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProduct();
   }, [id]);
 
@@ -93,7 +114,7 @@ const AddToCartPage = ({ route }) => {
       <Box>
         <Navigation />
 
-        {product && (
+        {sellerProfile && (
           <Center>
             <Box>
               <Flex p="10" mx="50px" bg="#f8f9fa">
@@ -199,16 +220,16 @@ const AddToCartPage = ({ route }) => {
                       Seller Profile
                     </Heading>
                     <HStack spacing="4">
-                      <Avatar size="xl" name={userProfile.name} src="/path/to/avatar.jpg" />
+                      <Avatar size="xl" name={sellerProfile.name} src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"} />
                       <VStack align="stretch">
                         <Text fontSize="20px" fontWeight="bold">
-                        {userProfile.name}
+                        {sellerProfile.name}
                         </Text>
                         <Text fontSize="16px" color="#6e6e6e">
-                        {userProfile.email}
+                        {sellerProfile.email}
                         </Text>
                         <Button colorScheme="blue" onClick={() => {
-                    navigate(`/profile/${user.uid}`);
+                    navigate(`/profile/${product.authorID}`);
                   }}>
                           Visit Profile
                         </Button>
