@@ -96,7 +96,7 @@ const Discover = () => {
         <Flex justify="space-between" p="0 86px 0px 64px">
           <Heading>Discover</Heading>
           <Flex display={user ? "flex" : "none"} justify="space-between">
-            <Button
+            {/* <Button
               mr="12px"
               variant="ghost"
               leftIcon={<Plus size={16} />}
@@ -107,8 +107,8 @@ const Discover = () => {
                 onClose={addDiscover.onClose}
               />
               Create
-            </Button>
-            <Button variant="ghost" color="#333333">
+            </Button> */}
+            <Button variant="link" color="#333333">
               My Shop
             </Button>
           </Flex>

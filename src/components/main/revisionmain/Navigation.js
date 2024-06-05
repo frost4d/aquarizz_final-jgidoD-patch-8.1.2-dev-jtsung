@@ -55,6 +55,7 @@ import logo from "../../../assets/logo2.png";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
+import Create from "./listing/Create";
 
 const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -64,6 +65,7 @@ const Navigation = () => {
   const secondaryFont = '"Montserrat", sans-serif';
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
+  const modalShop = useDisclosure();
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
@@ -211,7 +213,7 @@ const Navigation = () => {
               _hover={{ bg: "#ffd36b" }}
               onClick={() => {
                 user ? (
-                  navigate("/shop")
+                  modalShop.onOpen()
                 ) : (
                   <>
                     {loginModal.onOpen()}
@@ -225,6 +227,7 @@ const Navigation = () => {
             >
               Create listing
             </Button>
+            <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
           </Flex>
           <Box mr="42px">
             <Button variant="ghost" onClick={onOpen}>
@@ -345,7 +348,10 @@ const Navigation = () => {
                       _hover={{ bg: "#ffd36b" }}
                       onClick={() => {
                         user ? (
-                          navigate("/shop")
+                          <Create
+                            isOpen={modalShop.isOpen}
+                            onClose={modalShop.onClose}
+                          />
                         ) : (
                           <>
                             {loginModal.onOpen()}

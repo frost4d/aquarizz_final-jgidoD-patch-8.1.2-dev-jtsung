@@ -18,3 +18,12 @@
   flex: 1;
   min-width: min(100%, 20em);
 }
+
+.shop__contents > :nth-child(2) {
+  margin: 0 24px;
+}
+
+.gridItem {
+  transition: 175ms ease;
+  cursor: pointer;
+}
