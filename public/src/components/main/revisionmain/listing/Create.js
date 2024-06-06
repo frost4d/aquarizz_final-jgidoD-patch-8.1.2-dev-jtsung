@@ -78,6 +78,7 @@ const Create = (props) => {
       createdAt: data.createdAt || new Date().toISOString(),
       price: data.price,
       weight: data.weight,
+      location: userProfile.location,
     };
     try {
       await addDoc(collection(db, "shop"), obj);
