@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { VStack, Text, Image, Divider, Flex, Box, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
-
+import { db } from "../../../firebase/firebaseConfig";
+import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore";
 const PaymentPage = () => {
   const location = useLocation();
   const { cartItems = [], totalPrice = 0, paymentMethod = "", shippingFee = 0 } = location.state || {};
@@ -10,9 +11,45 @@ const PaymentPage = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [checkedOutItems, setCheckedOutItems] = useState([]);
 
   useEffect(() => {
-    if (paymentInitiated) {
+    const fetchCheckedOutItems = async () => {
+      console.log("Fetching checked out items...");
+      const q = query(collection(db, "payments"), 
+      where("paymentMethod", "==", paymentMethod),
+      orderBy("createdAt", "desc"),
+      limit(1)
+    );
+    try {
+      const querySnapshot = await getDocs(q);
+      console.log("Query Snapshot:", querySnapshot);
+      const items = [];
+      querySnapshot.forEach((doc) => {
+        items.push(...doc.data().cartItems);
+      });
+      console.log("Fetched items:", items);
+      setCheckedOutItems(items);
+    } catch (error) {
+      console.error("Error fetching items:", error);
+    }
+      
+      // const querySnapshot = await getDocs(q);
+      // console.log("Query Snapshot:", querySnapshot);
+      // const items = [];
+      // querySnapshot.forEach((doc) => {
+      //   items.push(...doc.data().cartItems);
+      // });
+      // console.log("Fetched items:", items);
+      // setCheckedOutItems(items);
+    };
+
+    fetchCheckedOutItems();
+  }, [paymentMethod]);
+  
+  useEffect(() => {
+    if (checkedOutItems.length > 0) {
+      // Simulate payment success after 2 seconds
       const timeout = setTimeout(() => {
         setPaymentSuccess(true);
         onOpen(); // Open the modal when payment is successful
@@ -20,23 +57,40 @@ const PaymentPage = () => {
 
       return () => clearTimeout(timeout);
     }
-  }, [paymentInitiated, onOpen]);
+  }, [checkedOutItems, onOpen]);
 
   const handleProceedToPayment = () => {
     setPaymentInitiated(true);
+    setCheckedOutItems(cartItems);
     navigate("/ItemStatusPage", { state: { checkedOutItems: cartItems } });
   };
+  // useEffect(() => {
+  //   if (paymentInitiated) {
+  //     const timeout = setTimeout(() => {
+  //       setPaymentSuccess(true);
+  //       onOpen(); // Open the modal when payment is successful
+  //     }, 2000);
 
-  if (!location.state || cartItems.length === 0) {
-    console.error("Error: No data received from the previous page.");
-    return (
-      <VStack align="stretch" spacing="4" p="4">
-        <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-          Error: No data received from the previous page.
-        </Text>
-      </VStack>
-    );
-  }
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [paymentInitiated, onOpen]);
+
+  // const handleProceedToPayment = () => {
+  //   setPaymentInitiated(true);
+  //   setCheckedOutItems(cartItems);
+  //   navigate("/ItemStatusPage", { state: { checkedOutItems: cartItems } });
+  // };
+
+  // if (!location.state || cartItems.length === 0) {
+  //   console.error("Error: No data received from the previous page.");
+  //   return (
+  //     <VStack align="stretch" spacing="4" p="4">
+  //       <Text fontSize="2xl" fontWeight="bold" textAlign="center">
+  //         Error: No data received from the previous page.
+  //       </Text>
+  //     </VStack>
+  //   );
+  // }
 
   return (
     <Box>
@@ -49,7 +103,8 @@ const PaymentPage = () => {
           <Text mx="10%" fontWeight="bold">Total Price: P{totalPrice}</Text>
           <Text mx="10%" fontWeight="bold">Shipping Fee: P{shippingFee}</Text>
           <Text mx="10%" fontWeight="bold">Payment Method: {paymentMethod}</Text>
-          {cartItems.map((item, index) => (
+          {/* {cartItems.map((item, index) => ( */}
+          {checkedOutItems.map((item, index) => (
             <Flex key={index} justifyContent="center" w="100%">
               <VStack
                 key={index}

@@ -1,4 +1,3 @@
-
 import {
   Modal,
   ModalBody,
@@ -22,7 +21,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAuth } from "../../../context/AuthContext";
 import { db, storage } from "../../../../firebase/firebaseConfig";
-import { addDoc, collection } from "firebase/firestore"; 
+import { addDoc, collection } from "firebase/firestore";
 import {
   ref,
   uploadBytes,
@@ -43,61 +42,62 @@ const Create = (props) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-    // const [userProfile, setUserProfile] = useState();
-    const [file, setFile] = useState();
-    const [imageUrl, setImageUrl] = useState();
-  
-    const handleImageChange = async (e) => {
-      setFile(e.target.files[0]);
-  
-      const imageRef = ref(
-        storage,
-        `postImages/${e.target.files[0].name + "&" + userProfile.name}`
-      );
-      await uploadBytes(imageRef, e.target.files[0]).then((snapshot) => {
-        console.log("Uploaded a blob or file!");
-        console.log(snapshot);
-      });
-      getDownloadURL(imageRef).then((url) => {
-        console.log(url);
-        if (url === null) {
-          console.log("error");
-        }
-        setImageUrl(url);
-      });
-      console.log(file);
-    };
-  
-    const handleSubmitPost = async (data) => {
-      const obj = {
-        authorName: userProfile.name,
-        authorID: user?.uid,
-        postTitle: data.title,
-        postContent: data.text,
-        postImage: file ? imageUrl : "", // Optional chaining to avoid null value
-        tag: data.tag,
-        createdAt: data.createdAt || new Date().toISOString(),
-        price: data.price,
-      };
-      try {
-        await addDoc(collection(db, 'shop'), obj);
-        // await createPost(obj);
-        toast({
-          title: "Post Created.",
-          description: "Post successfully published.",
-          status: "success",
-          duration: 5000,
-          position: "top",
-        });
-      } catch (err) {
-        console.log(err.message);
+  // const [userProfile, setUserProfile] = useState();
+  const [file, setFile] = useState();
+  const [imageUrl, setImageUrl] = useState();
+
+  const handleImageChange = async (e) => {
+    setFile(e.target.files[0]);
+
+    const imageRef = ref(
+      storage,
+      `postImages/${e.target.files[0].name + "&" + userProfile.name}`
+    );
+    await uploadBytes(imageRef, e.target.files[0]).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+      console.log(snapshot);
+    });
+    getDownloadURL(imageRef).then((url) => {
+      console.log(url);
+      if (url === null) {
+        console.log("error");
       }
-      console.log(obj);
-      setFile("");
-      setImageUrl("");
-      reset();
-      props.onClose();
+      setImageUrl(url);
+    });
+    console.log(file);
+  };
+
+  const handleSubmitPost = async (data) => {
+    const obj = {
+      authorName: userProfile.name,
+      authorID: user?.uid,
+      postTitle: data.title,
+      postContent: data.text,
+      postImage: file ? imageUrl : "", // Optional chaining to avoid null value
+      tag: data.tag,
+      createdAt: data.createdAt || new Date().toISOString(),
+      price: data.price,
+      weight: data.weight,
     };
+    try {
+      await addDoc(collection(db, "shop"), obj);
+      // await createPost(obj);
+      toast({
+        title: "Post Created.",
+        description: "Post successfully published.",
+        status: "success",
+        duration: 5000,
+        position: "top",
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
+    console.log(obj);
+    setFile("");
+    setImageUrl("");
+    reset();
+    props.onClose();
+  };
 
   return (
     <>
@@ -121,7 +121,7 @@ const Create = (props) => {
                 </Box>
 
                 <Box>
-                <FormLabel>Description</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <Textarea
                     placeholder="Text"
                     {...register("text", { required: true })}
@@ -143,7 +143,6 @@ const Create = (props) => {
                     class="inputfile"
                     multiple
                     onChange={handleImageChange}
-                    
                   />
                 </Box>
                 <Box>
@@ -171,7 +170,24 @@ const Create = (props) => {
                   )}
                 </Box>
 
-                <Button type="submit" bg={primaryColor} onClick={props.fetchData}>
+                <Box>
+                  <Input
+                    placeholder="Weight in kg"
+                    {...register("weight", { required: true })}
+                    aria-invalid={errors.weight ? "true" : "false"}
+                  />
+                  {errors.weight?.type === "required" && (
+                    <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                      Weight is required
+                    </p>
+                  )}
+                </Box>
+
+                <Button
+                  type="submit"
+                  bg={primaryColor}
+                  onClick={props.fetchData}
+                >
                   Publish
                 </Button>
                 <Button onClick={props.onClose}>Cancel</Button>
