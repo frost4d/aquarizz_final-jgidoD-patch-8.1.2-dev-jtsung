@@ -169,7 +169,21 @@ const Navigation = () => {
             {userProfile ? (
               <>
                 <Menu>
-                  <MenuButton>{userProfile.email}</MenuButton>
+                  <MenuButton>
+                    <Flex
+                      justify="center"
+                      align="center"
+                      h="40px"
+                      w="40px"
+                      borderRadius="50%"
+                      bg="#FF7D29"
+                      mx="32px"
+                    >
+                      <Text as="b">
+                        {userProfile.name.charAt(0).toUpperCase()}
+                      </Text>
+                    </Flex>
+                  </MenuButton>
                   <MenuList>
                     <MenuGroup title="Profile">
                       <MenuItem>My Account</MenuItem>

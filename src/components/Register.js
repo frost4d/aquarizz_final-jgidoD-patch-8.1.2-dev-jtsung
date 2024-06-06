@@ -72,7 +72,6 @@ const Register = () => {
   const handleRegister = async (data) => {
     try {
       const { user } = await createUser(data.email, data.password);
-
       toast({
         position: "top",
         status: "success",
@@ -90,6 +89,8 @@ const Register = () => {
         location: data.location,
         phoneNumber: data.phoneNumber,
       });
+      user.updateProfile({ displayName: data.name });
+
       navigate("/dashboard");
     } catch (err) {
       switch (err.code) {
@@ -281,7 +282,7 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
-              <label class="label" for="photo-upload">
+              <label className="label" for="photo-upload">
                 <Text fontSize="sm">Add Profile Picture </Text>
               </label>
               <Input

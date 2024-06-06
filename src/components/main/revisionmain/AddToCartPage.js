@@ -84,7 +84,7 @@ const AddToCartPage = ({ route }) => {
 
   return (
     <>
-      <Box>
+      <Box h="100vh">
         <Navigation />
 
         {product && (
@@ -164,8 +164,9 @@ const AddToCartPage = ({ route }) => {
 
                     <HStack spacing="4">
                       <Button
+                        variant="link"
                         onClick={() => addToCart(product)}
-                        colorScheme="teal"
+                        color="#161616"
                       >
                         Add to Wishlist
                       </Button>

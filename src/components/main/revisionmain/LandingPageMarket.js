@@ -69,6 +69,7 @@ const LandingPageMarket = () => {
   const [isUser, setIsUser] = useState(false);
   const { user, userProfile } = UserAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  // const letter = user.name.charAt(0);
   // const [windowSize, setWindowSize] = useState();
   const {
     register,
@@ -98,6 +99,7 @@ const LandingPageMarket = () => {
   const handleSearchClick = (data) => {
     console.log(data);
   };
+  console.log(user);
   return (
     <>
       <Box
@@ -149,7 +151,21 @@ const LandingPageMarket = () => {
             {userProfile ? (
               <>
                 <Menu>
-                  <MenuButton>{userProfile.email}</MenuButton>
+                  <MenuButton>
+                    <Flex
+                      justify="center"
+                      align="center"
+                      h="40px"
+                      w="40px"
+                      borderRadius="50%"
+                      bg="#FF7D29"
+                      mx="32px"
+                    >
+                      <Text as="b">
+                        {userProfile.name.charAt(0).toUpperCase()}
+                      </Text>
+                    </Flex>
+                  </MenuButton>
                   <MenuList>
                     <MenuGroup title="Profile">
                       <MenuItem>My Account</MenuItem>

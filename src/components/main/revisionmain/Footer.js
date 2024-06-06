@@ -61,7 +61,7 @@ const Footer = () => {
         <Flex
           className="footer__interaction"
           flex="1"
-          justify="space-between"
+          justify="space-evenly"
           align="center"
         >
           <Flex flexDirection="column" ml="32px">

@@ -33,7 +33,14 @@ import { Plus } from "react-feather";
 import Create from "./listing/Create";
 import { formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
+import { useForm } from "react-hook-form";
 const Shop = () => {
+  const {
+    handleSubmit,
+    register,
+    reset,
+    formState: { errors },
+  } = useForm();
   const { user } = UserAuth();
   const addShop = useDisclosure();
   const toast = useToast();
@@ -43,7 +50,8 @@ const Shop = () => {
   const tertiaryColor = "#6e6e6e";
   const modalShop = useDisclosure();
   const navigate = useNavigate();
-
+  const [filter, setFilter] = useState();
+  const [filteredData, setFilteredData] = useState();
   useEffect(() => {
     const fetchShopPosts = async () => {
       const postsCollection = collection(db, "shop");
@@ -76,7 +84,34 @@ const Shop = () => {
       position: "top",
     });
   };
+  const handleFilter = (data) => {
+    setFilter(data);
+  };
 
+  useEffect(() => {
+    const handleFilterData = () => {
+      const filteredResults = [];
+
+      shopPosts.forEach((post) => {
+        const tag = post.tag.toLowerCase();
+        // if (data.accessories) {
+        //   filteredResults.filter(post.tag === "accessories").push(post);
+        // }
+        // if (data.aquarium) {
+        //   filteredResults.filter(post.tag === "aquarium").push(post);
+        // }
+        // if (data.fish) {
+        //   filteredResults.filter(post.tag === "fish").push(post);
+        // }
+        if (filter.aquarium && tag === "aquarium") {
+          filteredResults.push(post);
+        }
+      });
+      return setFilteredData(filteredResults);
+    };
+  }, []);
+
+  console.log(shopPosts.filter((post) => post.tag === "fish"));
   console.log(shopPosts);
   return (
     <>
@@ -85,23 +120,6 @@ const Shop = () => {
         <Flex justify="space-between" p="0 64px 0 64px">
           <Heading fontFamily={primaryFont}>Shop</Heading>
           <Flex display={user ? "flex" : "none"} justify="space-between">
-            {/* <Button
-              textAlign="center"
-              variant="link"
-              color="#333333"
-              mr="12px"
-              leftIcon={<Plus size={16} />}
-              onClick={modalShop.onOpen}
-            >
-              <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
-              Create
-            </Button> */}
-            {/* <Modal>
-              <ModalOverlay />
-              <ModalContent>
-                <ModalBody>Link to create listing</ModalBody>
-              </ModalContent>
-            </Modal> */}
             <Button variant="link" color="#333333">
               My Shop
             </Button>
@@ -118,68 +136,6 @@ const Shop = () => {
             align="center"
             my="64px"
           >
-            {/* {shopPosts &&
-              shopPosts.map((post) => (
-                <>
-                  <Card
-                    key={post.id}
-                    border="1px solid #e1e1e1"
-                    w="700px"
-                    h="360px"
-                  >
-                    <CardHeader>
-                      <Flex justify="space-between">
-                        <Button variant="link" color="#333333">
-                          {post.authorName}
-                        </Button>
-                        <Text fontSize="xs" color={tertiaryColor} as="i">
-                          {formatDistanceToNow(post.createdAt)} ago
-                        </Text>
-                      </Flex>
-                    </CardHeader>
-                    <CardBody>
-                      <Flex className="cardContent">
-                        <Box w="100%" className="imageWrapper">
-                          <Image
-                            objectFit="cover"
-                            w="300px"
-                            h="200px"
-                            src={post.postImage}
-                            alt="Post Image"
-                          />
-                        </Box>
-                        <Box className="descriptionWrapper">
-                          <Flex justify="space-between">
-                            <Heading fontFamily={primaryFont}>
-                              {post.postTitle}
-                            </Heading>
-                            <Text as="b">P{post.price}</Text>
-                          </Flex>
-                          <Text fontSize="xs" as="i" color={tertiaryColor}>
-                            {post.tag}
-                          </Text>
-
-                          <Text fontSize="sm" color={tertiaryColor}>
-                            {post.postContent}
-                          </Text>
-                        </Box>
-                      </Flex>
-                    </CardBody>
-                    <Box m="0 16px 32px 24px">
-                      <Button
-                        bg={primaryColor}
-                        w="100%"
-                        onClick={() => {
-                          navigate("/AddToCart/" + post.id);
-                        }}
-                      >
-                        View Product
-                      </Button>
-                    </Box>
-                  </Card>
-                </>
-              ))} */}
-
             <Flex
               className="shop__contents"
               m="0 64px"
@@ -187,17 +143,23 @@ const Shop = () => {
               align="start"
               w="100%"
             >
-              <Box p="2px 6px" border="2px solid #e9e9e9" flex="1">
+              <Box
+                className="filter__wrapper"
+                p="2px 6px"
+                border="2px solid #e9e9e9"
+                flex="1"
+              >
                 <Text as="b" size="md">
                   Filter
                 </Text>
-                <form>
+                <form onSubmit={handleSubmit(handleFilter)}>
                   <Flex flexDirection="column" p="12px">
-                    <Checkbox defaultChecked>All</Checkbox>
-                    <Checkbox>Accessories</Checkbox>
-                    <Checkbox>Aquarium</Checkbox>
-                    <Checkbox>Feeds</Checkbox>
-                    <Checkbox>Fish</Checkbox>
+                    <Checkbox {...register("accessories")}>
+                      Accessories
+                    </Checkbox>
+                    <Checkbox {...register("aquarium")}>Aquarium</Checkbox>
+                    <Checkbox {...register("feeds")}>Feeds</Checkbox>
+                    <Checkbox {...register("fish")}>Fish</Checkbox>
                     <Button
                       mt="12px"
                       variant="outline"
@@ -210,56 +172,66 @@ const Shop = () => {
                   </Flex>
                 </form>
               </Box>
-              <Box flex="3">
+              <Box className="gridItem__wrapper" flex="3">
                 {shopPosts ? (
                   <Grid
+                    className="gridItem__holder"
                     templateColumns={`repeat(5, 1fr)`}
                     gap="2"
                     autoRows="minmax(200px, auto)"
                     rowGap={4}
                   >
                     {shopPosts &&
-                      shopPosts.map((post) => (
-                        <GridItem
-                          className="gridItem"
-                          p="6px"
-                          key={post.id}
-                          colSpan={1}
-                          rowSpan={1}
-                          _hover={{
-                            boxShadow: "0 3px 2px #e9e9e9",
-                            transform: "translateY(-3px)",
-                          }}
-                          onClick={() => {
-                            console.log(post.id);
-                          }}
-                        >
-                          <Box className="itemsWrapper" h="100%" w="100%">
-                            <Image
-                              borderRadius="2px"
-                              h="200px"
+                      shopPosts
+                        // .filter((post) => post.tag.toLowerCase() === "aquarium")
+                        .map((post) => (
+                          <GridItem
+                            className="gridItem"
+                            p="6px"
+                            key={post.id}
+                            colSpan={1}
+                            rowSpan={1}
+                            _hover={{
+                              boxShadow: "0 3px 2px #e9e9e9",
+                              transform: "translateY(-3px)",
+                            }}
+                            onClick={() => {
+                              console.log(post.id);
+                            }}
+                          >
+                            <Box
+                              className="itemsWrapper"
+                              h="100%"
                               w="100%"
-                              src={post.postImage}
-                              objectFit="cover"
-                            />
-                            <Box className="descriptionWrapper">
-                              <Text fontSize="sm" p="3px 6px">
-                                {post.postTitle}
-                              </Text>
-                              <Heading size="sm">&#8369;{post.price}</Heading>
-                              <Text fontSize="xs" as="i">
-                                {post.tag}
-                              </Text>
+                              onClick={() => {
+                                navigate("/AddToCart/" + post.id);
+                              }}
+                            >
+                              <Image
+                                borderRadius="2px"
+                                h="200px"
+                                w="100%"
+                                src={post.postImage}
+                                objectFit="cover"
+                              />
+                              <Box className="descriptionWrapper">
+                                <Text fontSize="sm" p="3px 6px">
+                                  {post.postTitle}
+                                </Text>
+                                <Heading size="sm">&#8369;{post.price}</Heading>
+                                <Text fontSize="xs" as="i">
+                                  {post.tag}
+                                </Text>
+                              </Box>
                             </Box>
-                          </Box>
-                        </GridItem>
-                      ))}
+                          </GridItem>
+                        ))}
                   </Grid>
                 ) : (
                   <Text>Feels empty here...</Text>
                 )}
               </Box>
-              <Box flex="1"></Box>
+              <Box className="filler" flex="1"></Box>
             </Flex>
           </Flex>
         </Box>
