@@ -12,6 +12,7 @@ import {
   Box,
   Button,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -24,7 +25,7 @@ import { UserAuth } from "../../context/AuthContext";
 
 const LoginModal = (props) => {
   const { signIn, user, userProfile } = UserAuth();
-
+  const toast = useToast();
   const navigate = useNavigate();
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -43,7 +44,16 @@ const LoginModal = (props) => {
 
       navigate("/shop");
     } catch (err) {
-      console.log(err.message);
+      switch (err.code) {
+        case "auth/invalid-credential":
+          toast({
+            title: "Invalid Credentials",
+            description: "Please check your email and password",
+            status: "error",
+            duration: 5000,
+            position: "top",
+          });
+      }
     }
     resetLogin();
   };

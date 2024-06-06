@@ -1,3 +1,14 @@
 .registerForm > * {
   margin: 8px 0;
 }
+
+#photo-upload[type="file"] {
+  display: none;
+}
+
+.label {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}
