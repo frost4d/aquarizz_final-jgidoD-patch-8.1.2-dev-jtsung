@@ -19,6 +19,7 @@
   min-width: min(100%, 20em);
 }
 
+
 .shop__contents > :nth-child(2) {
   margin: 0 24px;
 }
@@ -61,3 +62,11 @@
     grid-auto-rows: minmax(200px, auto);
   }
 }
+
+.truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+

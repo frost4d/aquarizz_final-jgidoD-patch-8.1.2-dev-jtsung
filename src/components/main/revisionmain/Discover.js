@@ -34,12 +34,15 @@ const Discover = () => {
   const addDiscover = useDisclosure();
   const toast = useToast();
   const [discoverPosts, setDiscoverPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
   const letter = userProfile.name.charAt(0);
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
+
       try {
         const postsCollection = collection(db, "discover");
         const querySnapshot = await getDocs(postsCollection);
@@ -51,12 +54,20 @@ const Discover = () => {
       } catch (err) {
         console.log(err.message);
       }
+
+      
+      setFilteredPosts(tempPosts);
+
     };
     fetchDiscoverPosts();
   }, []);
 
-  const handleSearchDiscover = (data) => {
-    console.log(data);
+  const handleSearchDiscover = (e) => {
+    e.preventDefault();
+    const filtered = discoverPosts.filter((post) =>
+      post.tag.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPosts(filtered);
   };
 
   const handleAddDiscover = (formData) => {
@@ -65,6 +76,8 @@ const Discover = () => {
     const docRef = addDoc(collection(db, "discover"), formData);
     // For example, you can update the discoverPosts state with the new data
     setDiscoverPosts([...discoverPosts, formData]);
+    // setDiscoverPosts([...discoverPosts, { id: docRef.id, ...formData }]);
+    // setFilteredPosts([...discoverPosts, { id: docRef.id, ...formData }]);
     addDiscover.onClose(); // Close the modal after submitting
     toast({
       title: "Post Created.",
@@ -129,7 +142,8 @@ const Discover = () => {
             <Flex w="100%" justify="center" p="12px 24px">
               <form onSubmit={handleSearchDiscover}>
                 <Flex w="100%" justify="space-between">
-                  <Input borderRadius="24px" placeholder="Search" />
+                  <Input borderRadius="24px" placeholder="Search" value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)} />
                   <Button p="12px 24px" type="submit" borderRadius="24px">
                     Search
                   </Button>
@@ -143,6 +157,7 @@ const Discover = () => {
               align="start"
               flexWrap="wrap"
             >
+
               <Box flex="1" border="1px solid #e1e1e1">
                 <Box p="24px">
                   <Flex flexDirection="column" justify="center" align="center">
@@ -209,6 +224,7 @@ const Discover = () => {
                 </Grid>
               </Box>
               <Box flex="1"></Box>
+
             </Flex>
           </Flex>
         </Box>

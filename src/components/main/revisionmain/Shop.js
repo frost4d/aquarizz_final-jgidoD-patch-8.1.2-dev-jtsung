@@ -28,6 +28,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AddToCartPage from "./AddToCartPage";
 import Navigation from "./Navigation";
 import SearchInput from "./components/SearchInput";
+import Register from "../../Register";
 import { UserAuth } from "../../context/AuthContext";
 import { Plus } from "react-feather";
 import Create from "./listing/Create";
@@ -45,6 +46,9 @@ const Shop = () => {
   const addShop = useDisclosure();
   const toast = useToast();
   const [shopPosts, setShopPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState(""); 
   const primaryColor = "#FFC947";
   const primaryFont = '"Poppins", sans-serif';
   const tertiaryColor = "#6e6e6e";
@@ -61,12 +65,33 @@ const Shop = () => {
         tempPosts.push({ id: doc.id, ...doc.data() });
       });
       setShopPosts(tempPosts);
+      setFilteredPosts(tempPosts);
     };
     fetchShopPosts();
   }, []);
 
-  const handleSearchShop = (data) => {
-    console.log(data);
+  useEffect(() => {
+    const fetchUserLocation = async () => {
+      const usersCollection = collection(db, "users1");
+      const querySnapshot = await getDocs(usersCollection);
+      querySnapshot.forEach((doc) => {
+        if (doc.id === user.uid) {
+          setLocation(doc.data().location);
+        }
+      });
+    };
+    if (user) {
+      fetchUserLocation();
+    }
+  }, [user]);
+
+  const handleSearchShop = (searchTerm, location) => {
+    setSearchTerm(searchTerm);
+    const filtered = shopPosts.filter((post) =>
+      post.tag.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    post.location && post.location.toLowerCase().includes(location.toLowerCase())
+    );
+    setFilteredPosts(filtered);
   };
 
   const handleAddShop = (formData) => {
@@ -126,8 +151,8 @@ const Shop = () => {
           </Flex>
         </Flex>
         <Box className="shopContentWrapper">
-          <Box>
-            <SearchInput />
+          <Box >
+            <SearchInput  handleSearch={handleSearchShop} />
           </Box>
           <Flex
             gap="24px 12px"
@@ -136,6 +161,7 @@ const Shop = () => {
             align="center"
             my="64px"
           >
+
             <Flex
               className="shop__contents"
               m="0 64px"
@@ -173,7 +199,7 @@ const Shop = () => {
                 </form>
               </Box>
               <Box className="gridItem__wrapper" flex="3">
-                {shopPosts ? (
+                {filteredPosts ? (
                   <Grid
                     className="gridItem__holder"
                     templateColumns={`repeat(5, 1fr)`}
@@ -181,10 +207,8 @@ const Shop = () => {
                     autoRows="minmax(200px, auto)"
                     rowGap={4}
                   >
-                    {shopPosts &&
-                      shopPosts
-                        // .filter((post) => post.tag.toLowerCase() === "aquarium")
-                        .map((post) => (
+                    {filteredPosts &&
+                      filteredPosts.map((post) => (
                           <GridItem
                             className="gridItem"
                             p="6px"
@@ -233,6 +257,7 @@ const Shop = () => {
               </Box>
               <Box className="filler" flex="1"></Box>
             </Flex>
+
           </Flex>
         </Box>
       </Box>

@@ -78,6 +78,10 @@ const LandingPageMarket = () => {
     formState: { errors },
   } = useForm();
 
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/category/${categoryName}`);
+  };
+
   const checkUser = () => {
     if (!user) return;
     setIsUser(true);
@@ -407,8 +411,10 @@ const LandingPageMarket = () => {
               flexWrap="wrap"
               flexGrow="shrink"
             >
-              <Box className="fishWrapper" mb="12px">
+
+              <Box className="fishWrapper" mb="12px" onClick={() => handleCategoryClick('Fish')} cursor="pointer">
                 <Box overflow="hidden" borderRadius="4px">
+
                   <Image
                     h="200px"
                     w="200px"
@@ -426,8 +432,10 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="decorWrapper" mb="12px">
+
+              <Box className="decorWrapper" mb="12px" onClick={() => handleCategoryClick('Accessories')} cursor="pointer">
                 <Box overflow="hidden" borderRadius="4px">
+
                   <Image
                     h="200px"
                     w="200px"
@@ -444,8 +452,10 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="feedsWrapper">
+
+              <Box className="feedsWrapper" onClick={() => handleCategoryClick('Feeds')} cursor="pointer">
                 <Box overflow="hidden" borderRadius="4px">
+
                   <Image
                     h="200px"
                     w="200px"
@@ -462,8 +472,10 @@ const LandingPageMarket = () => {
                   <ArrowRight size={16} />
                 </Flex>
               </Box>
-              <Box className="aquariumWrapper">
-                <Box overflow="hidden" borderRadius="4px">
+
+              <Box className="aquariumWrapper" onClick={() => handleCategoryClick('Aquarium')} cursor="pointer">
+                <Box overflow="hidden">
+
                   <Image
                     h="200px"
                     w="200px"
