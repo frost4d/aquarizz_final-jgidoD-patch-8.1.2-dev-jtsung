@@ -1,6 +1,6 @@
 import "./AddToCartPage.css";
 import { useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
@@ -96,6 +96,20 @@ const AddToCartPage = ({ route }) => {
     const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
     setCartItems(existingItems);
   }, []);
+
+  const addComment = async (postId, comment) => {
+    try {
+      const commentRef = collection(db, "shop", postId, "comments");
+      await addDoc(commentRef, {
+        comment,
+        createdAt: serverTimestamp(),
+        author: user.displayName,
+      });
+      console.log("Comment added successfully!");
+    } catch (error) {
+      console.error("Error adding comment: ", error.message);
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -241,7 +255,8 @@ const AddToCartPage = ({ route }) => {
 
               <Box p="10" mx="50px" bg="#f8f9fa" mt="10">
                 <Text fontSize="20px" fontWeight="bold" mb="20px">Customer Reviews</Text>
-                <Comments  postID={post.id} authorId={post.authorID} />
+                {/* <Comments postID={post.id} authorId={post.authorID} /> */}
+                <Comments id={id} authorId={product.authorID} />
               </Box>
             </Box>
           </Center>
