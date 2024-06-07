@@ -54,7 +54,7 @@ const AddToCartPage = ({ route }) => {
     localStorage.setItem("wishlist", JSON.stringify(updatedItems));
     setCartItems(updatedItems);
   };
-<<<<<<< HEAD
+
   
   const fetchSellerProfile = async (authorID) => {
     try {
@@ -72,8 +72,7 @@ const AddToCartPage = ({ route }) => {
       console.error("Error fetching seller profile:", error.message);
     }
   };
-=======
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
 
   useEffect(() => {
     const fetchProduct = async () => {

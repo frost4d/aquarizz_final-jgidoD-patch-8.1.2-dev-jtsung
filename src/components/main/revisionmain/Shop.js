@@ -108,8 +108,7 @@ const Shop = () => {
       position: "top",
     });
   };
-<<<<<<< HEAD
-=======
+
   const handleFilter = (data) => {
     setFilter(data);
   };
@@ -117,6 +116,7 @@ const Shop = () => {
   useEffect(() => {
     const handleFilterData = () => {
       const filteredResults = [];
+
 
       shopPosts.forEach((post) => {
         const tag = post.tag.toLowerCase();
@@ -139,7 +139,7 @@ const Shop = () => {
 
   console.log(shopPosts.filter((post) => post.tag === "fish"));
   console.log(shopPosts);
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
   return (
     <>
       <Box h="100vh" overflowY="auto">
@@ -147,7 +147,7 @@ const Shop = () => {
         <Flex justify="space-between" p="0 64px 0 64px">
           <Heading fontFamily={primaryFont}>Shop</Heading>
           <Flex display={user ? "flex" : "none"} justify="space-between">
-<<<<<<< HEAD
+
             <Button
               mr="12px"
               variant="ghost"
@@ -166,9 +166,9 @@ const Shop = () => {
             <Button variant="ghost" color="#333333"  onClick={() => {
     navigate("/profile", { state: { shopPosts } });
   }}>
-=======
+
             <Button variant="link" color="#333333">
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
               My Shop
             </Button>
           </Flex>

@@ -75,16 +75,12 @@ const Create = (props) => {
       postTitle: data.title,
       postContent: data.text,
       postImage: file ? imageUrl : "", // Optional chaining to avoid null value
-<<<<<<< HEAD
+      
       tag: data.tag,
       createdAt: data.createdAt || new Date().toISOString(),
       price: data.price,
       weight: data.weight,
-=======
-      tag: `#${data.tag}`,
-      createdAt: data.createdAt || new Date().toISOString(),
-      price: data.price,
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
       location: userProfile.location,
     };
     try {
@@ -187,7 +183,7 @@ const Create = (props) => {
                   )}
                 </Box>
 
-<<<<<<< HEAD
+
                 <Box>
                   <Input
                     placeholder="Weight in kg"
@@ -201,8 +197,7 @@ const Create = (props) => {
                   )}
                 </Box>
 
-=======
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
                 <Button
                   type="submit"
                   bg={primaryColor}
