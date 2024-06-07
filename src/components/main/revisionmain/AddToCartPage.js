@@ -23,8 +23,13 @@ import { useParams, Routes, Route } from "react-router-dom";
 import CartItem from "./CartItem";
 import CartListPage from "./CartListPage";
 import Navigation from "./Navigation";
+
 import Comments from "../mainComponents/Comment";
 import { UserAuth } from "../../context/AuthContext";
+
+import Footer from "./Footer";
+
+
 const AddToCartPage = ({ route }) => {
   const { id } = useParams(); 
   const { userProfile } = UserAuth();
@@ -46,7 +51,6 @@ const AddToCartPage = ({ route }) => {
     localStorage.setItem("wishlist", JSON.stringify(updatedItems));
     setCartItems(updatedItems);
   };
-  
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -88,7 +92,7 @@ const AddToCartPage = ({ route }) => {
 
   return (
     <>
-      <Box>
+      <Box h="100vh">
         <Navigation />
 
         {product && (
@@ -168,8 +172,9 @@ const AddToCartPage = ({ route }) => {
 
                     <HStack spacing="4">
                       <Button
+                        variant="link"
                         onClick={() => addToCart(product)}
-                        colorScheme="teal"
+                        color="#161616"
                       >
                         Add to Wishlist
                       </Button>
@@ -222,6 +227,7 @@ const AddToCartPage = ({ route }) => {
           </Center>
         )}
       </Box>
+      <Footer />
     </>
   );
 };
