@@ -85,22 +85,21 @@ const Shop = () => {
     }
   }, [user]);
 
-  const handleSearchShop = (searchTerm, location) => {
+  const handleSearchShop = (searchTerm, userLocation) => {
     setSearchTerm(searchTerm);
-    const filtered = shopPosts.filter((post) =>
-      post.tag.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    post.location && post.location.toLowerCase().includes(location.toLowerCase())
-    );
+    const filtered = shopPosts.filter((post) => {
+      const matchesSearchTerm = post.tag.toLowerCase().includes(searchTerm.toLowerCase());
+      // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
+      const matchesLocation = !userLocation || (post.location && post.location.toLowerCase().includes(userLocation.toLowerCase()));
+      return matchesSearchTerm && matchesLocation;
+    });
     setFilteredPosts(filtered);
   };
 
-  const handleAddShop = (formData) => {
-    // Add logic to save the form data to your database or state
-    console.log(formData);
-    const docRef = addDoc(collection(db, "shop"), formData);
-    // For example, you can update the discoverPosts state with the new data
-    setShopPosts([...shopPosts, formData]);
-    addShop.onClose(); // Close the modal after submitting
+  const handleAddShop = async (formData) => {
+    const docRef = await addDoc(collection(db, "shop"), formData);
+    setShopPosts([...shopPosts, { id: docRef.id, ...formData }]);
+    addShop.onClose();
     toast({
       title: "Post Created.",
       description: "Post successfully published.",
@@ -109,6 +108,7 @@ const Shop = () => {
       position: "top",
     });
   };
+
   const handleFilter = (data) => {
     setFilter(data);
   };
@@ -116,6 +116,7 @@ const Shop = () => {
   useEffect(() => {
     const handleFilterData = () => {
       const filteredResults = [];
+
 
       shopPosts.forEach((post) => {
         const tag = post.tag.toLowerCase();
@@ -138,6 +139,7 @@ const Shop = () => {
 
   console.log(shopPosts.filter((post) => post.tag === "fish"));
   console.log(shopPosts);
+
   return (
     <>
       <Box h="100vh" overflowY="auto">
@@ -145,14 +147,35 @@ const Shop = () => {
         <Flex justify="space-between" p="0 64px 0 64px">
           <Heading fontFamily={primaryFont}>Shop</Heading>
           <Flex display={user ? "flex" : "none"} justify="space-between">
+
+            <Button
+              mr="12px"
+              variant="ghost"
+              leftIcon={<Plus size={16} />}
+              onClick={modalShop.onOpen}
+            >
+              <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
+              Create
+            </Button>
+            <Modal>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalBody>Link to create listing</ModalBody>
+              </ModalContent>
+            </Modal>
+            <Button variant="ghost" color="#333333"  onClick={() => {
+    navigate("/profile", { state: { shopPosts } });
+  }}>
+
             <Button variant="link" color="#333333">
+
               My Shop
             </Button>
           </Flex>
         </Flex>
         <Box className="shopContentWrapper">
           <Box >
-            <SearchInput  handleSearch={handleSearchShop} />
+            <SearchInput  handleSearch={handleSearchShop} userLocation={location}/>
           </Box>
           <Flex
             gap="24px 12px"

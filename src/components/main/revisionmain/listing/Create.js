@@ -75,9 +75,12 @@ const Create = (props) => {
       postTitle: data.title,
       postContent: data.text,
       postImage: file ? imageUrl : "", // Optional chaining to avoid null value
-      tag: `#${data.tag}`,
+      
+      tag: data.tag,
       createdAt: data.createdAt || new Date().toISOString(),
       price: data.price,
+      weight: data.weight,
+
       location: userProfile.location,
     };
     try {
@@ -179,6 +182,21 @@ const Create = (props) => {
                     </p>
                   )}
                 </Box>
+
+
+                <Box>
+                  <Input
+                    placeholder="Weight in kg"
+                    {...register("weight", { required: true })}
+                    aria-invalid={errors.weight ? "true" : "false"}
+                  />
+                  {errors.weight?.type === "required" && (
+                    <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                      Weight is required
+                    </p>
+                  )}
+                </Box>
+
 
                 <Button
                   type="submit"
