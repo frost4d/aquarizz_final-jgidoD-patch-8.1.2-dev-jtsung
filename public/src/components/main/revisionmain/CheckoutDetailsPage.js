@@ -10,7 +10,7 @@ const CheckoutDetailsPage = () => {
   const { user, userProfile } = UserAuth();
   const location = useLocation();
   console.log("Location state in CheckoutDetailsPage:", location.state);
-  const { cartItems = [], totalPrice = 0 } = location.state || {};
+  const { cartItems = [], totalPrice: itemsTotalPrice = 0 } = location.state || {};
   const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   // const [shippingFee, setShippingFee] = useState(
@@ -23,7 +23,7 @@ const CheckoutDetailsPage = () => {
   const [checkedOutItems, setCheckedOutItems] = useState([]);
 
   useEffect(() => {
-    const location = userProfile.location || "Metro Manila";
+    const location = userProfile.location || "Olongapo";
     const calculatedShippingFee = calculateShippingFee(location, totalWeight);
     setShippingFee(calculatedShippingFee);
   }, [userProfile, totalWeight]);
@@ -40,9 +40,9 @@ const CheckoutDetailsPage = () => {
     let shippingFee = 0;
   
     // Example logic: Calculate shipping fee based on location and weight
-    if (location === "Metro Manila") {
+    if (location === "Olongapo") {
       if (weight <= 1) {
-        shippingFee = 60;
+        shippingFee = 50;
       } else if (weight <= 3) {
         shippingFee = 100;
       } else {
@@ -65,6 +65,8 @@ const CheckoutDetailsPage = () => {
 
   
 const handleProceedToPayment = async () => {
+  const totalPrice = itemsTotalPrice + shippingFee;
+
   try {
     const docRef = await addDoc(collection(db, "payments"), {
       cartItems,
@@ -95,13 +97,13 @@ const handleProceedToPayment = async () => {
           <CartItem key={index} item={item} onRemove={() => {}} />
         ))}
         <Text fontWeight="bold">Shipping Fee: P{shippingFee}</Text>
-        <Text fontWeight="bold">Total Price: P{totalPrice}</Text>
+        <Text fontWeight="bold">Total Price: P{itemsTotalPrice + shippingFee}</Text>
         <Select
           placeholder="Select Payment Method"
           value={paymentMethod}
           onChange={handlePaymentMethodChange}
         >
-          <option value="cod">Cash on Delivery (COD)</option>
+          <option value="cod">(Cash on Delivery COD)</option>
           <option value="gcash">GCash</option>
           <option value="googlePay">Google Pay</option>
         </Select>
@@ -109,8 +111,7 @@ const handleProceedToPayment = async () => {
           Proceed to Payment
         </Button>
       </VStack>
-      <Link to="/payment" state={{ cartItems, totalPrice }}>
-        Proceed to Payment
+      <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice + shippingFee }}>
       </Link>
     </Box>
   );
