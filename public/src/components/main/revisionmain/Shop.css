@@ -1,0 +1,27 @@
+.cardContent,
+.descriptionWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+.imageWrapper {
+  flex: 1;
+  min-width: min(100%, 15em);
+}
+.descriptionWrapper {
+  flex: 4;
+  min-width: min(100%, 20em);
+}
+
+.descriptionWrapper > * {
+  flex: 1;
+  min-width: min(100%, 20em);
+}
+
+.truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

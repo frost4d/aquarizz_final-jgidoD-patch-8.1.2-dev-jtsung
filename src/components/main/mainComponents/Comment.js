@@ -8,7 +8,7 @@ import Profile from "../Profile"
 
 const Comments = (props) => {
 const {user, userProfile} = UserAuth()
-const postID = props.postID
+const id = props.id
 const authorId = props.authorId
 const [comment, setComment] = useState("")
 const [commentData, setCommentData] = useState()
@@ -21,7 +21,7 @@ const txt = useRef()
     const data = [];
 
     try{
-        const postRef = doc(db, 'posts', postID)
+        const postRef = doc(db, 'shop', id)
         const commentRef = collection(postRef,"comments")
         // const querySnapshot = await getDocs(commentRef)
         const querySnapshot = await getDocs(query( commentRef, orderBy("createdAt", "desc"), limit(5)));
@@ -61,7 +61,7 @@ const handleCommentSubmit = async (e) => {
         recipientUserID: authorId,
     }
     try {
-        const postRef = doc(db, 'posts', postID)
+        const postRef = doc(db, 'shop', id)
         const commentRef = collection(postRef, "comments")
         await addDoc(commentRef, obj)
         console.log(obj)
