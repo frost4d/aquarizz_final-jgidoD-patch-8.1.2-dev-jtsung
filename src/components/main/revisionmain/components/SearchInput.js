@@ -1,8 +1,14 @@
+<<<<<<< HEAD
+import { useState } from "react";
+=======
+import "./SearchInput.css";
+>>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
 import { Box, Flex, Button, Input } from "@chakra-ui/react";
 import { MapPin, Search } from "react-feather";
 import { useForm } from "react-hook-form";
 
-const SearchInput = ({ handleSearch }) => {
+const SearchInput = ({ handleSearch, userLocation}) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const {
     register,
     handleSubmit,
@@ -16,9 +22,10 @@ const SearchInput = ({ handleSearch }) => {
   return (
     <>
       <form onSubmit={handleSubmit(handleSearchClick)}>
-        <Flex maxW="500%" mt="40px" justify="center">
+        <Flex maxW="500%" mt="40px" justify="center" mx="32px">
           <Flex
             className="searchWrapper"
+            align="center"
             justify="space-around"
             p="12px 16px"
             borderRadius="32px"
@@ -63,8 +70,8 @@ const SearchInput = ({ handleSearch }) => {
                 <MapPin />
               </Box>
             </Flex>
-            <Flex ml="12px">
-              <Button type="submit" borderRadius="24px">
+            <Flex className="btnFind" ml="12px">
+              <Button id="findItemBtn" type="submit" borderRadius="24px">
                 Find
               </Button>
             </Flex>

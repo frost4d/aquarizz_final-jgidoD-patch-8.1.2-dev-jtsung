@@ -1,5 +1,6 @@
+import "./AddToCartPage.css";
 import { useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
@@ -19,22 +20,29 @@ import {
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
 // import 'slick-carousel/slick/slick-theme.css';
-import { useParams, Routes, Route } from "react-router-dom";
+import { useParams, Routes, Route, useNavigate } from "react-router-dom";
 import CartItem from "./CartItem";
 import CartListPage from "./CartListPage";
 import Navigation from "./Navigation";
+
 import Comments from "../mainComponents/Comment";
 import { UserAuth } from "../../context/AuthContext";
+
+import Footer from "./Footer";
+
+
 const AddToCartPage = ({ route }) => {
   const { id } = useParams(); 
-  const { userProfile } = UserAuth();
+  const { user, userProfile } = UserAuth();
   const [post, setPost] = useState([]);
   const [cartItems, setCartItems] = useState([]);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sellerProfile, setSellerProfile] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const navigate = useNavigate();
   // const addToCart = (item) => {
   //   setCartItems([...cartItems, item]);
   // };
@@ -46,7 +54,26 @@ const AddToCartPage = ({ route }) => {
     localStorage.setItem("wishlist", JSON.stringify(updatedItems));
     setCartItems(updatedItems);
   };
+<<<<<<< HEAD
   
+  const fetchSellerProfile = async (authorID) => {
+    try {
+      console.log("Fetching seller profile with authorID:", authorID);
+      const sellerDocRef = doc(db, "users1", authorID);
+      const sellerDocSnap = await getDoc(sellerDocRef);
+      if (sellerDocSnap.exists()) {
+        setSellerProfile(sellerDocSnap.data());
+      } else {
+        setError(`No such seller with ID: ${authorID}`);
+        console.error(`No such seller with ID: ${authorID}`);
+      }
+    } catch (error) {
+      setError("Error fetching seller profile: " + error.message);
+      console.error("Error fetching seller profile:", error.message);
+    }
+  };
+=======
+>>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -55,17 +82,21 @@ const AddToCartPage = ({ route }) => {
         const docRef = doc(db, "shop", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProduct(docSnap.data());
+          const productData = docSnap.data();
+          setProduct(productData);
+          fetchSellerProfile(productData.authorID);
         } else {
           setError("No such document!");
+          console.error("No such document!");
         }
       } catch (error) {
         setError("Error fetching product: " + error.message);
-        // }
+        console.error("Error fetching product:", error.message);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProduct();
   }, [id]);
 
@@ -73,6 +104,20 @@ const AddToCartPage = ({ route }) => {
     const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
     setCartItems(existingItems);
   }, []);
+
+  const addComment = async (postId, comment) => {
+    try {
+      const commentRef = collection(db, "shop", postId, "comments");
+      await addDoc(commentRef, {
+        comment,
+        createdAt: serverTimestamp(),
+        author: user.displayName,
+      });
+      console.log("Comment added successfully!");
+    } catch (error) {
+      console.error("Error adding comment: ", error.message);
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -88,10 +133,10 @@ const AddToCartPage = ({ route }) => {
 
   return (
     <>
-      <Box>
+      <Box h="100vh">
         <Navigation />
 
-        {product && (
+        {sellerProfile && (
           <Center>
             <Box>
               <Flex p="10" mx="50px" bg="#f8f9fa">
@@ -168,8 +213,9 @@ const AddToCartPage = ({ route }) => {
 
                     <HStack spacing="4">
                       <Button
+                        variant="link"
                         onClick={() => addToCart(product)}
-                        colorScheme="teal"
+                        color="#161616"
                       >
                         Add to Wishlist
                       </Button>
@@ -197,16 +243,18 @@ const AddToCartPage = ({ route }) => {
                       Seller Profile
                     </Heading>
                     <HStack spacing="4">
-                      <Avatar size="xl" name={userProfile.name} src="/path/to/avatar.jpg" />
+                      <Avatar size="xl" name={sellerProfile.name} src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"} />
                       <VStack align="stretch">
                         <Text fontSize="20px" fontWeight="bold">
-                        {userProfile.name}
+                        {sellerProfile.name}
                         </Text>
                         <Text fontSize="16px" color="#6e6e6e">
-                        {userProfile.email}
+                        {sellerProfile.email}
                         </Text>
-                        <Button colorScheme="blue" onClick={() => window.location.href = "/shop"}>
-                          Visit Shop
+                        <Button colorScheme="blue" onClick={() => {
+                    navigate(`/profile/${product.authorID}`);
+                  }}>
+                          Visit Profile
                         </Button>
                       </VStack>
                     </HStack>
@@ -216,12 +264,17 @@ const AddToCartPage = ({ route }) => {
 
               <Box p="10" mx="50px" bg="#f8f9fa" mt="10">
                 <Text fontSize="20px" fontWeight="bold" mb="20px">Customer Reviews</Text>
-                <Comments  postID={post.id} authorId={post.authorID} />
+                {/* <Comments postID={post.id} authorId={post.authorID} /> */}
+                <Comments id={id} authorId={product.authorID} />
               </Box>
             </Box>
           </Center>
         )}
+        <Flex w="100%" h="100vh" align="center" justify="center">
+            <span className="loader"></span>
+          </Flex>
       </Box>
+      <Footer />
     </>
   );
 };

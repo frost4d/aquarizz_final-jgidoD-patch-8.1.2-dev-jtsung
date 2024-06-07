@@ -580,7 +580,7 @@ const Dashboard = () => {
                             w="30px"
                             borderRadius="50%"
                             src={
-                              post.authorId.photoURL ? "" : post.profileImage
+                              !post.authorId.photoURL ? "" : post.profileImage
                             }
                             mr="8px"
                           />
