@@ -259,6 +259,9 @@ const ItemStatusPage = () => {
                           <Text className="truncate" mr="3">{item.cartItems[0].postContent}</Text>
                           <Divider my={1} />
                           <Text fontWeight="bold">
+                                Quantity: {item.quantity}
+                              </Text>
+                          <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}
                           </Text>
                           <Text fontWeight="bold">
