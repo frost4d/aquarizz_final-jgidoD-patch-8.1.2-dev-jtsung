@@ -1,5 +1,6 @@
+import "./CheckoutDetailsPage.css";
 import React, { useState, useEffect } from "react";
-import { VStack, Text, Input, Select, Button, Box } from "@chakra-ui/react";
+import { VStack, Text, Input, Select, Button, Box, Flex } from "@chakra-ui/react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import CartItem from "./CartItem";
 import Navigation from "./Navigation";
@@ -114,6 +115,7 @@ const handleProceedToPayment = async () => {
       <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice + shippingFee }}>
       </Link>
     </Box>
+    
   );
 };
 

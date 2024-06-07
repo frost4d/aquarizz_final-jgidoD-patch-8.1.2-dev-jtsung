@@ -1,8 +1,8 @@
-<<<<<<< HEAD
+
 import { useState } from "react";
-=======
+
 import "./SearchInput.css";
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
 import { Box, Flex, Button, Input } from "@chakra-ui/react";
 import { MapPin, Search } from "react-feather";
 import { useForm } from "react-hook-form";

@@ -75,16 +75,12 @@ const Create = (props) => {
       postTitle: data.title,
       postContent: data.text,
       postImage: file ? imageUrl : "", // Optional chaining to avoid null value
-<<<<<<< HEAD
+      
       tag: data.tag,
       createdAt: data.createdAt || new Date().toISOString(),
       price: data.price,
       weight: data.weight,
-=======
-      tag: `#${data.tag}`,
-      createdAt: data.createdAt || new Date().toISOString(),
-      price: data.price,
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+      totalAvailable: data.totalAvailable,
       location: userProfile.location,
     };
     try {
@@ -175,8 +171,9 @@ const Create = (props) => {
                   /> */}
                 </Box>
                 <Box>
+                <FormLabel>Unit Price</FormLabel>
                   <Input
-                    placeholder="Price"
+                    // placeholder="Unit Price"
                     {...register("price", { required: true })}
                     aria-invalid={errors.tag ? "true" : "false"}
                   />
@@ -187,10 +184,11 @@ const Create = (props) => {
                   )}
                 </Box>
 
-<<<<<<< HEAD
+
                 <Box>
+                <FormLabel>Weight in (kg)</FormLabel>
                   <Input
-                    placeholder="Weight in kg"
+                    // placeholder="Weight in (kg)"
                     {...register("weight", { required: true })}
                     aria-invalid={errors.weight ? "true" : "false"}
                   />
@@ -201,8 +199,21 @@ const Create = (props) => {
                   )}
                 </Box>
 
-=======
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+                <Box>
+                <FormLabel>Quantity</FormLabel>
+                  <Input
+                    // placeholder="Quantity"
+                    {...register("totalAvailable", { required: true })}
+                    aria-invalid={errors.totalAvailable ? "true" : "false"}
+                  />
+                  {errors.totalAvailable?.type === "required" && (
+                    <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                      Total Available is required
+                    </p>
+                  )}
+                </Box>
+
+
                 <Button
                   type="submit"
                   bg={primaryColor}

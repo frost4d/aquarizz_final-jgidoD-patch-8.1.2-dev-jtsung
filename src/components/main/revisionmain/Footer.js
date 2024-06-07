@@ -20,6 +20,7 @@ const Footer = () => {
         align="center"
         justify="space-evenly"
         flexWrap="wrap"
+        py="16px"
       >
         <Flex
           className="footerContents"
@@ -28,6 +29,7 @@ const Footer = () => {
           justify="center"
           flexDirection="column"
           flex="1"
+          
         >
           <Flex align="center" justify="center" mt="12px" w="100%">
             <Box className="footer__imageWrapper"></Box>

@@ -55,11 +55,11 @@ import logo from "../../../assets/logo2.png";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
-<<<<<<< HEAD
+
 import Contact from "../../Contact";
-=======
+
 import Create from "./listing/Create";
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
 
 const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -69,11 +69,11 @@ const Navigation = () => {
   const secondaryFont = '"Montserrat", sans-serif';
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
-<<<<<<< HEAD
+
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-=======
+
   const modalShop = useDisclosure();
->>>>>>> bf4a6cfa6d4d9f03dececc604e8f25fcd93909f4
+
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
@@ -103,7 +103,7 @@ const Navigation = () => {
           <Box
             className="logoWrapper"
             onClick={() => {
-              window.location.reload();
+              navigate("/")
             }}
             cursor="pointer"
             ml="-24px"
@@ -197,8 +197,11 @@ const Navigation = () => {
                       <MenuItem onClick={() => {
                     navigate(`/profile/${user.uid}`);
                   }}
-                  icon={<User size={16} />}>My Account</MenuItem>
+                  >My Account</MenuItem>
                       <MenuItem>My Shop</MenuItem>
+                      <MenuItem onClick={() => {
+                    navigate(`/reports`);
+                  }}>My listing</MenuItem>
                       <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
                       </MenuItem>
