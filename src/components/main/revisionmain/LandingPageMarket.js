@@ -139,7 +139,7 @@ const LandingPageMarket = () => {
               </Button>
             </NavLink>
 
-            <NavLink to="discover">
+            <NavLink to="/discover">
               <Button
                 variant="ghost"
                 color="#000"
@@ -411,10 +411,13 @@ const LandingPageMarket = () => {
               flexWrap="wrap"
               flexGrow="shrink"
             >
-
-              <Box className="fishWrapper" mb="12px" onClick={() => handleCategoryClick('Fish')} cursor="pointer">
+              <Box
+                className="fishWrapper"
+                mb="12px"
+                onClick={() => navigate("/shop")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden" borderRadius="4px">
-
                   <Image
                     h="200px"
                     w="200px"
@@ -433,9 +436,13 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
 
-              <Box className="decorWrapper" mb="12px" onClick={() => handleCategoryClick('Accessories')} cursor="pointer">
+              <Box
+                className="decorWrapper"
+                mb="12px"
+                onClick={() => navigate("/shop")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden" borderRadius="4px">
-
                   <Image
                     h="200px"
                     w="200px"
@@ -453,9 +460,12 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
 
-              <Box className="feedsWrapper" onClick={() => handleCategoryClick('Feeds')} cursor="pointer">
+              <Box
+                className="feedsWrapper"
+                onClick={() => navigate("/shop")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden" borderRadius="4px">
-
                   <Image
                     h="200px"
                     w="200px"
@@ -473,9 +483,12 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
 
-              <Box className="aquariumWrapper" onClick={() => handleCategoryClick('Aquarium')} cursor="pointer">
+              <Box
+                className="aquariumWrapper"
+                onClick={() => navigate("/shop")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden">
-
                   <Image
                     h="200px"
                     w="200px"

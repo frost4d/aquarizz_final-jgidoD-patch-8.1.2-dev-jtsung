@@ -19,7 +19,7 @@ import {
   GridItem,
   Grid,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
 import { Plus } from "react-feather";
 import AddDiscoverModal from "./AddDiscoverModal";
@@ -27,6 +27,7 @@ import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
 const Discover = () => {
+  const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
   const primaryColor = "#FFC947";
   const primaryFont = '"Poppins", sans-serif';
@@ -42,7 +43,6 @@ const Discover = () => {
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
-
       try {
         const postsCollection = collection(db, "discover");
         const querySnapshot = await getDocs(postsCollection);
@@ -139,8 +139,12 @@ const Discover = () => {
             <Flex w="100%" justify="center" p="12px 24px">
               <form onSubmit={handleSearchDiscover}>
                 <Flex w="100%" justify="space-between">
-                  <Input borderRadius="24px" placeholder="Search" value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)} />
+                  <Input
+                    borderRadius="24px"
+                    placeholder="Search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                   <Button p="12px 24px" type="submit" borderRadius="24px">
                     Search
                   </Button>
@@ -154,7 +158,6 @@ const Discover = () => {
               align="start"
               flexWrap="wrap"
             >
-
               <Box flex="1" border="1px solid #e1e1e1">
                 <Box p="24px">
                   <Flex flexDirection="column" justify="center" align="center">
@@ -167,12 +170,30 @@ const Discover = () => {
                       bg="#FF7D29"
                       p="24px"
                     >
-                      <Heading size="lg">{userProfile.name.charAt(0).toUpperCase()}</Heading>
+                      {!user ? (
+                        <Button
+                          variant="link"
+                          onClick={() => {
+                            navigate("/");
+                          }}
+                          color="#000"
+                        >
+                          Login
+                        </Button>
+                      ) : (
+                        <Heading size="lg">
+                          {userProfile.name.charAt(0).toUpperCase()}
+                        </Heading>
+                      )}
                     </Flex>
-                    <Heading size="md">{userProfile.name}</Heading>
+                    <Heading size="md">{!user ? "" : userProfile.name}</Heading>
                     <Text fontSize="xs">
-                      User since:
-                      {format(userProfile.dateCreated, "yyyy-MM-HH")}
+                      {!user
+                        ? ""
+                        : ` User since: ${format(
+                            userProfile.dateCreated,
+                            "yyyy-MM-HH"
+                          )}`}
                     </Text>
                   </Flex>
                 </Box>
@@ -221,7 +242,6 @@ const Discover = () => {
                 </Grid>
               </Box>
               <Box flex="1"></Box>
-
             </Flex>
           </Flex>
         </Box>

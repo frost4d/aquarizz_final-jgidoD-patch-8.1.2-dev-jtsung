@@ -29,7 +29,6 @@ const Footer = () => {
           justify="center"
           flexDirection="column"
           flex="1"
-          
         >
           <Flex align="center" justify="center" mt="12px" w="100%">
             <Box className="footer__imageWrapper"></Box>
@@ -89,7 +88,7 @@ const Footer = () => {
             <Heading fontSize="xl" my="8px">
               About Us
             </Heading>
-            <Box>
+            <Box className="links__">
               <Text color="#333333" fontSize="sm">
                 Contact Us
               </Text>

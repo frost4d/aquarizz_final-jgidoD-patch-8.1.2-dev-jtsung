@@ -34,7 +34,10 @@ function App() {
         <ChakraProvider>
           <Routes>
             <Route path="/" element={<MarketPage />} />
-            <Route path="/category/:categoryName" element={<FilteredItemsPage />} />
+            <Route
+              path="/category/:categoryName"
+              element={<FilteredItemsPage />}
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
             <Route path="/discover" element={<Discover />} />
@@ -48,28 +51,9 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/reports" element={<ReportPage />} />
-
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
-
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoutes>
-                  <Dashboard />
-                </ProtectedRoutes>
-              }
-            />
-
             {/* <Route
-              path="/discover"
-              element={
-                <ProtectedRoutes>
-                  <FishLibrary />
-                </ProtectedRoutes>
-              }
-            /> */}
-            <Route
               path="/profile/:userId"
               element={
                 <ProtectedRoutes>
@@ -92,7 +76,7 @@ function App() {
                   <About />
                 </ProtectedRoutes>
               }
-            />
+            /> */}
           </Routes>
         </ChakraProvider>
       </AuthContextProvider>
