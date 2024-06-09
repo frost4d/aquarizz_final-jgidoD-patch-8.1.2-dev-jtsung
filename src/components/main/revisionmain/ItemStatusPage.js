@@ -1,6 +1,7 @@
 // ItemStatusPage.js
 import "./ReportPage.css";
 import React, { useState, useEffect } from "react";
+import { UserAuth } from "../../context/AuthContext";
 import {
   VStack,
   Text,
@@ -19,7 +20,7 @@ import {
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, where, query } from "firebase/firestore";
 const statuses = [
   "All Order",
   "To Ship",
@@ -128,6 +129,7 @@ const sideTabs = [
   "Reviews"
 ];
 const ItemStatusPage = () => {
+  const { user } = UserAuth();
   const [currentTab, setCurrentTab] = useState(0);
   const [currentSideTab, setCurrentSideTab] = useState(0);
   const [orders, setOrders] = useState([]);
@@ -136,22 +138,54 @@ const ItemStatusPage = () => {
   const checkedOutItems = location.state?.checkedOutItems || [];
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const ordersRef = collection(db, "payments");
-        const querySnapshot = await getDocs(ordersRef);
-        const fetchedOrders = [];
-        querySnapshot.forEach((doc) => {
-          fetchedOrders.push({ id: doc.id, ...doc.data() });
+    if (user) {
+      const fetchOrders = async () => {
+        try {
+          const ordersRef = collection(db, "payments");
+          const querySnapshot = await getDocs(ordersRef);
+          const fetchedOrders = [];
+          querySnapshot.forEach((doc) => {
+            const orderData = doc.data();
+            orderData.cartItems.forEach((item) => {
+            if (item.userId === user.uid) {
+              fetchedOrders.push({ id: doc.id, ...orderData });
+            }
+          });
         });
-        setOrders(fetchedOrders);
-      } catch (error) {
-        console.error("Error fetching orders: ", error);
-      }
-    };
+          setOrders(fetchedOrders);
+        } catch (error) {
+          console.error("Error fetching orders: ", error);
+        }
+      };
 
-    fetchOrders();
-  }, []);
+      fetchOrders();
+    }
+  }, [user]);
+  
+  
+  // useEffect(() => {
+  //   const fetchOrders = async () => {
+  //     if (!userId) {
+  //       console.error("User ID is undefined");
+  //       return;
+  //     }
+  
+  //     try {
+  //       const ordersRef = collection(db, "payments");
+  //       const q = query(ordersRef, where("userId", "==", userId));
+  //       const querySnapshot = await getDocs(q);
+  //       const fetchedOrders = [];
+  //       querySnapshot.forEach((doc) => {
+  //         fetchedOrders.push({ id: doc.id, ...doc.data() });
+  //       });
+  //       setOrders(fetchedOrders);
+  //     } catch (error) {
+  //       console.error("Error fetching orders: ", error);
+  //     }
+  //   };
+
+  //   fetchOrders();
+  // }, [userId]);
 
   const getStatusContent = (status) => {
     switch (status) {
@@ -268,7 +302,7 @@ const ItemStatusPage = () => {
                             Shipping Fee: P{item.shippingFee}
                           </Text>
                           <Text fontWeight="bold">
-                            Total Price: P{item.cartItems[0].totalPrice}
+                            Total Price: P{item.totalPrice}
                           </Text>
                           {(item.status === "To Ship" ||
                             item.status === "To Receive" ||

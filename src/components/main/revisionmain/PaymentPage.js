@@ -162,9 +162,9 @@ const PaymentPage = () => {
         </Modal>
       )}
        <Flex justify="center" align="center" mb="4">
-      {/* <Button colorScheme="blue" onClick={handleProceedToPayment}>
+      <Button colorScheme="blue" onClick={handleProceedToPayment}>
         View your item status
-      </Button> */}
+      </Button>
       </Flex>
     </Box>
   );

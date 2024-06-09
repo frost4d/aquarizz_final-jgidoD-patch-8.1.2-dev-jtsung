@@ -7,6 +7,8 @@ import Navigation from "./Navigation";
 import { db } from "../../../firebase/firebaseConfig";
 import { UserAuth } from "../../context/AuthContext";
 import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from "firebase/firestore";
+import GooglePay from "../mainComponents/GooglePay";
+
 const CheckoutDetailsPage = () => {
   const { id } = useParams(); 
   const { user, userProfile } = UserAuth();
@@ -15,6 +17,7 @@ const CheckoutDetailsPage = () => {
   const { cartItems = [], totalPrice: itemsTotalPrice = 0 } = location.state || {};
   const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
+  const [isGooglePaySelected, setIsGooglePaySelected] = useState(false);
   // const [shippingFee, setShippingFee] = useState(
   //   calculateShippingFee("Metro Manila", totalWeight)
   // );
@@ -36,7 +39,9 @@ const CheckoutDetailsPage = () => {
   }, [userProfile, totalWeight]);
 
   const handlePaymentMethodChange = (e) => {
-    setPaymentMethod(e.target.value);
+    const selectedPaymentMethod = e.target.value;
+    setPaymentMethod(selectedPaymentMethod);
+    setIsGooglePaySelected(selectedPaymentMethod === "googlePay");
   };
 
   const handleShippingFeeChange = (e) => {
@@ -73,12 +78,19 @@ const CheckoutDetailsPage = () => {
   
 
 const handleProceedToPayment = async () => {
-  const totalPrice = itemsTotalPrice + shippingFee;
+  // const totalPrice = itemsTotalPrice + shippingFee;
+  // const totalPrice = (itemsTotalPrice + shippingFee).toString(); 
+  const feePercentage = 0.02; // 2% fee
+  const fee = (itemsTotalPrice + shippingFee) * feePercentage;
+  const totalPriceWithFee = (itemsTotalPrice + shippingFee + fee).toFixed(2); 
+
+
 
   try {
+
     const docRef = await addDoc(collection(db, "payments"), {
       cartItems,
-      totalPrice,
+      totalPrice: totalPriceWithFee,
       paymentMethod,
       shippingFee,
       createdAt: serverTimestamp()
@@ -107,7 +119,7 @@ const handleProceedToPayment = async () => {
     }
     
     navigate("/payment", {
-      state: { cartItems, totalPrice, paymentMethod, shippingFee },
+      state: { cartItems, totalPrice: totalPriceWithFee, paymentMethod, shippingFee },
     });
     localStorage.removeItem("wishlist");
   } catch (e) {
@@ -115,9 +127,8 @@ const handleProceedToPayment = async () => {
   }
 };
 
-
-
-
+const fee = (itemsTotalPrice + shippingFee) * 0.02;
+  const totalPriceWithFee = (itemsTotalPrice + shippingFee + fee).toFixed(2);
 
   return (
     <Box>
@@ -140,6 +151,13 @@ const handleProceedToPayment = async () => {
           <option value="gcash">GCash</option>
           <option value="googlePay">Google Pay</option>
         </Select>
+        {/* {isGooglePaySelected && <GooglePay price={(itemsTotalPrice + shippingFee).toString()} />} */}
+        {isGooglePaySelected && (
+        <Box>
+            <GooglePay price={totalPriceWithFee.toString()} />
+            <Text fontWeight="bold">2% Fee Charge: P{((itemsTotalPrice + shippingFee) * 0.02).toFixed(2)}</Text>
+          </Box>
+        )}
         <Button colorScheme="blue" onClick={handleProceedToPayment}>
           Proceed to Payment
         </Button>

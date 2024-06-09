@@ -67,6 +67,14 @@ const AddToCartPage = ({ route }) => {
   // };
   const onClose = () => setIsAlertOpen(false);
 
+
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => {
+      return total + (item.price * item.quantity);
+    }, 0);
+  };
+
+
   const addToCart = (item) => { 
     setCartItemCount(cartItemCount + 1);
     const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
@@ -121,6 +129,29 @@ const AddToCartPage = ({ route }) => {
       duration: 3000,
       isClosable: true,
     });
+  };
+
+  const proceedToCheckout = () => {
+    if (!product) return;
+
+    if (quantity > product.totalAvailable) {
+      toast({
+        title: "Error",
+        description: "Quantity exceeds available stock.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    const cartItem = {
+      ...product,
+      quantity,
+      userId: user.uid,
+    };
+
+    // navigate("/checkout", { state: { cartItems, totalPrice: getTotalPrice() } });
+    navigate("/checkout", { state: { cartItems: [cartItem], totalPrice: cartItem.price * quantity } });
   };
   
   const fetchSellerProfile = async (authorID) => {
@@ -307,13 +338,13 @@ const AddToCartPage = ({ route }) => {
                       >
                         Add to Wishlist
                       </Button>
-                      <GooglePay price={product.price}/>
-                      {/* <Button
-                        onClick={() => {addToCard(product)}}
+                      {/* <GooglePay price={product.price}/> */}
+                      <Button
+                        onClick={proceedToCheckout}
                         colorScheme="blue"
                       >
                         Buy Now
-                      </Button> */}
+                      </Button>
                     </HStack>
                   </VStack>
                   

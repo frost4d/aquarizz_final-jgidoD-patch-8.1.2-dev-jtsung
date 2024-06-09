@@ -26,6 +26,7 @@ import CheckoutDetailsPage from "./components/main/revisionmain/CheckoutDetailsP
 import PaymentPage from "./components/main/revisionmain/PaymentPage.js";
 import FilteredItemsPage from "./components/main/revisionmain/FilteredItemsPage.js";
 import ReportPage from "./components/main/revisionmain/ReportPage.js";
+import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/reports" element={<ReportPage />} />
+            <Route path="/transaction" element={<TransactionPage />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
 
