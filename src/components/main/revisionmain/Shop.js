@@ -263,9 +263,9 @@ const Shop = () => {
                               boxShadow: "0 3px 2px #e9e9e9",
                               transform: "translateY(-3px)",
                             }}
-                            onClick={() => {
-                              console.log(post.id);
-                            }}
+                            // onClick={() => {
+                            //   console.log(post.id);
+                            // }}
                           >
                             <Box
                               className="itemsWrapper"

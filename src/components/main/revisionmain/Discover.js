@@ -208,40 +208,41 @@ const Discover = () => {
                   autoRows="minmax(200px, auto)"
                   rowGap={12}
                 >
-                  {filteredPosts.map((post) => (
-                    <GridItem
-                      key={post.id}
-                      border="1px solid #e1e1e1"
-                      p="6px"
-                      colSpan={1}
-                      rowSpan={1}
-                    >
-                      <Flex>
-                        <Box w="100%">
-                          <Image
-                            objectFit="cover"
-                            w="100%"
-                            h="350px"
-                            src={post.postImage}
-                            alt="Post Image"
-                          />
+                  {filteredPosts &&
+                    filteredPosts.map((post) => (
+                      <GridItem
+                        key={post.id}
+                        border="1px solid #e1e1e1"
+                        p="6px"
+                        colSpan={1}
+                        rowSpan={1}
+                      >
+                        <Flex>
+                          <Box w="100%">
+                            <Image
+                              objectFit="cover"
+                              w="100%"
+                              h="350px"
+                              src={post.postImage}
+                              alt="Post Image"
+                            />
+                          </Box>
+                        </Flex>
+                        <Flex justify="space-between" mt="24px">
+                          <Button variant="link" color="#333333">
+                            {post.authorName}
+                          </Button>
+                          <Text fontSize="xs" color="#6e6e6e" as="i">
+                            {formatDistanceToNow(post.createdAt)} ago
+                          </Text>
+                        </Flex>
+                        <Box mt="12px">
+                          <Text fontSize="sm" color="#6e6e6e">
+                            {post.postContent}
+                          </Text>
                         </Box>
-                      </Flex>
-                      <Flex justify="space-between" mt="24px">
-                        <Button variant="link" color="#333333">
-                          {post.authorName}
-                        </Button>
-                        <Text fontSize="xs" color="#6e6e6e" as="i">
-                          {formatDistanceToNow(post.createdAt)} ago
-                        </Text>
-                      </Flex>
-                      <Box mt="12px">
-                        <Text fontSize="sm" color="#6e6e6e">
-                          {post.postContent}
-                        </Text>
-                      </Box>
-                    </GridItem>
-                  ))}
+                      </GridItem>
+                    ))}
                 </Grid>
               </Box>
               <Box flex="1"></Box>

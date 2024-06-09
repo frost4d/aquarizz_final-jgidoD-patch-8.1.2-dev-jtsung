@@ -34,6 +34,10 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
 } from "@chakra-ui/react";
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
@@ -45,7 +49,7 @@ import Navigation from "./Navigation";
 
 import Comments from "../mainComponents/Comment";
 import { UserAuth } from "../../context/AuthContext";
-
+import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import GooglePay from "../mainComponents/GooglePay";
 
@@ -204,190 +208,214 @@ const AddToCartPage = ({ route }) => {
     <>
       <Box h="100vh">
         <Navigation />
+
         {sellerProfile && (
-          <Box className="itemContents__wrapper">
-            <Flex
-              flexWrap="wrap"
-              className="itemholder"
-              justify="center"
-              p="10"
-              bg="#f8f9fa"
-            >
-              {/* <Flex justify="center" align="center" mt="64px"> */}
-              <Center maxWidth="400px" minW="300px">
-                <Slider {...settings}>
-                  <Image
-                    objectFit="cover"
-                    src={product.postImage}
-                    alt="Post Image"
-                    mb="24px"
-                  />
-                  <Box display="flex" justifyContent="space-between">
+          <>
+            <Box mx="12px ">
+              <Breadcrumb>
+                <BreadcrumbItem>
+                  <BreadcrumbLink as={Link} to="/shop">
+                    Shop
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+
+                <BreadcrumbItem>
+                  <BreadcrumbLink as="b">{product.postTitle}</BreadcrumbLink>
+                </BreadcrumbItem>
+              </Breadcrumb>
+            </Box>
+            <Box className="itemContents__wrapper">
+              <Flex
+                flexWrap="wrap"
+                className="itemholder"
+                justify="center"
+                p="10"
+                bg="#f8f9fa"
+              >
+                {/* <Flex justify="center" align="center" mt="64px"> */}
+                <Center maxWidth="400px" minW="300px">
+                  <Slider {...settings}>
                     <Image
                       objectFit="cover"
                       src={product.postImage}
-                      alt="Image 1"
-                      w="32%"
-                      h="auto"
+                      alt="Post Image"
+                      mb="24px"
                     />
-                    <Image
-                      objectFit="cover"
-                      src={product.postImage}
-                      alt="Image 2"
-                      w="32%"
-                      h="auto"
-                    />
-                    <Image
-                      objectFit="cover"
-                      src={product.postImage}
-                      alt="Image 3"
-                      w="100px"
-                      h="auto"
-                    />
-                  </Box>
-                </Slider>
-              </Center>
-              <Box w="600px" maxW="600px" minW="300px">
-                <Box spacing="4">
-                  <Text
-                    fontWeight="600"
-                    color="#000"
-                    fontFamily="Poppins"
-                    mb="2"
-                    fontSize="xl"
-                  >
-                    {product.postTitle}
-                  </Text>
-
-                  <Text fontSize="3xl" fontWeight="700" color="red.500" mb="2">
-                    &#8369; {product.price}
-                  </Text>
-
-                  <Text fontSize="md" mb="4">
-                    Total Available:{" "}
-                    {!product.totalAvailable ? (
-                      <Text color="gray.500">N/A</Text>
-                    ) : (
-                      product.totalAvailable
-                    )}
-                  </Text>
-
-                  <HStack spacing="4" alignItems="center">
-                    <Text fontSize="md">Quantity:</Text>
-                    <NumberInput
-                      value={quantity}
-                      min={1}
-                      max={product.totalAvailable}
-                      onChange={(valueString) =>
-                        setQuantity(parseInt(valueString))
-                      }
+                    <Box p="4px" display="flex" justifyContent="space-between">
+                      <Image
+                        border="1px solid #e1e1e1"
+                        objectFit="cover"
+                        src={product.postImage}
+                        alt="Image 1"
+                        w="32%"
+                        h="auto"
+                      />
+                      <Image
+                        border="1px solid #e1e1e1"
+                        objectFit="cover"
+                        src={product.postImage}
+                        alt="Image 2"
+                        w="32%"
+                        h="auto"
+                      />
+                      <Image
+                        border="1px solid #e1e1e1"
+                        objectFit="cover"
+                        src={product.postImage}
+                        alt="Image 3"
+                        w="100px"
+                        h="auto"
+                      />
+                    </Box>
+                  </Slider>
+                </Center>
+                <Box w="600px" maxW="600px" minW="300px">
+                  <Box spacing="4">
+                    <Text
+                      fontWeight="600"
+                      color="#000"
+                      fontFamily="Poppins"
+                      mb="2"
+                      fontSize="xl"
                     >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </HStack>
+                      {product.postTitle}
+                    </Text>
 
-                  <Flex flexWrap="wrap" className="transactionBtn__wrapper">
-                    <Button
-                      variant="link"
-                      onClick={handleAddToCart}
-                      color="#161616"
+                    <Text
+                      fontSize="3xl"
+                      fontWeight="700"
+                      color="red.500"
+                      mb="2"
                     >
-                      Add to Wishlist
-                    </Button>
-                    <GooglePay price={product.price} />
-                    {/* <Button
+                      &#8369; {product.price}
+                    </Text>
+
+                    <Text fontSize="md" mb="4">
+                      Total Available:{" "}
+                      {!product.totalAvailable ? (
+                        <Text color="gray.500">N/A</Text>
+                      ) : (
+                        product.totalAvailable
+                      )}
+                    </Text>
+
+                    <HStack spacing="4" alignItems="center">
+                      <Text fontSize="md">Quantity:</Text>
+                      <NumberInput
+                        value={quantity}
+                        min={1}
+                        max={product.totalAvailable}
+                        onChange={(valueString) =>
+                          setQuantity(parseInt(valueString))
+                        }
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </HStack>
+
+                    <Flex flexWrap="wrap" className="transactionBtn__wrapper">
+                      <Button
+                        variant="link"
+                        onClick={handleAddToCart}
+                        color="#161616"
+                      >
+                        Add to Wishlist
+                      </Button>
+                      <GooglePay price={product.price} />
+                      {/* <Button
                         onClick={() => {addToCard(product)}}
                         colorScheme="blue"
-                      >
+                        >
                         Buy Now
-                      </Button> */}
-                  </Flex>
+                        </Button> */}
+                    </Flex>
+                  </Box>
+                  {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
                 </Box>
-                {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
-              </Box>
-            </Flex>
-            <Flex p="12px" mx="auto" bg="#f8f9fa">
-              <Box flex="1">
-                <VStack align="stretch" spacing="4">
-                  {/* <Heading
+              </Flex>
+              <Flex p="12px" mx="auto" bg="#f8f9fa">
+                <Box flex="1">
+                  <VStack align="stretch" spacing="4">
+                    {/* <Heading
                     fontSize="40px"
                     color="blue.500"
                     fontFamily="Poppins"
                     mb="2"
-                  >
+                    >
                     Seller Profile
-                  </Heading> */}
-                  <Flex gap="4">
-                    <Avatar
-                      size="xl"
-                      name={sellerProfile.name}
-                      src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"}
-                    />
-                    <Box>
-                      <Text
-                        variant="link"
-                        color="#000"
-                        fontSize="20px"
-                        fontWeight="bold"
-                      >
-                        {sellerProfile.name}
-                      </Text>
-                      <Text fontSize="16px" color="#6e6e6e">
-                        {sellerProfile.email}
-                      </Text>
-                      <Button
-                        variant="outline"
-                        colorScheme="blue"
-                        _hover={{ bg: "#2B6CB0", color: "#fff" }}
-                        onClick={() => {
-                          navigate(`/profile/${product.authorID}`);
-                        }}
-                      >
-                        Visit Profile
-                      </Button>
-                    </Box>
-                  </Flex>
-                </VStack>
+                    </Heading> */}
+                    <Flex gap="4">
+                      <Avatar
+                        size="lg"
+                        name={sellerProfile.name}
+                        src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"}
+                      />
+                      <Box>
+                        <Text
+                          variant="link"
+                          color="#000"
+                          fontSize="20px"
+                          fontWeight="bold"
+                        >
+                          {sellerProfile.name}
+                        </Text>
+                        <Text fontSize="16px" color="#6e6e6e">
+                          {sellerProfile.email}
+                        </Text>
+                        <Button
+                          variant="outline"
+                          colorScheme="blue"
+                          _hover={{ bg: "#2B6CB0", color: "#fff" }}
+                          onClick={() => {
+                            navigate(`/profile/${product.authorID}`);
+                          }}
+                        >
+                          Visit Profile
+                        </Button>
+                      </Box>
+                    </Flex>
+                  </VStack>
+                </Box>
+              </Flex>
+              <Box className="item__productDescription">
+                <Text fontSize="xl" fontWeight="bold">
+                  Product Description
+                </Text>
+
+                <Text
+                  color="#6e6e6e"
+                  mb="16px"
+                  bg="#EDF0F2"
+                  w="100%"
+                  h="auto"
+                  p="3"
+                  borderRadius="4px"
+                >
+                  {product.postContent}
+                </Text>
+                <Heading size="sm">Tags</Heading>
+                <Text as="i" fontSize="sm" color="#6e6e6e">
+                  #{product.tag}
+                </Text>
               </Box>
-            </Flex>
-            <Box className="item__productDescription">
-              <Text fontSize="xl" fontWeight="bold">
-                Product Description
-              </Text>
 
-              <Text
-                color="#6e6e6e"
-                mb="16px"
-                bg="#EDF0F2"
-                w="100%"
-                h="auto"
-                p="3"
-                borderRadius="4px"
-              >
-                {product.postContent}
-              </Text>
-              <Heading size="sm">Tags</Heading>
-              <Text as="i" fontSize="sm" color="#6e6e6e">
-                #{product.tag}
-              </Text>
+              <Box p="10" mx="max(auto, 32px)" bg="#f8f9fa" mt="10">
+                <Text fontSize="20px" fontWeight="bold" mb="20px">
+                  Reviews
+                </Text>
+                {/* <Comments postID={post.id} authorId={post.authorID} /> */}
+                <Comments id={id} authorId={product.authorID} />
+              </Box>
             </Box>
-
-            <Box p="10" mx="max(auto, 32px)" bg="#f8f9fa" mt="10">
-              <Text fontSize="20px" fontWeight="bold" mb="20px">
-                Reviews
-              </Text>
-              {/* <Comments postID={post.id} authorId={post.authorID} /> */}
-              <Comments id={id} authorId={product.authorID} />
-            </Box>
-          </Box>
+          </>
         )}
         {/* <Flex w="100%" h="100vh" align="center" justify="center">
             <span className="loader"></span>
-          </Flex> */}
+            </Flex> */}
         <Footer />
       </Box>
     </>
