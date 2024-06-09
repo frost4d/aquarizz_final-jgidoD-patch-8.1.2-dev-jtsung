@@ -1,6 +1,12 @@
 import "./AddToCartPage.css";
 import { useState, useEffect, useRef } from "react";
-import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
@@ -27,7 +33,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogContent,
-  AlertDialogOverlay
+  AlertDialogOverlay,
 } from "@chakra-ui/react";
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
@@ -43,9 +49,8 @@ import { UserAuth } from "../../context/AuthContext";
 import Footer from "./Footer";
 import GooglePay from "../mainComponents/GooglePay";
 
-
 const AddToCartPage = ({ route }) => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const { user, userProfile } = UserAuth();
   const [post, setPost] = useState([]);
   const [cartItems, setCartItems] = useState([]);
@@ -120,7 +125,7 @@ const AddToCartPage = ({ route }) => {
       isClosable: true,
     });
   };
-  
+
   const fetchSellerProfile = async (authorID) => {
     try {
       console.log("Fetching seller profile with authorID:", authorID);
@@ -137,7 +142,6 @@ const AddToCartPage = ({ route }) => {
       console.error("Error fetching seller profile:", error.message);
     }
   };
-
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -194,175 +198,198 @@ const AddToCartPage = ({ route }) => {
     slidesToScroll: 1,
     afterChange: (current) => setCurrentSlide(current),
   };
-
+  console.log(sellerProfile);
+  console.log("here");
   return (
     <>
       <Box h="100vh">
         <Navigation />
-
         {sellerProfile && (
-          <Center>
-            <Box>
-              <Flex p="10" mx="50px" bg="#f8f9fa">
-                {/* <Flex justify="center" align="center" mt="64px"> */}
-                <Box flex="1" minWidth="600px">
-                  <Slider {...settings}>
+          <Box className="itemContents__wrapper">
+            <Flex
+              flexWrap="wrap"
+              className="itemholder"
+              justify="center"
+              p="10"
+              bg="#f8f9fa"
+            >
+              {/* <Flex justify="center" align="center" mt="64px"> */}
+              <Center maxWidth="400px" minW="300px">
+                <Slider {...settings}>
+                  <Image
+                    objectFit="cover"
+                    src={product.postImage}
+                    alt="Post Image"
+                    mb="24px"
+                  />
+                  <Box display="flex" justifyContent="space-between">
                     <Image
                       objectFit="cover"
                       src={product.postImage}
-                      alt="Post Image"
-                      mb="24px"
-                    />
-                    <Box display="flex" justifyContent="space-between">
-                      <Image
-                        objectFit="cover"
-                        src={product.postImage}
-                        alt="Image 1"
-                        w="32%"
-                        h="auto"
-                      />
-                      <Image
-                        objectFit="cover"
-                        src={product.postImage}
-                        alt="Image 2"
-                        w="32%"
-                        h="auto"
-                      />
-                      <Image
-                        objectFit="cover"
-                        src={product.postImage}
-                        alt="Image 3"
-                        w="32%"
-                        h="auto"
-                      />
-                    </Box>
-                  </Slider>
-                </Box>
-                <Box flex="2" pl="12">
-                  <VStack align="stretch" spacing="4">
-                    <Heading
-                      fontSize="50px"
-                      color="blue.500"
-                      fontFamily="Poppins"
-                      mb="2"
-                    >
-                      {product.postTitle}
-                    </Heading>
-
-                    <Text fontSize="28px" fontWeight="bold" mb="4">
-                      Product Description
-                    </Text>
-
-                    <Text
-                      color="#6e6e6e"
-                      mb="16px"
-                      bg="#e9ecef"
-                      w="100%"
+                      alt="Image 1"
+                      w="32%"
                       h="auto"
-                      p="3"
+                    />
+                    <Image
+                      objectFit="cover"
+                      src={product.postImage}
+                      alt="Image 2"
+                      w="32%"
+                      h="auto"
+                    />
+                    <Image
+                      objectFit="cover"
+                      src={product.postImage}
+                      alt="Image 3"
+                      w="100px"
+                      h="auto"
+                    />
+                  </Box>
+                </Slider>
+              </Center>
+              <Box w="600px" maxW="600px" minW="300px">
+                <Box spacing="4">
+                  <Text
+                    fontWeight="600"
+                    color="#000"
+                    fontFamily="Poppins"
+                    mb="2"
+                    fontSize="xl"
+                  >
+                    {product.postTitle}
+                  </Text>
+
+                  <Text fontSize="3xl" fontWeight="700" color="red.500" mb="2">
+                    &#8369; {product.price}
+                  </Text>
+
+                  <Text fontSize="md" mb="4">
+                    Total Available:{" "}
+                    {!product.totalAvailable ? (
+                      <Text color="gray.500">N/A</Text>
+                    ) : (
+                      product.totalAvailable
+                    )}
+                  </Text>
+
+                  <HStack spacing="4" alignItems="center">
+                    <Text fontSize="md">Quantity:</Text>
+                    <NumberInput
+                      value={quantity}
+                      min={1}
+                      max={product.totalAvailable}
+                      onChange={(valueString) =>
+                        setQuantity(parseInt(valueString))
+                      }
                     >
-                      {product.postContent}
-                    </Text>
-                    <Text as="i" fontSize="sm" color="#6e6e6e">
-                      {product.tag}
-                    </Text>
-                    <Text
-                      fontSize="50px"
-                      fontWeight="bold"
-                      color="red.500"
-                      mb="2"
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </HStack>
+
+                  <Flex flexWrap="wrap" className="transactionBtn__wrapper">
+                    <Button
+                      variant="link"
+                      onClick={handleAddToCart}
+                      color="#161616"
                     >
-                      Price: P{product.price}
-                    </Text>
-
-                    <Text fontSize="20px" mb="4">
-                      Total Available: {product.totalAvailable}
-                    </Text>
-
-                    <HStack spacing="4" alignItems="center">
-                      <Text fontSize="20px">Quantity:</Text>
-                      <NumberInput
-                        value={quantity}
-                        min={1}
-                        max={product.totalAvailable}
-                        onChange={(valueString) => setQuantity(parseInt(valueString))}
-                      >
-                        <NumberInputField />
-                        <NumberInputStepper>
-                          <NumberIncrementStepper />
-                          <NumberDecrementStepper />
-                        </NumberInputStepper>
-                      </NumberInput>
-                    </HStack>
-
-                    <HStack spacing="4">
-                      <Button
-                        variant="link"
-                        onClick={handleAddToCart}
-                        color="#161616"
-                      >
-                        Add to Wishlist
-                      </Button>
-                      <GooglePay price={product.price}/>
-                      {/* <Button
+                      Add to Wishlist
+                    </Button>
+                    <GooglePay price={product.price} />
+                    {/* <Button
                         onClick={() => {addToCard(product)}}
                         colorScheme="blue"
                       >
                         Buy Now
                       </Button> */}
-                    </HStack>
-                  </VStack>
-                  {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
+                  </Flex>
                 </Box>
-              </Flex>
-
-              <Flex p="10" mx="50px" bg="#f8f9fa" mt="10">
-                <Box flex="1">
-                  <VStack align="stretch" spacing="4">
-                    <Heading
-                      fontSize="40px"
-                      color="blue.500"
-                      fontFamily="Poppins"
-                      mb="2"
-                    >
-                      Seller Profile
-                    </Heading>
-                    <HStack spacing="4">
-                      <Avatar size="xl" name={sellerProfile.name} src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"} />
-                      <VStack align="stretch">
-                        <Text fontSize="20px" fontWeight="bold">
-                        {sellerProfile.name}
-                        </Text>
-                        <Text fontSize="16px" color="#6e6e6e">
-                        {sellerProfile.email}
-                        </Text>
-                        <Button colorScheme="blue" onClick={() => {
-                    navigate(`/profile/${product.authorID}`);
-                  }}>
-                          Visit Profile
-                        </Button>
-                      </VStack>
-                    </HStack>
-                  </VStack>
-                </Box>
-              </Flex>
-
-              <Box p="10" mx="50px" bg="#f8f9fa" mt="10">
-                <Text fontSize="20px" fontWeight="bold" mb="20px">Customer Reviews</Text>
-                {/* <Comments postID={post.id} authorId={post.authorID} /> */}
-                <Comments id={id} authorId={product.authorID} />
+                {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
               </Box>
+            </Flex>
+            <Flex p="12px" mx="auto" bg="#f8f9fa">
+              <Box flex="1">
+                <VStack align="stretch" spacing="4">
+                  {/* <Heading
+                    fontSize="40px"
+                    color="blue.500"
+                    fontFamily="Poppins"
+                    mb="2"
+                  >
+                    Seller Profile
+                  </Heading> */}
+                  <Flex gap="4">
+                    <Avatar
+                      size="xl"
+                      name={sellerProfile.name}
+                      src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"}
+                    />
+                    <Box>
+                      <Text
+                        variant="link"
+                        color="#000"
+                        fontSize="20px"
+                        fontWeight="bold"
+                      >
+                        {sellerProfile.name}
+                      </Text>
+                      <Text fontSize="16px" color="#6e6e6e">
+                        {sellerProfile.email}
+                      </Text>
+                      <Button
+                        variant="outline"
+                        colorScheme="blue"
+                        _hover={{ bg: "#2B6CB0", color: "#fff" }}
+                        onClick={() => {
+                          navigate(`/profile/${product.authorID}`);
+                        }}
+                      >
+                        Visit Profile
+                      </Button>
+                    </Box>
+                  </Flex>
+                </VStack>
+              </Box>
+            </Flex>
+            <Box className="item__productDescription">
+              <Text fontSize="xl" fontWeight="bold">
+                Product Description
+              </Text>
+
+              <Text
+                color="#6e6e6e"
+                mb="16px"
+                bg="#EDF0F2"
+                w="100%"
+                h="auto"
+                p="3"
+                borderRadius="4px"
+              >
+                {product.postContent}
+              </Text>
+              <Heading size="sm">Tags</Heading>
+              <Text as="i" fontSize="sm" color="#6e6e6e">
+                #{product.tag}
+              </Text>
             </Box>
-          </Center>
+
+            <Box p="10" mx="max(auto, 32px)" bg="#f8f9fa" mt="10">
+              <Text fontSize="20px" fontWeight="bold" mb="20px">
+                Reviews
+              </Text>
+              {/* <Comments postID={post.id} authorId={post.authorID} /> */}
+              <Comments id={id} authorId={product.authorID} />
+            </Box>
+          </Box>
         )}
-        <Flex w="100%" h="100vh" align="center" justify="center">
+        {/* <Flex w="100%" h="100vh" align="center" justify="center">
             <span className="loader"></span>
-          </Flex>
-      <Footer />
-
+          </Flex> */}
+        <Footer />
       </Box>
-
-      
     </>
   );
 };

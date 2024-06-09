@@ -18,6 +18,7 @@ import {
   useToast,
   GridItem,
   Grid,
+  Avatar,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
@@ -161,36 +162,38 @@ const Discover = () => {
               <Box flex="1" border="1px solid #e1e1e1">
                 <Box p="24px">
                   <Flex flexDirection="column" justify="center" align="center">
-                    <Flex
-                      justify="center"
-                      align="center"
-                      borderRadius="50%"
-                      h="100px"
-                      w="100px"
-                      bg="#FF7D29"
-                      p="24px"
-                    >
-                      {!user ? (
-                        <Button
-                          variant="link"
-                          onClick={() => {
-                            navigate("/");
-                          }}
-                          color="#000"
-                        >
-                          Login
-                        </Button>
-                      ) : (
-                        <Heading size="lg">
-                          {userProfile.name.charAt(0).toUpperCase()}
-                        </Heading>
-                      )}
-                    </Flex>
-                    <Heading size="md">{!user ? "" : userProfile.name}</Heading>
+                    {!userProfile ? (
+                      <Button
+                        variant="link"
+                        onClick={() => {
+                          navigate("/");
+                        }}
+                        color="#000"
+                      >
+                        Please login first.
+                      </Button>
+                    ) : (
+                      userProfile && (
+                        <Flex justify="center" align="center" p="24px">
+                          <Avatar
+                            size="xl"
+                            name={userProfile.name}
+                            scr={
+                              userProfile.profileImage || "/path/to/avatar.jpg"
+                            }
+                          />
+                        </Flex>
+                      )
+                    )}
+
+                    <Heading size="md">
+                      {!user ? "" : userProfile && userProfile.name}
+                    </Heading>
                     <Text fontSize="xs">
-                      {!user
+                      {!userProfile
                         ? ""
-                        : ` User since: ${format(
+                        : userProfile &&
+                          ` User since: ${format(
                             userProfile.dateCreated,
                             "yyyy-MM-HH"
                           )}`}

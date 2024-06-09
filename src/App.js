@@ -53,15 +53,8 @@ function App() {
             <Route path="/reports" element={<ReportPage />} />
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
             <Route path="/register" element={<Register />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
             {/* <Route
-              path="/profile/:userId"
-              element={
-                <ProtectedRoutes>
-                  <ProfilePage />
-                </ProtectedRoutes>
-              }
-            />
-            <Route
               path="/profile/:userId/post/:postId"
               element={
                 <ProtectedRoutes>

@@ -34,6 +34,7 @@ import {
   DrawerContent,
   DrawerBody,
   DrawerHeader,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   User,
@@ -60,7 +61,6 @@ import Contact from "../../Contact";
 
 import Create from "./listing/Create";
 
-
 const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
@@ -73,7 +73,6 @@ const Navigation = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const modalShop = useDisclosure();
-
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
@@ -103,7 +102,7 @@ const Navigation = () => {
           <Box
             className="logoWrapper"
             onClick={() => {
-              navigate("/")
+              navigate("/");
             }}
             cursor="pointer"
             ml="-24px"
@@ -176,49 +175,61 @@ const Navigation = () => {
 
             {userProfile ? (
               <>
-                <Menu>
-                  <MenuButton>
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="40px"
-                      w="40px"
-                      borderRadius="50%"
-                      bg="#FF7D29"
-                      mx="32px"
-                    >
-                      <Text as="b">
-                        {userProfile.name.charAt(0).toUpperCase()}
-                      </Text>
-                    </Flex>
-                  </MenuButton>
-                  <MenuList>
-                    <MenuGroup title="Profile">
-                      <MenuItem onClick={() => {
-                    navigate(`/profile/${user.uid}`);
-                  }}
-                  >My Account</MenuItem>
-                      <MenuItem>My Shop</MenuItem>
-                      <MenuItem onClick={() => {
-                    navigate(`/reports`);
-                  }}>My listing</MenuItem>
-                      <MenuItem>
-                        <Link to="/ItemStatusPage">Check Item Status</Link>
-                      </MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuGroup title="Support">
-                      <MenuItem onClick={() => setIsContactModalOpen(true)}>Contact Us</MenuItem>
-                      <Contact isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
-                      <MenuItem>FAQs</MenuItem>
-                      <MenuItem>Return & Exchanges</MenuItem>
-                      <MenuItem>Privacy Policy</MenuItem>
-                      <MenuItem>Terms of Service</MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </MenuList>
-                </Menu>
+                {userProfile && (
+                  <Menu>
+                    <MenuButton>
+                      <Flex justify="center" align="center" mx="32px">
+                        <Avatar
+                          colorScheme={`"whiteAlpha" | "blackAlpha" | "gray"  "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink"`}
+                          size="sm"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                        {/* {userProfile.name.charAt(0).toUpperCase()} */}
+                      </Flex>
+                    </MenuButton>
+                    <MenuList>
+                      <MenuGroup title="Profile">
+                        <MenuItem
+                          onClick={() => {
+                            navigate(`/profile/${user.uid}`);
+                          }}
+                        >
+                          My Account
+                        </MenuItem>
+                        <MenuItem>My Shop</MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            navigate(`/reports`);
+                          }}
+                        >
+                          My listing
+                        </MenuItem>
+                        <MenuItem>
+                          <Link to="/ItemStatusPage">Check Item Status</Link>
+                        </MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuGroup title="Support">
+                        <MenuItem onClick={() => setIsContactModalOpen(true)}>
+                          Contact Us
+                        </MenuItem>
+                        <Contact
+                          isOpen={isContactModalOpen}
+                          onClose={() => setIsContactModalOpen(false)}
+                        />
+                        <MenuItem>FAQs</MenuItem>
+                        <MenuItem>Return & Exchanges</MenuItem>
+                        <MenuItem>Privacy Policy</MenuItem>
+                        <MenuItem>Terms of Service</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </MenuList>
+                  </Menu>
+                )}
               </>
             ) : (
               <Button
@@ -272,15 +283,17 @@ const Navigation = () => {
                     align="center"
                     my="14px"
                   >
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="100px"
-                      w="100px"
-                      bg="gray.300"
-                      borderRadius="50%"
-                    >
-                      <User color="#ffff" size={60} />
+                    <Flex justify="center" align="center" mx="32px">
+                      {userProfile && (
+                        <Avatar
+                          size="xl"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                      )}
+                      {/* {userProfile.name.charAt(0).toUpperCase()} */}
                     </Flex>
                     <Box mt="12px">
                       {!userProfile ? (
