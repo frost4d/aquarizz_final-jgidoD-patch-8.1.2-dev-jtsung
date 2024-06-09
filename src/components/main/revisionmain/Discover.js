@@ -38,7 +38,7 @@ const Discover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
-  const letter = userProfile.name.charAt(0);
+  // const letter = userProfile.name.charAt(0);
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
@@ -51,13 +51,10 @@ const Discover = () => {
           tempPosts.push({ id: doc.id, ...doc.data() });
         });
         setDiscoverPosts(tempPosts);
+        setFilteredPosts(tempPosts);
       } catch (err) {
         console.log(err.message);
       }
-
-      
-      setFilteredPosts(tempPosts);
-
     };
     fetchDiscoverPosts();
   }, []);
@@ -113,7 +110,7 @@ const Discover = () => {
         <Flex justify="space-between" p="0 86px 0px 64px">
           <Heading>Discover</Heading>
           <Flex display={user ? "flex" : "none"} justify="space-between">
-            {/* <Button
+            <Button
               mr="12px"
               variant="ghost"
               leftIcon={<Plus size={16} />}
@@ -124,7 +121,7 @@ const Discover = () => {
                 onClose={addDiscover.onClose}
               />
               Create
-            </Button> */}
+            </Button>
             <Button variant="link" color="#333333">
               My Shop
             </Button>
@@ -170,7 +167,7 @@ const Discover = () => {
                       bg="#FF7D29"
                       p="24px"
                     >
-                      <Heading size="lg">{letter.toUpperCase()}</Heading>
+                      <Heading size="lg">{userProfile.name.charAt(0).toUpperCase()}</Heading>
                     </Flex>
                     <Heading size="md">{userProfile.name}</Heading>
                     <Text fontSize="xs">
@@ -187,7 +184,7 @@ const Discover = () => {
                   autoRows="minmax(200px, auto)"
                   rowGap={12}
                 >
-                  {discoverPosts.map((post) => (
+                  {filteredPosts.map((post) => (
                     <GridItem
                       key={post.id}
                       border="1px solid #e1e1e1"

@@ -1,12 +1,14 @@
+import "./CheckoutDetailsPage.css";
 import React, { useState, useEffect } from "react";
-import { VStack, Text, Input, Select, Button, Box } from "@chakra-ui/react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { VStack, Text, Input, Select, Button, Box, Flex } from "@chakra-ui/react";
+import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import CartItem from "./CartItem";
 import Navigation from "./Navigation";
 import { db } from "../../../firebase/firebaseConfig";
 import { UserAuth } from "../../context/AuthContext";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 const CheckoutDetailsPage = () => {
+  const { id } = useParams(); 
   const { user, userProfile } = UserAuth();
   const location = useLocation();
   console.log("Location state in CheckoutDetailsPage:", location.state);
@@ -21,6 +23,11 @@ const CheckoutDetailsPage = () => {
   const navigate = useNavigate();
   const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [checkedOutItems, setCheckedOutItems] = useState([]);
+
+  // const cartItemsWithIds = cartItems.map((item, index) => ({
+  //   ...item,
+  //   id: index.toString(), // You can replace this with the actual unique identifier for your items
+  // }));
 
   useEffect(() => {
     const location = userProfile.location || "Olongapo";
@@ -64,6 +71,7 @@ const CheckoutDetailsPage = () => {
 };
 
   
+
 const handleProceedToPayment = async () => {
   const totalPrice = itemsTotalPrice + shippingFee;
 
@@ -76,6 +84,27 @@ const handleProceedToPayment = async () => {
       createdAt: serverTimestamp()
     });
     console.log("Document written with ID: ", docRef.id);
+
+    for (const item of cartItems) { // Use cartItemsWithIds instead of cartItems
+      console.log("Item ID:", item.id); // Log the item ID
+      
+      const itemRef = doc(db, "shop", item.id); // Assuming 'shop' is your Firestore collection name
+      console.log("Item Reference:", itemRef.path); // Log the document path
+      
+      const itemDoc = await getDoc(itemRef);
+      
+      if (!itemDoc.exists()) {
+        console.error(`Document does not exist for item ID ${item.id}`);
+        continue; // Skip this item and proceed to the next one
+      }
+
+      const productData = { id: itemDoc.id, ...itemDoc.data() };
+
+      const totalAvailable = productData?.totalAvailable || 0;
+      await updateDoc(itemRef, {
+        totalAvailable: totalAvailable - item.quantity,
+      });
+    }
     
     navigate("/payment", {
       state: { cartItems, totalPrice, paymentMethod, shippingFee },
@@ -85,6 +114,10 @@ const handleProceedToPayment = async () => {
     console.error("Error adding document: ", e);
   }
 };
+
+
+
+
 
   return (
     <Box>
@@ -114,6 +147,7 @@ const handleProceedToPayment = async () => {
       <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice + shippingFee }}>
       </Link>
     </Box>
+    
   );
 };
 

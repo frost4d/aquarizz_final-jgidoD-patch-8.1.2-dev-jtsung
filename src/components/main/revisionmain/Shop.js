@@ -24,7 +24,7 @@ import {
   GridItem,
   Grid,
 } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AddToCartPage from "./AddToCartPage";
 import Navigation from "./Navigation";
 import SearchInput from "./components/SearchInput";
@@ -56,6 +56,7 @@ const Shop = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState();
   const [filteredData, setFilteredData] = useState();
+  const [selectedTags, setSelectedTags] = useState([]);
   useEffect(() => {
     const fetchShopPosts = async () => {
       const postsCollection = collection(db, "shop");
@@ -109,9 +110,24 @@ const Shop = () => {
     });
   };
 
-  const handleFilter = (data) => {
-    setFilter(data);
+  const handleFilter = (e) => {
+    const { name, checked } = e.target;
+    if (checked) {
+      setSelectedTags([...selectedTags, name]);
+    } else {
+      setSelectedTags(selectedTags.filter((tag) => tag !== name));
+    }
   };
+
+  useEffect(() => {
+    const filteredResults = shopPosts.filter((post) => {
+      return selectedTags.length === 0 || selectedTags.includes(post.tag.toLowerCase());
+    });
+    setFilteredPosts(filteredResults);
+  }, [selectedTags, shopPosts]);
+  // const handleFilter = (data) => {
+  //   setFilter(data);
+  // };
 
   useEffect(() => {
     const handleFilterData = () => {
@@ -142,12 +158,13 @@ const Shop = () => {
 
   return (
     <>
-      <Box h="100vh" overflowY="auto">
-        <Navigation />
+      <Flex direction="column" minH="100vh">
+      <Navigation />
+      <Box flex="1">
         <Flex justify="space-between" p="0 64px 0 64px">
           <Heading fontFamily={primaryFont}>Shop</Heading>
           <Flex display={user ? "flex" : "none"} justify="space-between">
-
+{/* 
             <Button
               mr="12px"
               variant="ghost"
@@ -162,12 +179,14 @@ const Shop = () => {
               <ModalContent>
                 <ModalBody>Link to create listing</ModalBody>
               </ModalContent>
-            </Modal>
-            <Button variant="ghost" color="#333333"  onClick={() => {
+            </Modal> */}
+            {/* <Button variant="ghost" color="#333333"  onClick={() => {
     navigate("/profile", { state: { shopPosts } });
-  }}>
+  }}> */}
 
-            <Button variant="link" color="#333333">
+            <Button variant="link" color="#333333" onClick={() => {
+    navigate(`/profile/${user.uid}`);
+  }}>
 
               My Shop
             </Button>
@@ -175,7 +194,7 @@ const Shop = () => {
         </Flex>
         <Box className="shopContentWrapper">
           <Box >
-            <SearchInput  handleSearch={handleSearchShop} userLocation={location}/>
+            <SearchInput  handleSearch={(term) => handleSearchShop(term, location)}/>
           </Box>
           <Flex
             gap="24px 12px"
@@ -201,14 +220,14 @@ const Shop = () => {
                 <Text as="b" size="md">
                   Filter
                 </Text>
-                <form onSubmit={handleSubmit(handleFilter)}>
+                <form onSubmit={handleSubmit(handleFilter)} onChange={handleFilter}>
                   <Flex flexDirection="column" p="12px">
                     <Checkbox {...register("accessories")}>
                       Accessories
                     </Checkbox>
-                    <Checkbox {...register("aquarium")}>Aquarium</Checkbox>
-                    <Checkbox {...register("feeds")}>Feeds</Checkbox>
-                    <Checkbox {...register("fish")}>Fish</Checkbox>
+                    <Checkbox {...register("aquarium")} onChange={handleFilter}>Aquarium</Checkbox>
+                    <Checkbox {...register("feeds")} onChange={handleFilter}>Feeds</Checkbox>
+                    <Checkbox {...register("fish")} onChange={handleFilter}>Fish</Checkbox>
                     <Button
                       mt="12px"
                       variant="outline"
@@ -285,6 +304,7 @@ const Shop = () => {
         </Box>
       </Box>
       <Footer />
+      </Flex>
     </>
   );
 };

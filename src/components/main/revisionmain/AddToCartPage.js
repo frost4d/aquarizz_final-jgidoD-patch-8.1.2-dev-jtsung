@@ -1,6 +1,6 @@
 import "./AddToCartPage.css";
-import { useState, useEffect } from "react";
-import { doc, getDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useState, useEffect, useRef } from "react";
+import { doc, getDoc, collection, addDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
@@ -15,7 +15,19 @@ import {
   List,
   ListItem,
   Slider,
-  Avatar
+  Avatar,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  useToast,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay
 } from "@chakra-ui/react";
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
@@ -29,6 +41,7 @@ import Comments from "../mainComponents/Comment";
 import { UserAuth } from "../../context/AuthContext";
 
 import Footer from "./Footer";
+import GooglePay from "../mainComponents/GooglePay";
 
 
 const AddToCartPage = ({ route }) => {
@@ -42,19 +55,73 @@ const AddToCartPage = ({ route }) => {
   const [sellerProfile, setSellerProfile] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [cartItemCount, setCartItemCount] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
+  const toast = useToast();
+  const [totalAvailable, setTotalAvailable] = useState(0);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const cancelRef = useRef();
+  // const [totalPrice, setTotalPrice] = useState(product.price);
   // const addToCart = (item) => {
   //   setCartItems([...cartItems, item]);
   // };
+  const onClose = () => setIsAlertOpen(false);
 
-  const addToCart = (item) => {
+  const addToCart = (item) => { 
     setCartItemCount(cartItemCount + 1);
     const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
-    const updatedItems = [...existingItems, item];
+    // const updatedItems = [...existingItems, item];
+    const updatedItems = [...existingItems, { ...item, quantity }];
     localStorage.setItem("wishlist", JSON.stringify(updatedItems));
     setCartItems(updatedItems);
   };
 
+  const handleQuantityChange = (value) => {
+    // const quantityValue = parseInt(value);
+    if (parseInt(value) <= product.totalAvailable) {
+      setQuantity(parseInt(value));
+      // setTotalPrice(product.price * parseInt(value));
+    } else {
+      toast({
+        title: "Error",
+        description: "Quantity exceeds available stock.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    if (quantity > product.totalAvailable) {
+      toast({
+        title: "Error",
+        description: "Quantity exceeds available stock.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const cartItem = {
+      ...product,
+      quantity,
+      userId: user.uid,
+    };
+
+    addToCart(cartItem);
+    setIsAlertOpen(true);
+    toast({
+      title: "Added to Cart",
+      description: "Product has been added to your cart.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+  };
   
   const fetchSellerProfile = async (authorID) => {
     try {
@@ -81,7 +148,8 @@ const AddToCartPage = ({ route }) => {
         const docRef = doc(db, "shop", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const productData = docSnap.data();
+          // const productData = docSnap.data();
+          const productData = { id: docSnap.id, ...docSnap.data() };
           setProduct(productData);
           fetchSellerProfile(productData.authorID);
         } else {
@@ -135,7 +203,7 @@ const AddToCartPage = ({ route }) => {
       <Box h="100vh">
         <Navigation />
 
-        {sellerProfile && (
+        {sellerProfile && product && (
           <Center>
             <Box>
               <Flex p="10" mx="50px" bg="#f8f9fa">
@@ -210,22 +278,45 @@ const AddToCartPage = ({ route }) => {
                       Price: P{product.price}
                     </Text>
 
+                    <Text fontSize="20px" mb="4">
+                      Total Available: {product.totalAvailable}
+                    </Text>
+
+                    <HStack spacing="4" alignItems="center">
+                      <Text fontSize="20px">Quantity:</Text>
+                      <NumberInput
+                        value={quantity}
+                        min={1}
+                        max={product.totalAvailable}
+                        // onChange={(valueString) => setQuantity(parseInt(valueString))}
+                        onChange={handleQuantityChange}
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </HStack>
+
                     <HStack spacing="4">
                       <Button
                         variant="link"
-                        onClick={() => addToCart(product)}
+                        onClick={handleAddToCart}
                         color="#161616"
                       >
                         Add to Wishlist
                       </Button>
-                      <Button
-                        onClick={() => addToCart(product)}
+                      <GooglePay price={product.price}/>
+                      {/* <Button
+                        onClick={() => {addToCard(product)}}
                         colorScheme="blue"
                       >
                         Buy Now
-                      </Button>
+                      </Button> */}
                     </HStack>
                   </VStack>
+                  
                   {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
                 </Box>
               </Flex>
@@ -242,7 +333,7 @@ const AddToCartPage = ({ route }) => {
                       Seller Profile
                     </Heading>
                     <HStack spacing="4">
-                      <Avatar size="xl" name={sellerProfile.name} src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"} />
+                      <Avatar size="xl" name={sellerProfile.name} src={sellerProfile.profileImage || "/path/to/avatar.jpg"} />
                       <VStack align="stretch">
                         <Text fontSize="20px" fontWeight="bold">
                         {sellerProfile.name}
@@ -272,8 +363,11 @@ const AddToCartPage = ({ route }) => {
         <Flex w="100%" h="100vh" align="center" justify="center">
             <span className="loader"></span>
           </Flex>
-      </Box>
       <Footer />
+
+      </Box>
+
+      
     </>
   );
 };

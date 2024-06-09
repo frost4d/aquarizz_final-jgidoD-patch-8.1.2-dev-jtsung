@@ -19,7 +19,7 @@ import {
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 const statuses = [
   "All Order",
   "To Ship",
@@ -127,7 +127,7 @@ const sideTabs = [
   "My Orders",
   "Reviews"
 ];
-const ItemStatusPage = () => {
+const ReportPage = () => {
   const [currentTab, setCurrentTab] = useState(0);
   const [currentSideTab, setCurrentSideTab] = useState(0);
   const [orders, setOrders] = useState([]);
@@ -180,13 +180,37 @@ const ItemStatusPage = () => {
     }
   };
 
+  const handleValidateStatus = async (orderId, currentStatus) => {
+    try {
+      let newStatus;
+      switch (currentStatus) {
+        case "All Order":
+          newStatus = "To Ship";
+          break;
+        case "To Ship":
+          newStatus = "To Receive";
+          break;
+        case "To Receive":
+          newStatus = "Completed";
+          break;
+        default:
+          newStatus = currentStatus;
+      }
+  
+      const orderRef = doc(db, "payments", orderId);
+      await updateDoc(orderRef, { status: newStatus });
+    } catch (error) {
+      console.error("Error updating status: ", error);
+    }
+  };
+  
   return (
     <Box>
       <Navigation />
 
       <VStack align="stretch" spacing="4" p="4">
-      <Flex>
-        <VStack align="start" spacing="6" mx="8" justifyContent="center" px="5" w="15%" h="30vh" borderWidth="1px">
+        <Flex>
+        <VStack align="start" spacing="5" mx="8" justifyContent="center" h="90vh">
             {sideTabs.map((tab, index) => (
               <Button
               variant="link" color="#333333"
@@ -223,7 +247,7 @@ const ItemStatusPage = () => {
                     <Divider />
                   </VStack>
                   {/* <Box borderRadius="lg" boxShadow="md" p="4" w="100%" h="auto"> */}
-                    
+                    {/* <Text>{getStatusContent(status)}</Text> */}
                     {/* {checkedOutItems */}
                     {/* {orders.map(
                       (order) =>
@@ -256,11 +280,8 @@ const ItemStatusPage = () => {
                           <Text fontSize="xl" fontWeight="bold">
                             {item.cartItems[0].postTitle}
                           </Text>
-                          <Text className="truncate" mr="3">{item.cartItems[0].postContent}</Text>
+                          <Text className="truncate">{item.cartItems[0].postContent}</Text>
                           <Divider my={1} />
-                          <Text fontWeight="bold">
-                                Quantity: {item.cartItems[0].quantity}
-                              </Text>
                           <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}
                           </Text>
@@ -279,6 +300,16 @@ const ItemStatusPage = () => {
                               Status: {item.status}
                             </Text>
                           )}
+
+                          <Button
+                            colorScheme="green"
+                            onClick={() =>
+                              handleValidateStatus(item.id, status)
+                            }
+                            mt="2"
+                          >
+                            Validate {status}
+                          </Button>
                         </VStack>
                       </Flex>
                     ))}
@@ -295,4 +326,4 @@ const ItemStatusPage = () => {
   );
 };
 
-export default ItemStatusPage;
+export default ReportPage;

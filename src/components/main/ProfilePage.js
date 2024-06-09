@@ -61,6 +61,8 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { db, auth, storage } from "../../firebase/firebaseConfig";
 import { UserAuth } from "../context/AuthContext";
@@ -93,6 +95,7 @@ import Comment from "./mainComponents/Comment";
 import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-regular-svg-icons";
+import Footer from "./revisionmain/Footer";
 import {
   ref,
   uploadBytes,
@@ -691,7 +694,11 @@ function ProfilePage() {
                                       </Link>
                                       <br />
 
-                                      <Text fontSize="16px">
+                                      <Text
+                                        className="truncate"
+                                        fontSize="16px"
+                                        textAlign="justify"
+                                      >
                                         {post.postContent}
                                       </Text>
                                     </Box>
@@ -714,7 +721,7 @@ function ProfilePage() {
                                   >
                                     <Image
                                       src={post.postImage}
-                                      w="20em"
+                                      w="40em"
                                       alt="post image"
                                       onError={(e) =>
                                         (e.target.style.display = "none")
@@ -733,19 +740,48 @@ function ProfilePage() {
                           </Flex>
                         </TabPanel>
                         <TabPanel>
-                          <Flex
+                          {/* <Flex
                             flexDirection="column"
                             w="100%"
                             align="center"
                             justify="center"
+                          > */}
+
+                          {/* <Flex
+                            flexDirection="row"
+                            flexWrap="wrap"
+                            justify="center"
+                          > */}
+
+                          <Grid
+                            className="gridItem__holder"
+                            templateColumns={`repeat(5, 1fr)`}
+                            gap="2"
+                            autoRows="minmax(200px, auto)"
+                            rowGap={4}
                           >
                             {shopPosts.map((post) => (
-                              <Card
+                              // <Card
+                              //   key={post.id}
+                              //   w={{ base: "100%", md: "45%", lg: "30%" }}
+                              //   m="8px"
+                              //   // p="24px 24px"
+                              //   // my="16px"
+                              //   border="1px solid #e1e1e1"
+                              // >
+                              <GridItem
+                                className="gridItem"
+                                p="6px"
                                 key={post.id}
-                                w="50%"
-                                p="24px 24px"
-                                my="16px"
-                                border="1px solid #e1e1e1"
+                                colSpan={1}
+                                rowSpan={1}
+                                _hover={{
+                                  boxShadow: "0 3px 2px #e9e9e9",
+                                  transform: "translateY(-3px)",
+                                }}
+                                onClick={() => {
+                                  console.log(post.id);
+                                }}
                               >
                                 <Flex flexDirection="column">
                                   <Box>
@@ -758,7 +794,7 @@ function ProfilePage() {
                                     postId={post.id}
                                     authorId={post.authorId}
                                   />
-                                  <Text
+                                  {/* <Text
                                     as="kbd"
                                     fontSize="10px"
                                     color="gray.500"
@@ -767,8 +803,24 @@ function ProfilePage() {
                                   </Text>
                                   <Button variant="link" color="#333333">
                                     {post.authorName}
-                                  </Button>
+                                  </Button> */}
 
+                                  <Flex
+                                    w="100%"
+                                    align="center"
+                                    justify="center"
+                                  >
+                                    <Image
+                                      src={post.postImage}
+                                      objectFit="cover"
+                                      w="100%"
+                                      h="250px"
+                                      alt="post image"
+                                      onError={(e) =>
+                                        (e.target.style.display = "none")
+                                      }
+                                    />
+                                  </Flex>
                                   <Flex
                                     pl="32px"
                                     py="32px"
@@ -782,12 +834,16 @@ function ProfilePage() {
                                       </Link>
                                       <br />
 
-                                      <Text fontSize="16px">
+                                      <Text
+                                        className="truncate"
+                                        fontSize="16px"
+                                        textAlign="justify"
+                                      >
                                         {post.postContent}
                                       </Text>
                                     </Box>
 
-                                    <Box mr="24px">
+                                    <Box mr="34px">
                                       {!post.price ? (
                                         <Text>₱ 0.00</Text>
                                       ) : (
@@ -798,70 +854,77 @@ function ProfilePage() {
                                       )}
                                     </Box>
                                   </Flex>
-                                  <Flex
+                                  {/* <Flex
                                     w="100%"
                                     align="center"
                                     justify="center"
                                   >
                                     <Image
                                       src={post.postImage}
-                                      w="20em"
+                                      objectFit="cover"
+                                      w="100%"
+                                      h="250px"
                                       alt="post image"
                                       onError={(e) =>
                                         (e.target.style.display = "none")
                                       }
                                     />
-                                  </Flex>
-                                  <Box w="100%">
+                                  </Flex> */}
+                                  {/* <Box w="100%">
                                     <Comment
                                       postID={post.id}
                                       authorId={post.authorId}
                                     />
-                                  </Box>
+                                  </Box> */}
                                 </Flex>
-                              </Card>
+                                {/* </Card> */}
+                              </GridItem>
                             ))}
-                          </Flex>
+                            {/* </Flex> */}
+                          </Grid>
                         </TabPanel>
                         <TabPanel>
-                        <Flex
+                          <Flex
                             flexDirection="column"
                             w="100%"
                             align="center"
                             justify="center"
                           >
-                          {userData && (
-                            <Card
-                            w="50%"
-                            p="24px 24px"
-                            my="16px"
-                            border="1px solid #e1e1e1"
-                          >
-                            <Flex flexDirection="column">
-                            <Box>
-                              <Heading as="h2" size="lg">
-                                About {userData.name}
-                              </Heading>
-                              <Text color="#9c9c9c" fontSize="sm" as="i">
-                                Member since{" "}
-                                {formatDistanceToNow(userData.dateCreated)} ago
-                              </Text>
-                              <Text fontSize="lg">
-                                <strong>Location: </strong>
-                                {userData.location}
-                              </Text>
-                              <Text fontSize="lg">
-                                <strong>Email: </strong>
-                                {userData.email}
-                              </Text>
-                              <Text fontSize="lg">
-                                <strong>Phone Number: </strong>
-                                {userData.phoneNumber}
-                              </Text>
-                            </Box>
-                            </Flex>
-                            </Card>
-                          )}
+                            {userData && (
+                              <Card
+                                w="50%"
+                                p="24px 24px"
+                                my="16px"
+                                border="1px solid #e1e1e1"
+                              >
+                                <Flex flexDirection="column">
+                                  <Box>
+                                    <Heading as="h2" size="lg">
+                                      About {userData.name}
+                                    </Heading>
+                                    <Text color="#9c9c9c" fontSize="sm" as="i">
+                                      Member since{" "}
+                                      {formatDistanceToNow(
+                                        userData.dateCreated
+                                      )}{" "}
+                                      ago
+                                    </Text>
+                                    <Text fontSize="lg">
+                                      <strong>Location: </strong>
+                                      {userData.location}
+                                    </Text>
+                                    <Text fontSize="lg">
+                                      <strong>Email: </strong>
+                                      {userData.email}
+                                    </Text>
+                                    <Text fontSize="lg">
+                                      <strong>Phone Number: </strong>
+                                      {userData.phoneNumber}
+                                    </Text>
+                                  </Box>
+                                </Flex>
+                              </Card>
+                            )}
                           </Flex>
                         </TabPanel>
                       </TabPanels>
@@ -877,6 +940,7 @@ function ProfilePage() {
           </Flex>
         )}
       </Box>
+      <Footer />
     </>
   );
 }

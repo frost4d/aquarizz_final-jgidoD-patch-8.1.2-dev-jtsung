@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { VStack, Text, Image, Divider, Flex, Box, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button } from "@chakra-ui/react";
+import { VStack, Text, Image, Divider, Flex, Box, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Heading } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
 import { db } from "../../../firebase/firebaseConfig";
@@ -26,6 +26,10 @@ const PaymentPage = () => {
       console.log("Query Snapshot:", querySnapshot);
       const items = [];
       querySnapshot.forEach((doc) => {
+        const cartItems = doc.data().cartItems.map((item) => ({
+          ...item,
+          id: doc.id, // Assuming the item ID is the document ID in Firestore
+        }));
         items.push(...doc.data().cartItems);
       });
       console.log("Fetched items:", items);
@@ -101,6 +105,7 @@ const PaymentPage = () => {
         </Text>
         <Box borderRadius="sm" boxShadow="lg" borderWidth="1px" p="4" w="100%">
           <Text mx="10%" fontWeight="bold">Total Price: P{totalPrice}</Text>
+          <Text mx="10%" fontWeight="bold">Quantity: {checkedOutItems.reduce((acc, item) => acc + item.quantity, 0)}</Text>
           <Text mx="10%" fontWeight="bold">Shipping Fee: P{shippingFee}</Text>
           <Text mx="10%" fontWeight="bold">Payment Method: {paymentMethod}</Text>
           {/* {cartItems.map((item, index) => ( */}
@@ -136,14 +141,19 @@ const PaymentPage = () => {
           ))}
         </Box>
       </VStack>
+      
       {paymentSuccess && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>
-            <ModalHeader>Payment Successful!</ModalHeader>
+            <ModalHeader>
+              <Heading size="md">
+              Order Placed!
+              </Heading>
+            </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              Your payment has been successfully processed.
+              Your order has been successfully processed.
             </ModalBody>
             <ModalFooter>
               <Button colorScheme="blue" onClick={onClose}>Close</Button>
@@ -152,9 +162,9 @@ const PaymentPage = () => {
         </Modal>
       )}
        <Flex justify="center" align="center" mb="4">
-      <Button colorScheme="blue" onClick={handleProceedToPayment}>
+      {/* <Button colorScheme="blue" onClick={handleProceedToPayment}>
         View your item status
-      </Button>
+      </Button> */}
       </Flex>
     </Box>
   );

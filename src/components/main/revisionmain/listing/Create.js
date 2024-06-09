@@ -80,7 +80,7 @@ const Create = (props) => {
       createdAt: data.createdAt || new Date().toISOString(),
       price: data.price,
       weight: data.weight,
-
+      totalAvailable: data.totalAvailable,
       location: userProfile.location,
     };
     try {
@@ -171,8 +171,9 @@ const Create = (props) => {
                   /> */}
                 </Box>
                 <Box>
+                <FormLabel>Unit Price</FormLabel>
                   <Input
-                    placeholder="Price"
+                    // placeholder="Unit Price"
                     {...register("price", { required: true })}
                     aria-invalid={errors.tag ? "true" : "false"}
                   />
@@ -185,14 +186,29 @@ const Create = (props) => {
 
 
                 <Box>
+                <FormLabel>Weight in (kg)</FormLabel>
                   <Input
-                    placeholder="Weight in kg"
+                    // placeholder="Weight in (kg)"
                     {...register("weight", { required: true })}
                     aria-invalid={errors.weight ? "true" : "false"}
                   />
                   {errors.weight?.type === "required" && (
                     <p style={{ color: "#d9534f", fontSize: "12px" }}>
                       Weight is required
+                    </p>
+                  )}
+                </Box>
+
+                <Box>
+                <FormLabel>Quantity</FormLabel>
+                  <Input
+                    // placeholder="Quantity"
+                    {...register("totalAvailable", { required: true })}
+                    aria-invalid={errors.totalAvailable ? "true" : "false"}
+                  />
+                  {errors.totalAvailable?.type === "required" && (
+                    <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                      Total Available is required
                     </p>
                   )}
                 </Box>
