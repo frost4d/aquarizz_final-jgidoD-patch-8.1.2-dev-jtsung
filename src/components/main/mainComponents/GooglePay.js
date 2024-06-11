@@ -1,9 +1,9 @@
 import GooglePayButton from "@google-pay/button-react";
-
-const GooglePay = () => {
+import { useNavigate } from "react-router-dom";
+const GooglePay = (props) => {
+  const navigate = useNavigate();
   return (
     <>
-      {" "}
       <GooglePayButton
         environment="TEST"
         paymentRequest={{
@@ -32,7 +32,7 @@ const GooglePay = () => {
           transactionInfo: {
             totalPriceStatus: "FINAL",
             totalPriceLabel: "Total",
-            totalPrice: "59",
+            totalPrice: props.price,
             currencyCode: "PHP",
             countryCode: "PH",
           },
@@ -41,6 +41,8 @@ const GooglePay = () => {
         }}
         onLoadPaymentData={(paymentRequest) => {
           console.log("Success", paymentRequest);
+          navigate("/shop")
+
         }}
         onPaymentAuthorized={(paymentData) => {
           console.log("Payment Authorised Success", paymentData);

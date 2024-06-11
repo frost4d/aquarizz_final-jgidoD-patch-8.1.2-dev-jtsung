@@ -25,6 +25,9 @@ import ItemStatusPage from "./components/main/revisionmain/ItemStatusPage.js";
 import CheckoutDetailsPage from "./components/main/revisionmain/CheckoutDetailsPage.js";
 import PaymentPage from "./components/main/revisionmain/PaymentPage.js";
 import FilteredItemsPage from "./components/main/revisionmain/FilteredItemsPage.js";
+import ReportPage from "./components/main/revisionmain/ReportPage.js";
+import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
+import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
 
 function App() {
   return (
@@ -46,6 +49,9 @@ function App() {
             <Route path="/checkout" element={<CheckoutDetailsPage />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/reports" element={<ReportPage />} />
+            <Route path="/transaction" element={<TransactionPage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
 

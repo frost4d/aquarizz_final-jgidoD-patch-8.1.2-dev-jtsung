@@ -19,6 +19,8 @@ const CartItem = ({ item, onRemove, isChecked, onCheckboxChange }) => {
             <Text>{item.postContent}</Text>
             <Divider my={1} />
             <Text fontWeight="bold" >Price: P{item.price}</Text>
+            <Text>Quantity: {item.quantity}</Text>
+            <Text>Total: P{item.price * item.quantity}</Text>
             <Button w="20" colorScheme="red" onClick={handleRemove}>Remove</Button>
           </VStack>
         </Flex>

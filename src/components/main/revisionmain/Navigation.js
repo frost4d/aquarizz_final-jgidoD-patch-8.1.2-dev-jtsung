@@ -103,7 +103,7 @@ const Navigation = () => {
           <Box
             className="logoWrapper"
             onClick={() => {
-              window.location.reload();
+              navigate("/")
             }}
             cursor="pointer"
             ml="-24px"
@@ -197,11 +197,26 @@ const Navigation = () => {
                       <MenuItem onClick={() => {
                     navigate(`/profile/${user.uid}`);
                   }}
-                  icon={<User size={16} />}>My Account</MenuItem>
-                      <MenuItem>My Shop</MenuItem>
-                      <MenuItem>
+                  >My Account</MenuItem>
+                  <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
                       </MenuItem>
+                      {/* <MenuItem>My Shop</MenuItem>
+                      <MenuItem onClick={() => {
+                    navigate(`/reports`);
+                  }}>My Reports</MenuItem> */}
+                      {/* <MenuItem>
+                        <Link to="/ItemStatusPage">Check Item Status</Link>
+                      </MenuItem> */}
+                      <MenuDivider />
+                    </MenuGroup>
+                    <MenuGroup title="My Shop">
+                    <MenuItem onClick={() => {
+                    navigate(`/reports`);
+                  }}>My Reports</MenuItem>
+                    <MenuItem onClick={() => {
+                    navigate(`/transaction`);
+                  }}>Transactions</MenuItem>
                     </MenuGroup>
                     <MenuDivider />
                     <MenuGroup title="Support">
