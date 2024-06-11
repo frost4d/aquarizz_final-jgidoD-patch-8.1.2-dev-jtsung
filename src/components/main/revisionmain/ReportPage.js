@@ -1,6 +1,7 @@
 // ItemStatusPage.js
 import "./ReportPage.css";
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   VStack,
   Text,
@@ -123,8 +124,8 @@ const items = [
   },
 ];
 
-const sideTabs = ["Manage My Account", "My Orders", "Reviews"];
 const ReportPage = () => {
+  const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState(0);
   const [currentSideTab, setCurrentSideTab] = useState(0);
   const [orders, setOrders] = useState([]);
@@ -161,11 +162,11 @@ const ReportPage = () => {
           querySnapshot.forEach((doc) => {
             const orderData = doc.data();
             orderData.cartItems.forEach((item) => {
-            if (item.authorID === user.uid) {
-              fetchedOrders.push({ id: doc.id, ...orderData });
-            }
+              if (item.authorID === user.uid) {
+                fetchedOrders.push({ id: doc.id, ...orderData });
+              }
+            });
           });
-        });
           setOrders(fetchedOrders);
         } catch (error) {
           console.error("Error fetching orders: ", error);
@@ -245,31 +246,60 @@ const ReportPage = () => {
     }
   };
 
+  const handleManageClick = () => {
+    // Handle the click event here, e.g., navigate to the reviews page
+    navigate(`/profile/${user.uid}`);
+  };
+  const handleOrdersClick = () => {
+    // Handle the click event here, e.g., navigate to the reviews page
+    navigate(`/reports`);
+  };
+  const handleReviewsClick = () => {
+    // Handle the click event here, e.g., navigate to the reviews page
+    navigate("/transaction");
+  };
+
   return (
     <Box>
       <Navigation />
 
       <VStack align="stretch" spacing="4" p="4">
         <Flex>
-          <VStack
-            align="start"
-            spacing="5"
-            mx="8"
-            justifyContent="center"
-            h="90vh"
+          <Box
+            w="26%"
+            h="28vh"
+            // borderWidth="2px"
+            // borderColor="red"
+            py="8"
+            mr="4"
+            boxShadow="md"
           >
-            {sideTabs.map((tab, index) => (
-              <Button
-                variant="link"
-                color="#333333"
-                key={index}
-                colorScheme={index === currentSideTab ? "blue" : "gray"}
-                onClick={() => setCurrentSideTab(index)}
-              >
-                {tab}
-              </Button>
-            ))}
-          </VStack>
+            <Center>
+              <VStack align="stretch" spacing="6">
+                <Text
+                  fontWeight="bold"
+                  cursor="pointer"
+                  onClick={handleReviewsClick}
+                >
+                  Manage Account
+                </Text>
+                <Text
+                  fontWeight="bold"
+                  cursor="pointer"
+                  onClick={handleReviewsClick}
+                >
+                  Orders
+                </Text>
+                <Text
+                  fontWeight="bold"
+                  cursor="pointer"
+                  onClick={handleReviewsClick}
+                >
+                  Transaction
+                </Text>
+              </VStack>
+            </Center>
+          </Box>
           <Box w="100%">
             <Tabs isLazy index={currentTab} onChange={setCurrentTab} w="100%">
               <Box borderRadius="sm" boxShadow="md" p="4" w="100%">

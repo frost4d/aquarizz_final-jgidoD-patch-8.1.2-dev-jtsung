@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { VStack, Text, Divider, Box, Image } from "@chakra-ui/react";
+import { VStack, Text, Divider, Box, Image, Flex } from "@chakra-ui/react";
 import Navigation from "./Navigation";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, updateDoc, getDoc } from "firebase/firestore";
 import StarRating from "./StarRating"; // Import the StarRating component
+import Sidebar from "./Sidebar";
 
 const ReviewsPage = () => {
   const [reviews, setReviews] = useState([]);
@@ -44,10 +45,58 @@ const ReviewsPage = () => {
     fetchReviews();
   }, []);
 
+  const handleRate = async (itemId, rating) => {
+    try {
+      console.log("Updating rating for item:", itemId, "to", rating);
+  
+      // Get the reference to the payments collection
+      const paymentsRef = collection(db, "payments");
+      // Query to get all completed payment documents
+      const q = query(paymentsRef, where("status", "==", "Completed"));
+      const querySnapshot = await getDocs(q);
+  
+      // Iterate over each document in the querySnapshot
+      for (const docSnapshot of querySnapshot.docs) {
+        const paymentRef = doc(db, "payments", docSnapshot.id);
+        const paymentDoc = await getDoc(paymentRef);
+  
+        if (paymentDoc.exists()) {
+          const paymentData = paymentDoc.data();
+          const updatedCartItems = paymentData.cartItems.map((item) => {
+            if (item.id === itemId) {
+              return { ...item, rating: rating };
+            }
+            return item;
+          });
+  
+          // Check if any item was updated
+          if (JSON.stringify(updatedCartItems) !== JSON.stringify(paymentData.cartItems)) {
+            // Update the payment document with the updated cartItems array
+            await updateDoc(paymentRef, { cartItems: updatedCartItems });
+            console.log("Rating updated successfully for item:", itemId);
+            return; // Exit after updating the rating
+          }
+        } else {
+          console.error("Payment document does not exist for itemId:", itemId);
+        }
+      }
+  
+      console.error("No payment document contains the specified itemId:", itemId);
+    } catch (error) {
+      console.error("Error updating rating for item:", itemId, ":", error);
+      if (error.code === "permission-denied") {
+        console.error("Make sure you have permission to access this document.");
+      }
+    }
+  };
+  
+  
   return (
     <Box>
       <Navigation />
-      <VStack align="stretch" spacing="4" p="4">
+      <Flex>
+        <Sidebar />
+      <VStack align="stretch" spacing="4" p="4" w="80%">
         <VStack align="stretch" spacing="2">
           <Text fontSize="2xl" fontWeight="bold" textAlign="center">
             Reviews for Completed Items
@@ -88,6 +137,7 @@ const ReviewsPage = () => {
                   </VStack>
                   <StarRating
                     rating={item.rating}
+                    onRate={(rating) => handleRate(item.id, rating)}
                     avgRating={avgRating} // Pass the avgRating prop to StarRating
                   />
                 </Box>
@@ -96,6 +146,7 @@ const ReviewsPage = () => {
           ))}
         </Box>
       </VStack>
+      </Flex>
     </Box>
   );
 };

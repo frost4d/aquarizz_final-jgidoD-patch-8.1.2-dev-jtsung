@@ -198,13 +198,25 @@ const Navigation = () => {
                     navigate(`/profile/${user.uid}`);
                   }}
                   >My Account</MenuItem>
-                      <MenuItem>My Shop</MenuItem>
-                      <MenuItem onClick={() => {
-                    navigate(`/reports`);
-                  }}>My listing</MenuItem>
-                      <MenuItem>
+                  <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
                       </MenuItem>
+                      {/* <MenuItem>My Shop</MenuItem>
+                      <MenuItem onClick={() => {
+                    navigate(`/reports`);
+                  }}>My Reports</MenuItem> */}
+                      {/* <MenuItem>
+                        <Link to="/ItemStatusPage">Check Item Status</Link>
+                      </MenuItem> */}
+                      <MenuDivider />
+                    </MenuGroup>
+                    <MenuGroup title="My Shop">
+                    <MenuItem onClick={() => {
+                    navigate(`/reports`);
+                  }}>My Reports</MenuItem>
+                    <MenuItem onClick={() => {
+                    navigate(`/transaction`);
+                  }}>Transactions</MenuItem>
                     </MenuGroup>
                     <MenuDivider />
                     <MenuGroup title="Support">
