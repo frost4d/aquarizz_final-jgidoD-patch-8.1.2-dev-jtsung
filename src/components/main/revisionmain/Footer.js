@@ -25,6 +25,7 @@ const Footer = () => {
         justify="space-evenly"
         flexWrap="wrap"
         py="16px"
+        mt="24px"
       >
         <Flex
           className="footerContents"
