@@ -162,7 +162,7 @@ const AddDiscover = (props) => {
                     name="file"
                     id="file"
                     accept=".jpg, .jpeg, .png"
-                    class="inputfile"
+                    // className="inputfile"
                     multiple
                     onChange={handleImageChange}
                     

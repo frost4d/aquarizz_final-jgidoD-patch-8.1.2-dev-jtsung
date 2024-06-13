@@ -99,6 +99,8 @@ const Navigation = () => {
           as="nav"
           align="center"
           justify="space-between"
+          // borderWidth="2px"
+          // borderColor="blue"
         >
           <Box
             className="logoWrapper"

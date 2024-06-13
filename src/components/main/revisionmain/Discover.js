@@ -68,23 +68,40 @@ const Discover = () => {
     setFilteredPosts(filtered);
   };
 
-  const handleAddDiscover = (formData) => {
-    // Add logic to save the form data to your database or state
-    console.log(formData);
-    const docRef = addDoc(collection(db, "discover"), formData);
-    // For example, you can update the discoverPosts state with the new data
-    setDiscoverPosts([...discoverPosts, formData]);
-    // setDiscoverPosts([...discoverPosts, { id: docRef.id, ...formData }]);
-    // setFilteredPosts([...discoverPosts, { id: docRef.id, ...formData }]);
-    addDiscover.onClose(); // Close the modal after submitting
-    toast({
-      title: "Post Created.",
-      description: "Post successfully published.",
-      status: "success",
-      duration: 5000,
-      position: "top",
-    });
+  const handleAddDiscover = async (formData) => {
+    try {
+      const docRef = await addDoc(collection(db, "discover"), formData);
+      setDiscoverPosts([...discoverPosts, { id: docRef.id, ...formData }]);
+      setFilteredPosts([...discoverPosts, { id: docRef.id, ...formData }]);
+      addDiscover.onClose();
+      toast({
+        title: "Post Created.",
+        description: "Post successfully published.",
+        status: "success",
+        duration: 5000,
+        position: "top",
+      });
+    } catch (err) {
+      console.error("Error adding document: ", err);
+    }
   };
+  // const handleAddDiscover = (formData) => {
+  //   // Add logic to save the form data to your database or state
+  //   console.log(formData);
+  //   const docRef = addDoc(collection(db, "discover"), formData);
+  //   // For example, you can update the discoverPosts state with the new data
+  //   setDiscoverPosts([...discoverPosts, formData]);
+  //   // setDiscoverPosts([...discoverPosts, { id: docRef.id, ...formData }]);
+  //   // setFilteredPosts([...discoverPosts, { id: docRef.id, ...formData }]);
+  //   addDiscover.onClose(); // Close the modal after submitting
+  //   toast({
+  //     title: "Post Created.",
+  //     description: "Post successfully published.",
+  //     status: "success",
+  //     duration: 5000,
+  //     position: "top",
+  //   });
+  // };
 
   // useEffect(() => {
   //   const showPosts = async () => {
@@ -131,7 +148,10 @@ const Discover = () => {
               </Flex>
             </Flex>
 
-            <Box p="24px">
+            <Box 
+            // p="24px"
+            //  borderWidth="2px" borderColor="blue"
+             >
               <Flex
                 gap="24px 24px"
                 flexWrap="wrap"
@@ -162,7 +182,9 @@ const Discover = () => {
                   flexWrap="wrap"
                 >
                   {/* {userProfile && ( */}
-                  <Box flex="1" border="1px solid #e1e1e1">
+                  <Box flex="10" 
+                  // border="1px solid #e1e1e1" borderColor="green"
+                  >
                     <Box p="24px">
                       <Flex
                         flexDirection="column"
@@ -193,18 +215,20 @@ const Discover = () => {
                     </Box>
                   </Box>
                   {/* )} */}
-                  <Box flex="3">
+                  <Box flex="10" 
+                  // borderWidth="2px" borderColor="red"
+                  >
                     <Grid
-                      templateColumns={`repeat(3, 1fr)`}
-                      gap="8"
+                      templateColumns={`repeat(4, 1fr)`}
+                      gap="4"
                       autoRows="minmax(200px, auto)"
                       rowGap={12}
                     >
                       {filteredPosts.map((post) => (
                         <GridItem
                           key={post.id}
-                          border="1px solid #e1e1e1"
-                          p="6px"
+                          // border="1px solid #e1e1e1"
+                          // p="6px"
                           colSpan={1}
                           rowSpan={1}
                         >
@@ -212,9 +236,11 @@ const Discover = () => {
                             <Box w="100%">
                               {post.postImage && (
                                 <Image
+                                borderRadius="8"
                                   objectFit="cover"
-                                  w="100%"
-                                  h="350px"
+                                  maxWidth="300px"
+                                  // w="100%"
+                                  h="370px"
                                   src={post.postImage}
                                   alt="Post Image"
                                 />
@@ -224,8 +250,10 @@ const Discover = () => {
                                 <video
                                   controls
                                   style={{
+                                    borderRadius: "8px",
+                                  maxWidth:"300px",
                                     width: "100%",
-                                    height: "350px",
+                                    height: "370px",
                                     objectFit: "cover",
                                   }}
                                   onMouseEnter={(e) => e.target.play()}
@@ -240,19 +268,26 @@ const Discover = () => {
                               )}
                             </Box>
                           </Flex>
-                          <Flex justify="space-between" mt="24px">
-                            <Button variant="link" color="#333333">
+                          <Box mt="12px">
+                            <Text className="truncate" textAlign="justify" fontSize="16px" fontWeight="620" mr="3" 
+                            // color="#6e6e6e"
+                            >
+                              {post.postContent}
+                            </Text>
+                          </Box>
+                          <Flex justify="space-between" mt="10px">
+                            <Button fontSize="18px" variant="link" color="#333333"> 
                               {post.authorName}
                             </Button>
                             <Text fontSize="xs" color="#6e6e6e" as="i">
                               {formatDistanceToNow(post.createdAt)} ago
                             </Text>
                           </Flex>
-                          <Box mt="12px">
+                          {/* <Box mt="12px">
                             <Text className="truncate" textAlign="justify" fontSize="sm" color="#6e6e6e">
                               {post.postContent}
                             </Text>
-                          </Box>
+                          </Box> */}
                         </GridItem>
                       ))}
                     </Grid>

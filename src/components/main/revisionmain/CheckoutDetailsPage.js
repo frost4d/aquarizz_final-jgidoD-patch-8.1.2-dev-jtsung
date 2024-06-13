@@ -1,6 +1,6 @@
 import "./CheckoutDetailsPage.css";
 import React, { useState, useEffect } from "react";
-import { VStack, Text, Input, Select, Button, Box, Flex } from "@chakra-ui/react";
+import { VStack, Text, Input, Select, Button, Box, Flex, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import CartItem from "./CartItem";
 import Navigation from "./Navigation";
@@ -8,6 +8,7 @@ import { db } from "../../../firebase/firebaseConfig";
 import { UserAuth } from "../../context/AuthContext";
 import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import GooglePay from "../mainComponents/GooglePay";
+import GCashPayment from "../mainComponents/GcashPayment";
 
 const CheckoutDetailsPage = () => {
   const { id } = useParams(); 
@@ -18,6 +19,9 @@ const CheckoutDetailsPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   const [isGooglePaySelected, setIsGooglePaySelected] = useState(false);
+  const [isGCashSelected, setIsGCashSelected] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   // const [shippingFee, setShippingFee] = useState(
   //   calculateShippingFee("Metro Manila", totalWeight)
   // );
@@ -42,6 +46,7 @@ const CheckoutDetailsPage = () => {
     const selectedPaymentMethod = e.target.value;
     setPaymentMethod(selectedPaymentMethod);
     setIsGooglePaySelected(selectedPaymentMethod === "googlePay");
+    setIsGCashSelected(selectedPaymentMethod === "gcash");
   };
 
   const handleShippingFeeChange = (e) => {
@@ -117,9 +122,14 @@ const handleProceedToPayment = async () => {
         totalAvailable: totalAvailable - item.quantity,
       });
     }
+
+    if (isGCashSelected) {
+      onOpen();
+      return; 
+    }
     
     navigate("/payment", {
-      state: { cartItems, totalPrice: totalPriceWithFee, paymentMethod, shippingFee },
+      state: { cartItems, totalPrice: totalPriceWithFee, paymentMethod, shippingFee, paymentUrl },
     });
     localStorage.removeItem("wishlist");
   } catch (e) {
@@ -158,10 +168,42 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
             <Text fontWeight="bold">2% Fee Charge: P{((itemsTotalPrice + shippingFee) * 0.02).toFixed(2)}</Text>
           </Box>
         )}
+       {/* {isGCashSelected && (
+          <GCashPayment 
+            price={(itemsTotalPrice + shippingFee).toFixed(2)} 
+            onPaymentUrlReceived={(url) => setPaymentUrl(url)} // Add this line to set the payment URL
+          />
+        )} */}
         <Button colorScheme="blue" onClick={handleProceedToPayment}>
           Proceed to Payment
         </Button>
       </VStack>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>GCash Payment</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {isGCashSelected && (
+              <GCashPayment 
+                price={(itemsTotalPrice + shippingFee).toFixed(2)} 
+                onPaymentUrlReceived={(url) => setPaymentUrl(url)} 
+              />
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={() => {
+              onClose();
+              navigate("/payment", {
+                state: { cartItems, totalPrice: itemsTotalPrice + shippingFee, paymentMethod, shippingFee, paymentUrl },
+              });
+              localStorage.removeItem("wishlist");
+            }}>
+              Confirm Payment
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice + shippingFee }}>
       </Link>
     </Box>

@@ -473,9 +473,11 @@ function ProfilePage() {
                       <Text>User Avatar</Text>
                     )}
                   </Flex>
-                  <Box display="flex" justifyContent="center" alignItems="center" ml="45%" mt="10px" w="auto" borderWidth="2px" borderColor="red">
+                  <Box display="flex" justifyContent="center" alignItems="center" ml="45%" mt="10px" w="250px" 
+                  // borderWidth="2px" borderColor="red"
+                  >
                   <StarRating rating={avgRating} avgRating={avgRating} />
-                  <Text ml="2">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
+                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
                   </Box>
                 </Box>
 
@@ -656,7 +658,7 @@ function ProfilePage() {
 
               <Flex
                 w="100%"
-                h="70vh"
+                h="auto"
                 justify="center"
                 align="center"
                 flexDirection="column"
@@ -671,11 +673,11 @@ function ProfilePage() {
                 ) : (
                   <>
                     <Tabs
-                    borderWidth="2px" borderColor="red"
+                    // borderWidth="2px" borderColor="red"
                       size="md"
                       variant="enclosed"
                       w="100%"
-                      h="80vh"
+                      h="auto"
                       justify="center"
                       align="center"
                     >
@@ -760,14 +762,35 @@ function ProfilePage() {
                                     align="center"
                                     justify="center"
                                   >
-                                    <Image
-                                      src={post.postImage}
-                                      w="40em"
-                                      alt="post image"
-                                      onError={(e) =>
-                                        (e.target.style.display = "none")
-                                      }
-                                    />
+                                    {post.postImage && (
+                                      <Image
+                                        src={post.postImage}
+                                        w="40em"
+                                        alt="post image"
+                                        onError={(e) =>
+                                          (e.target.style.display = "none")
+                                        }
+                                      />
+                                    )}
+                                    {post.postVideo && (
+                                      <video
+                                        controls
+                                        style={{
+                                          width: "100%",
+                                          height: "350px",
+                                          objectFit: "cover",
+                                        }}
+                                        onMouseEnter={(e) => e.target.play()}
+                                        onMouseLeave={(e) => e.target.pause()}
+                                      >
+                                        <source
+                                          src={post.postVideo}
+                                          type="video/mp4"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
+                                      </video>
+                                    )}
                                   </Flex>
                                   <Box w="100%">
                                     <Comment

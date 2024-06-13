@@ -99,19 +99,33 @@ const LandingPageMarket = () => {
   }, []);
 
   useEffect(() => {
-    const fetchUserLocation = async () => {
-      const usersCollection = collection(db, "users1");
-      const querySnapshot = await getDocs(usersCollection);
-      querySnapshot.forEach((doc) => {
-        if (doc.id === user.uid) {
-          setLocation(doc.data().location);
-        }
-      });
-    };
     if (user) {
+      const fetchUserLocation = async () => {
+        const usersCollection = collection(db, "users1");
+        const querySnapshot = await getDocs(usersCollection);
+        querySnapshot.forEach((doc) => {
+          if (doc.id === user.uid) {
+            setLocation(doc.data().location);
+          }
+        });
+      };
       fetchUserLocation();
     }
   }, [user]);
+  // useEffect(() => {
+  //   const fetchUserLocation = async () => {
+  //     const usersCollection = collection(db, "users1");
+  //     const querySnapshot = await getDocs(usersCollection);
+  //     querySnapshot.forEach((doc) => {
+  //       if (doc.id === user.uid) {
+  //         setLocation(doc.data().location);
+  //       }
+  //     });
+  //   };
+  //   if (user) {
+  //     fetchUserLocation();
+  //   }
+  // }, [user]);
 
   const handleSearchShop = (searchTerm, userLocation) => {
     setSearchTerm(searchTerm);
@@ -141,16 +155,28 @@ const LandingPageMarket = () => {
   useEffect(() => {
     checkUser();
   }, []);
+
   const handleLogout = async () => {
-    if (!user) return;
-    try {
-      signOut(auth);
-    } catch (err) {
-      console.log(err.message);
-    } finally {
-      window.location.reload();
+    if (user) {
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.log(err.message);
+      } finally {
+        window.location.reload();
+      }
     }
   };
+  // const handleLogout = async () => {
+  //   if (!user) return;
+  //   try {
+  //     signOut(auth);
+  //   } catch (err) {
+  //     console.log(err.message);
+  //   } finally {
+  //     window.location.reload();
+  //   }
+  // };
   const handleSearchClick = (data) => {
     console.log(data);
   };

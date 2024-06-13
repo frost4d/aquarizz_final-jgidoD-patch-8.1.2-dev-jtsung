@@ -45,7 +45,7 @@ const StarRating = ({ rating, onRate, avgRating }) => {
   return (
     <VStack>
       {/* <Flex>{stars}</Flex> */}
-      <Text>Average Rating:</Text>
+      {/* <Text>Average Rating:</Text> */}
       <Flex>{avgStars}</Flex>
     </VStack>
   );
