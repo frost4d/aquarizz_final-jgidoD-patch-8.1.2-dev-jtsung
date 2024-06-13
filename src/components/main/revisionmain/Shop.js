@@ -248,6 +248,8 @@ const Shop = () => {
                     gap="2"
                     autoRows="minmax(200px, auto)"
                     rowGap={4}
+                    borderWidth="2px"
+                    borderColor="red"
                   >
                     {filteredPosts &&
                       filteredPosts.map((post) => (

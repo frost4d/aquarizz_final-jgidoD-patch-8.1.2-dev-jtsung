@@ -127,22 +127,30 @@ const LandingPageMarket = () => {
   //   }
   // }, [user]);
 
-  const handleSearchShop = (searchTerm, userLocation) => {
+  const handleSearchShop = (searchTerm) => {
     setSearchTerm(searchTerm);
-    const filtered = shopPosts.filter((post) => {
-      const matchesSearchTerm = post.tag
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
-      const matchesLocation =
-        !userLocation ||
-        (post.location &&
-          post.location.toLowerCase().includes(userLocation.toLowerCase()));
-      return matchesSearchTerm && matchesLocation;
-    });
+    const filtered = shopPosts.filter((post) =>
+      post.tag.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     setFilteredPosts(filtered);
-    navigate(`/shop?search=${searchTerm}&location=${userLocation}`);
+    navigate(`/shop?search=${searchTerm}`);
   };
+  // const handleSearchShop = (searchTerm, userLocation) => {
+  //   setSearchTerm(searchTerm);
+  //   const filtered = shopPosts.filter((post) => {
+  //     const matchesSearchTerm = post.tag
+  //       .toLowerCase()
+  //       .includes(searchTerm.toLowerCase());
+  //     // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
+  //     const matchesLocation =
+  //       !userLocation ||
+  //       (post.location &&
+  //         post.location.toLowerCase().includes(userLocation.toLowerCase()));
+  //     return matchesSearchTerm && matchesLocation;
+  //   });
+  //   setFilteredPosts(filtered);
+  //   navigate(`/shop?search=${searchTerm}&location=${userLocation}`);
+  // };
   const handleCategoryClick = (categoryName) => {
     navigate(`/category/${categoryName}`);
   };
@@ -476,23 +484,6 @@ const LandingPageMarket = () => {
               handleSearch={handleSearchShop}
               
             />
-            <Flex justify="center" align="center" flexWrap="wrap">
-              {filteredPosts.map((post) => (
-                <Box
-                  key={post.id}
-                  p="4"
-                  m="4"
-                  borderWidth="1px"
-                  borderRadius="lg"
-                >
-                  <Heading as="h3" size="md">
-                    {post.title}
-                  </Heading>
-                  <Text>{post.description}</Text>
-                  <Image src={post.image} alt={post.title} />
-                </Box>
-              ))}
-            </Flex>
             {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
           </Box>
 
@@ -512,7 +503,7 @@ const LandingPageMarket = () => {
               <Box
                 className="fishWrapper"
                 mb="12px"
-                onClick={() => handleCategoryClick("Fish")}
+                onClick={() => handleCategoryClick("fish")}
                 cursor="pointer"
               >
                 <Box overflow="hidden" borderRadius="4px">

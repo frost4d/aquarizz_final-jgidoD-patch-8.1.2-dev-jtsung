@@ -272,9 +272,9 @@ const Navigation = () => {
             </Button>
             <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
           </Flex>
-          <Box mr="42px">
-            <Button variant="ghost" onClick={onOpen}>
-              <HamburgerIcon size={32} mr="-48px" />
+          <Box mr="42px" display={{ base: "block", md: "none" }}>
+            <Button variant="ghost" onClick={onOpen} mr="-30px">
+              <HamburgerIcon size={32}  />
             </Button>
             <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
               <DrawerOverlay />
