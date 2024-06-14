@@ -241,7 +241,7 @@ const AddToCartPage = ({ route }) => {
   console.log(sellerProfile);
   console.log("here");
   return (
-    <>
+
       <Box h="100vh">
         <Navigation />
 
@@ -382,7 +382,8 @@ const AddToCartPage = ({ route }) => {
                       </Button>
                     </HStack>
                     </Flex>
-                  </VStack>
+
+                  </Box>
                   
 
                   {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
@@ -466,18 +467,9 @@ const AddToCartPage = ({ route }) => {
             </Box>
           </>
         )}
-        {/* <Flex w="100%" h="100vh" align="center" justify="center">
-            <span className="loader"></span>
 
-            </Flex> */}
-
-          </Flex>
       <Footer />
-
       </Box>
-
-      
-    </>
   );
 };
 

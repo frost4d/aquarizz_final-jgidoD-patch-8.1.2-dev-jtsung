@@ -199,19 +199,26 @@ const Navigation = () => {
                         >
                           My Account
                         </MenuItem>
-                        <MenuItem>My Shop</MenuItem>
+
+                        <MenuItem>
+                        <Link to="/ItemStatusPage">Check Item Status</Link>
+                        </MenuItem>
+                      <MenuDivider />
+                      </MenuGroup>
+                      <MenuGroup title="My Shop">
                         <MenuItem
                           onClick={() => {
                             navigate(`/reports`);
                           }}
                         >
-                          My listing
+                          My Reports
                         </MenuItem>
-                        <MenuItem>
-                          <Link to="/ItemStatusPage">Check Item Status</Link>
-                        </MenuItem>
+                        <MenuItem onClick={() => {
+                    navigate(`/transaction`);
+                  }}>Transactions</MenuItem>
                       </MenuGroup>
                       <MenuDivider />
+
                       <MenuGroup title="Support">
                         <MenuItem onClick={() => setIsContactModalOpen(true)}>
                           Contact Us
@@ -270,9 +277,9 @@ const Navigation = () => {
             </Button>
             <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
           </Flex>
-          <Box mr="42px">
-            <Button variant="ghost" onClick={onOpen}>
-              <HamburgerIcon size={32} mr="-48px" />
+          <Box mr="42px" display={{ base: "block", md: "none" }}>
+            <Button variant="ghost" onClick={onOpen} mr="-30px">
+              <HamburgerIcon size={32} />
             </Button>
             <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
               <DrawerOverlay />
