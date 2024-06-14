@@ -199,6 +199,7 @@ const Navigation = () => {
                         >
                           My Account
                         </MenuItem>
+
                         <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
                         </MenuItem>
@@ -217,6 +218,7 @@ const Navigation = () => {
                   }}>Transactions</MenuItem>
                       </MenuGroup>
                       <MenuDivider />
+
                       <MenuGroup title="Support">
                         <MenuItem onClick={() => setIsContactModalOpen(true)}>
                           Contact Us

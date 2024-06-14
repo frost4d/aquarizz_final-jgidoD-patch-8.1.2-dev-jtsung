@@ -221,6 +221,7 @@ const Shop = () => {
             align="center"
             my="64px"
           >
+
               <Flex
                 className="shop__contents"
                 justify="space-between"
@@ -238,7 +239,9 @@ const Shop = () => {
                   <Text as="b" size="md">
                     Filter
                   </Text>
+
                   <form onSubmit={handleSubmit(handleFilter)} onChange={handleFilter}>
+
                     <Flex flexDirection="column" p="12px">
                       <Checkbox {...register("accessories")}>
                         Accessories
