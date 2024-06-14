@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 import "./SearchInput.css";
@@ -7,7 +6,7 @@ import { Box, Flex, Button, Input } from "@chakra-ui/react";
 import { MapPin, Search } from "react-feather";
 import { useForm } from "react-hook-form";
 
-const SearchInput = ({ handleSearch, userLocation}) => {
+const SearchInput = ({ handleSearch, userLocation }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const {
     register,

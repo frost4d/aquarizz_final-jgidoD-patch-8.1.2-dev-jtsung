@@ -2,6 +2,7 @@
   .searchWrapper {
     flex-direction: column;
     height: 200px;
+    width: 100%;
   }
   .searchWrapper > * #search {
     margin: 0;
@@ -11,6 +12,7 @@
   }
   .btnFind {
     width: 100%;
+    margin: 0 12px;
   }
   .btnFind #findItemBtn {
     width: 100%;

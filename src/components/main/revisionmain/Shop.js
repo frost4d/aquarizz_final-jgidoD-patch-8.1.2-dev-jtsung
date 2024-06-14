@@ -115,7 +115,6 @@ const Shop = () => {
     });
   };
 
-
   const handleFilter = (e) => {
     const { name, checked } = e.target;
     if (checked) {
@@ -127,7 +126,10 @@ const Shop = () => {
 
   useEffect(() => {
     const filteredResults = shopPosts.filter((post) => {
-      return selectedTags.length === 0 || selectedTags.includes(post.tag.toLowerCase());
+      return (
+        selectedTags.length === 0 ||
+        selectedTags.includes(post.tag.toLowerCase())
+      );
     });
     setFilteredPosts(filteredResults);
   }, [selectedTags, shopPosts]);
@@ -138,7 +140,6 @@ const Shop = () => {
   useEffect(() => {
     const handleFilterData = () => {
       const filteredResults = [];
-
 
       shopPosts.forEach((post) => {
         const tag = post.tag.toLowerCase();
@@ -161,7 +162,6 @@ const Shop = () => {
 
   console.log(shopPosts.filter((post) => post.tag === "fish"));
   console.log(shopPosts);
-
 
   const handleLoginFirst = () => {
     toast({
@@ -198,36 +198,40 @@ const Shop = () => {
               </ModalContent>
             </Modal> */}
 
-            {/* <Button variant="ghost" color="#333333"  onClick={() => {
+              {/* <Button variant="ghost" color="#333333"  onClick={() => {
     navigate("/profile", { state: { shopPosts } });
   }}> */}
 
-            <Button variant="link" color="#333333" onClick={() => {
-    navigate(`/profile/${user.uid}`);
-  }}>
-
-              My Shop
-            </Button>
+              <Button
+                variant="link"
+                color="#333333"
+                onClick={() => {
+                  navigate(`/profile/${user.uid}`);
+                }}
+              >
+                My Shop
+              </Button>
+            </Flex>
           </Flex>
-        </Flex>
-        <Box className="shopContentWrapper">
-          <Box >
-            <SearchInput  handleSearch={(term) => handleSearchShop(term, location)}/>
-          </Box>
-          <Flex
-            gap="24px 12px"
-            flexWrap="wrap"
-            justify="space-evenly"
-            align="center"
-            my="64px"
-          >
+          <Box className="shopContentWrapper">
+            <Box>
+              <SearchInput
+                handleSearch={(term) => handleSearchShop(term, location)}
+              />
+            </Box>
+            <Flex
+              gap="24px 12px"
+              flexWrap="wrap"
+              justify="space-evenly"
+              align="center"
+              my="64px"
+            >
               <Flex
                 className="shop__contents"
                 justify="space-between"
                 align="start"
                 w="100%"
               >
-
                 <Box
                   className="filter__wrapper"
                   ml="24px"
@@ -238,7 +242,10 @@ const Shop = () => {
                   <Text as="b" size="md">
                     Filter
                   </Text>
-                  <form onSubmit={handleSubmit(handleFilter)} onChange={handleFilter}>
+                  <form
+                    onSubmit={handleSubmit(handleFilter)}
+                    onChange={handleFilter}
+                  >
                     <Flex flexDirection="column" p="12px">
                       <Checkbox {...register("accessories")}>
                         Accessories
@@ -246,15 +253,6 @@ const Shop = () => {
                       <Checkbox {...register("aquarium")}>Aquarium</Checkbox>
                       <Checkbox {...register("feeds")}>Feeds</Checkbox>
                       <Checkbox {...register("fish")}>Fish</Checkbox>
-                      <Button
-                        mt="12px"
-                        variant="outline"
-                        bg="#7E8EF1"
-                        type="submit"
-                        color="#fff"
-                      >
-                        Apply
-                      </Button>
                     </Flex>
                   </form>
                 </Box>

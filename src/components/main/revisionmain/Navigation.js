@@ -58,8 +58,10 @@ import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
+import AddDiscoverModal from "./AddDiscoverModal";
 
 const Navigation = () => {
+  const addDiscover = useDisclosure();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -102,7 +104,7 @@ const Navigation = () => {
           <Box
             className="logoWrapper"
             onClick={() => {
-              navigate("/")
+              navigate("/");
             }}
             cursor="pointer"
             ml="-24px"
@@ -200,9 +202,9 @@ const Navigation = () => {
                           My Account
                         </MenuItem>
                         <MenuItem>
-                        <Link to="/ItemStatusPage">Check Item Status</Link>
+                          <Link to="/ItemStatusPage">Check Item Status</Link>
                         </MenuItem>
-                      <MenuDivider />
+                        <MenuDivider />
                       </MenuGroup>
                       <MenuGroup title="My Shop">
                         <MenuItem
@@ -212,9 +214,13 @@ const Navigation = () => {
                         >
                           My Reports
                         </MenuItem>
-                        <MenuItem onClick={() => {
-                    navigate(`/transaction`);
-                  }}>Transactions</MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            navigate(`/transaction`);
+                          }}
+                        >
+                          Transactions
+                        </MenuItem>
                       </MenuGroup>
                       <MenuDivider />
                       <MenuGroup title="Support">
@@ -225,25 +231,40 @@ const Navigation = () => {
                           isOpen={isContactModalOpen}
                           onClose={() => setIsContactModalOpen(false)}
                         />
-                        <MenuItem onClick={() => {
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/faqs`);
-                          }}>FAQs</MenuItem>
-                        <MenuItem onClick={() => {
+                          }}
+                        >
+                          FAQs
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/return&exchange`);
-                          }}>Return & Exchanges</MenuItem>
-                        <MenuItem onClick={() => {
+                          }}
+                        >
+                          Return & Exchanges
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/Privacypolicy`);
-                          }}>Privacy Policy</MenuItem>
-                        <MenuItem onClick={() => {
+                          }}
+                        >
+                          Privacy Policy
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/terms-of-service`);
-                          }}>Terms of Service</MenuItem>
+                          }}
+                        >
+                          Terms of Service
+                        </MenuItem>
                       </MenuGroup>
                       <MenuDivider />
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
                     </MenuList>
                   </Menu>
                 )}
-
               </>
             ) : (
               <Button
@@ -283,149 +304,191 @@ const Navigation = () => {
             </Button>
             <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
           </Flex>
-          <Box mr="42px" display={{ base: "block", md: "none" }}>
-            <Button variant="ghost" onClick={onOpen} mr="-30px">
-              <HamburgerIcon size={32} />
-            </Button>
-            <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
-              <DrawerOverlay />
-              <DrawerContent>
-                <DrawerHeader>
-                  <Flex
-                    flexDirection="column"
-                    justify="center"
-                    align="center"
-                    my="14px"
-                  >
-                    <Flex justify="center" align="center" mx="32px">
-                      {userProfile && (
-                        <Avatar
-                          size="xl"
-                          name={userProfile.name}
-                          scr={
-                            userProfile.profileImage || "/path/to/avatar.jpg"
-                          }
-                        />
-                      )}
-                      {/* {userProfile.name.charAt(0).toUpperCase()} */}
+
+          <Flex>
+            <Box className="addNew__mobiles">
+              <Button
+                variant="outline"
+                w="100%"
+                mr="12px"
+                // variant="ghost"
+                rightIcon={<Edit size={16} />}
+                onClick={addDiscover.onOpen}
+              >
+                <AddDiscoverModal
+                  isOpen={addDiscover.isOpen}
+                  onClose={addDiscover.onClose}
+                />
+                New Post
+              </Button>
+            </Box>
+            <Box className="addNew__mobiles__icon">
+              <Button
+                variant="outline"
+                w="100%"
+                mr="12px"
+                // variant="ghost"
+                onClick={addDiscover.onOpen}
+              >
+                <AddDiscoverModal
+                  isOpen={addDiscover.isOpen}
+                  onClose={addDiscover.onClose}
+                />
+                <Edit size={16} />
+              </Button>
+            </Box>
+            <Box
+              className="navbarMobiles"
+              mr="42px"
+              display={{ base: "block", md: "none" }}
+            >
+              <Button variant="ghost" onClick={onOpen} mr="-30px">
+                <HamburgerIcon size={32} />
+              </Button>
+              <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
+                <DrawerOverlay />
+                <DrawerContent>
+                  <DrawerHeader>
+                    <Flex
+                      flexDirection="column"
+                      justify="center"
+                      align="center"
+                      my="14px"
+                    >
+                      <Flex justify="center" align="center" mx="32px">
+                        {userProfile && (
+                          <Avatar
+                            size="xl"
+                            name={userProfile.name}
+                            scr={
+                              userProfile.profileImage || "/path/to/avatar.jpg"
+                            }
+                          />
+                        )}
+                        {/* {userProfile.name.charAt(0).toUpperCase()} */}
+                      </Flex>
+                      <Box mt="12px">
+                        {!userProfile ? (
+                          <Text fontSize="md">Please login to continue</Text>
+                        ) : (
+                          <Menu>
+                            <MenuButton>{userProfile.email}</MenuButton>
+                            <MenuList>
+                              <MenuGroup title="Profile">
+                                <MenuItem>My Account</MenuItem>
+                                <MenuItem>My Shop</MenuItem>
+                              </MenuGroup>
+                              <MenuDivider />
+                              <MenuGroup title="Support">
+                                <MenuItem>Contact Us</MenuItem>
+                                <MenuItem>FAQs</MenuItem>
+                                <MenuItem>Return & Exchanges</MenuItem>
+                                <MenuItem>Privacy Policy</MenuItem>
+                                <MenuItem>Terms of Service</MenuItem>
+                              </MenuGroup>
+                              <MenuDivider />
+                              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                            </MenuList>
+                          </Menu>
+                        )}
+                      </Box>
                     </Flex>
-                    <Box mt="12px">
-                      {!userProfile ? (
-                        <Text fontSize="md">Please login to continue</Text>
-                      ) : (
-                        <Menu>
-                          <MenuButton>{userProfile.email}</MenuButton>
-                          <MenuList>
-                            <MenuGroup title="Profile">
-                              <MenuItem>My Account</MenuItem>
-                              <MenuItem>My Shop</MenuItem>
-                            </MenuGroup>
-                            <MenuDivider />
-                            <MenuGroup title="Support">
-                              <MenuItem>Contact Us</MenuItem>
-                              <MenuItem>FAQs</MenuItem>
-                              <MenuItem>Return & Exchanges</MenuItem>
-                              <MenuItem>Privacy Policy</MenuItem>
-                              <MenuItem>Terms of Service</MenuItem>
-                            </MenuGroup>
-                            <MenuDivider />
-                            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                          </MenuList>
-                        </Menu>
-                      )}
-                    </Box>
-                  </Flex>
-                </DrawerHeader>
-                <DrawerBody>
-                  <Flex flexDirection="column">
-                    <NavLink
-                      // className={({ isActive }) =>
-                      //   isActive ? "navlink_isActive" : "navlink_inactive"
-                      // }
-                      to="/shop"
-                    >
-                      <Button
-                        borderRadius="0"
-                        // variant="ghost"
-                        color="#000"
-                        leftIcon={<ShoppingBag size={20} />}
-                        // _hover={{ bg: "rgba(249,249,249,1)" }}
-                        // onClick={() => navigate("/shop")}
-                        size="lg"
+                  </DrawerHeader>
+                  <DrawerBody>
+                    <Flex flexDirection="column">
+                      <NavLink
+                        // className={({ isActive }) =>
+                        //   isActive ? "navlink_isActive" : "navlink_inactive"
+                        // }
+                        to="/shop"
                       >
-                        Shop
-                      </Button>
-                    </NavLink>
-                    <NavLink
-                      // className={({ isActive }) =>
-                      //   isActive ? "navlink_isActive" : "navlink_inactive"
-                      // }
-                      to="/discover"
-                    >
-                      <Button
-                        borderRadius="0"
-                        // variant="ghost"
-                        color="#000"
-                        leftIcon={<Compass size={20} />}
-                        size="lg"
-
-                        // _hover={{
-                        //   bg: "rgba(249,249,249,1)",
-                        // }}
-                        // onClick={() => navigate("/discover")}
-                      >
-                        Discover
-                      </Button>
-                    </NavLink>
-
-                    {!userProfile ? (
-                      ""
-                    ) : (
-                      <NavLink to="/CartPage">
                         <Button
                           borderRadius="0"
+                          // variant="ghost"
                           color="#000"
-                          rightIcon={
-                            <Badge colorScheme="red" borderRadius="full" px="2">
-                              {cartItemCount}
-                            </Badge>
-                          }
+                          leftIcon={<ShoppingBag size={20} />}
+                          // _hover={{ bg: "rgba(249,249,249,1)" }}
+                          // onClick={() => navigate("/shop")}
+                          size="lg"
                         >
-                          <ShoppingCart size={16} />
+                          Shop
                         </Button>
                       </NavLink>
-                    )}
+                      <NavLink
+                        // className={({ isActive }) =>
+                        //   isActive ? "navlink_isActive" : "navlink_inactive"
+                        // }
+                        to="/discover"
+                      >
+                        <Button
+                          borderRadius="0"
+                          // variant="ghost"
+                          color="#000"
+                          leftIcon={<Compass size={20} />}
+                          size="lg"
 
-                    <Button
-                      bg={primaryColor}
-                      color="#000"
-                      leftIcon={<Edit size={20} />}
-                      size="lg"
-                      _hover={{ bg: "#ffd36b" }}
-                      onClick={() => {
-                        user ? (
-                          <Create
-                            isOpen={modalShop.isOpen}
-                            onClose={modalShop.onClose}
-                          />
-                        ) : (
-                          <>
-                            {loginModal.onOpen()}
-                            <LoginModal
-                              isOpen={loginModal.isOpen}
-                              onClose={loginModal.onClose}
+                          // _hover={{
+                          //   bg: "rgba(249,249,249,1)",
+                          // }}
+                          // onClick={() => navigate("/discover")}
+                        >
+                          Discover
+                        </Button>
+                      </NavLink>
+
+                      {!userProfile ? (
+                        ""
+                      ) : (
+                        <NavLink to="/CartPage">
+                          <Button
+                            borderRadius="0"
+                            color="#000"
+                            rightIcon={
+                              <Badge
+                                colorScheme="red"
+                                borderRadius="full"
+                                px="2"
+                              >
+                                {cartItemCount}
+                              </Badge>
+                            }
+                          >
+                            <ShoppingCart size={16} />
+                          </Button>
+                        </NavLink>
+                      )}
+
+                      <Button
+                        bg={primaryColor}
+                        color="#000"
+                        leftIcon={<Edit size={20} />}
+                        size="lg"
+                        _hover={{ bg: "#ffd36b" }}
+                        onClick={() => {
+                          user ? (
+                            <Create
+                              isOpen={modalShop.isOpen}
+                              onClose={modalShop.onClose}
                             />
-                          </>
-                        );
-                      }}
-                    >
-                      Create listing
-                    </Button>
-                  </Flex>
-                </DrawerBody>
-              </DrawerContent>
-            </Drawer>
-          </Box>
+                          ) : (
+                            <>
+                              {loginModal.onOpen()}
+                              <LoginModal
+                                isOpen={loginModal.isOpen}
+                                onClose={loginModal.onClose}
+                              />
+                            </>
+                          );
+                        }}
+                      >
+                        Create listing
+                      </Button>
+                    </Flex>
+                  </DrawerBody>
+                </DrawerContent>
+              </Drawer>
+            </Box>
+          </Flex>
         </Flex>
       </Box>
     </>
