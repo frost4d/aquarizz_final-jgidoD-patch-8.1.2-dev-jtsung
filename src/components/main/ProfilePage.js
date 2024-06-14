@@ -762,6 +762,7 @@ function ProfilePage() {
                                     align="center"
                                     justify="center"
                                   >
+
                                     {post.postImage && (
                                       <Image
                                         src={post.postImage}
@@ -791,6 +792,7 @@ function ProfilePage() {
                                         tag.
                                       </video>
                                     )}
+
                                   </Flex>
                                   <Box w="100%">
                                     <Comment
@@ -805,6 +807,20 @@ function ProfilePage() {
                         </TabPanel>
                         <TabPanel>
 
+                          {/* <Flex
+                            flexDirection="column"
+                            w="100%"
+                            align="center"
+                            justify="center"
+                          > */}
+
+                          {/* <Flex
+                            flexDirection="row"
+                            flexWrap="wrap"
+                            justify="center"
+                          > */}
+
+
                           <Grid
                             className="gridItem__holder"
                             templateColumns={`repeat(5, 1fr)`}
@@ -813,6 +829,16 @@ function ProfilePage() {
                             rowGap={4}
                           >
                             {shopPosts.map((post) => (
+
+                              // <Card
+                              //   key={post.id}
+                              //   w={{ base: "100%", md: "45%", lg: "30%" }}
+                              //   m="8px"
+                              //   // p="24px 24px"
+                              //   // my="16px"
+                              //   border="1px solid #e1e1e1"
+                              // >
+
                               <GridItem
                                 className="gridItem"
                                 p="6px"
@@ -838,6 +864,18 @@ function ProfilePage() {
                                     postId={post.id}
                                     authorId={post.authorId}
                                   />
+
+                                  {/* <Text
+                                    as="kbd"
+                                    fontSize="10px"
+                                    color="gray.500"
+                                  >
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                  <Button variant="link" color="#333333">
+                                    {post.authorName}
+                                  </Button> */}
+
 
                                   <Flex
                                     w="100%"
@@ -888,6 +926,30 @@ function ProfilePage() {
                                       )}
                                     </Box>
                                   </Flex>
+
+                                  {/* <Flex
+                                    w="100%"
+                                    align="center"
+                                    justify="center"
+                                  >
+                                    <Image
+                                      src={post.postImage}
+                                      objectFit="cover"
+                                      w="100%"
+                                      h="250px"
+                                      alt="post image"
+                                      onError={(e) =>
+                                        (e.target.style.display = "none")
+                                      }
+                                    />
+                                  </Flex> */}
+                                  {/* <Box w="100%">
+                                    <Comment
+                                      postID={post.id}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box> */}
+
                                 </Flex>
                                 {/* </Card> */}
                               </GridItem>

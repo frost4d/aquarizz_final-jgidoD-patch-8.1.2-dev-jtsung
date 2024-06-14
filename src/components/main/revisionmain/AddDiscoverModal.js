@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 // import { UserAuth } from "../context/AuthContext";
-import { UserAuth } from "../../context/AuthContext"; 
+import { UserAuth } from "../../context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import { serverTimestamp, doc, getDoc } from "firebase/firestore";
 // import { db, storage } from "../../firebase/firebaseConfig";
@@ -55,7 +55,6 @@ const AddDiscover = (props) => {
   const handleImageChange = async (e) => {
     setFile(e.target.files[0]);
 
-
     const imageRef = ref(
       storage,
       `postImages/${e.target.files[0].name + "&" + userProfile.name}`
@@ -90,6 +89,7 @@ const AddDiscover = (props) => {
 
   const handleSubmitPost = async (data) => {
     const obj = {
+
         authorName: userProfile.name,
         authorID: user?.uid,
         postTitle: data.title,
@@ -98,9 +98,10 @@ const AddDiscover = (props) => {
         postVideo: videoFile ? videoUrl : "",
         tag: data.tag,
         createdAt: data.createdAt || new Date().toISOString(),
+
     };
     try {
-      await addDoc(collection(db, 'discover'), obj);
+      await addDoc(collection(db, "discover"), obj);
       // await createPost(obj);
       toast({
         title: "Post Created.",
@@ -123,7 +124,7 @@ const AddDiscover = (props) => {
 
   return (
     <>
-        <Modal isOpen={props.isOpen} onClose={props.onClose}>
+      <Modal isOpen={props.isOpen} onClose={props.onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalBody>
@@ -165,7 +166,6 @@ const AddDiscover = (props) => {
                     // className="inputfile"
                     multiple
                     onChange={handleImageChange}
-                    
                   />
                 </Box>
                 <Box p="12px 0">
@@ -191,7 +191,11 @@ const AddDiscover = (props) => {
                   )}
                 </Box>
 
-                <Button type="submit" bg={primaryColor} onClick={props.fetchData}>
+                <Button
+                  type="submit"
+                  bg={primaryColor}
+                  onClick={props.fetchData}
+                >
                   Publish
                 </Button>
                 <Button onClick={props.onClose}>Cancel</Button>

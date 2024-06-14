@@ -94,7 +94,7 @@ const Footer = () => {
             <Heading fontSize="xl" my="8px">
               About Us
             </Heading>
-            <Box>
+            <Box className="links__">
               <Text color="#333333" fontSize="sm">
                 Contact Us
               </Text>
