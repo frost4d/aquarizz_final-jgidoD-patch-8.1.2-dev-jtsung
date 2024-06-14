@@ -1,6 +1,4 @@
 import "./Footer.css";
-import { useState } from "react";
-import Contact from "../../Contact";
 import {
   Box,
   Flex,
@@ -13,9 +11,8 @@ import {
   AccordionPanel,
 } from "@chakra-ui/react";
 import { Facebook, Mail, Twitter } from "react-feather";
+import { Link } from "react-router-dom";
 const Footer = () => {
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-
   return (
     <>
       <Flex
@@ -25,7 +22,6 @@ const Footer = () => {
         justify="space-evenly"
         flexWrap="wrap"
         py="16px"
-        mt="24px"
       >
         <Flex
           className="footerContents"
@@ -94,22 +90,33 @@ const Footer = () => {
             <Heading fontSize="xl" my="8px">
               About Us
             </Heading>
-            <Box className="links__">
+            <Box>
+            <Link to="/contact-us">
               <Text color="#333333" fontSize="sm">
                 Contact Us
               </Text>
+              </Link>
+
+              <Link to="/faqs">
               <Text color="#333333" fontSize="sm">
                 FAQs
               </Text>
+            </Link>
+            <Link to="/return&exchange">
               <Text color="#333333" fontSize="sm">
                 Returns & Exchanges
               </Text>
+             </Link>
+             <Link to="/Privacypolicy">
               <Text color="#333333" fontSize="sm">
                 Privacy Policy
               </Text>
+              </Link>
+              <Link to="/terms-of-service">
               <Text color="#333333" fontSize="sm">
                 Terms of Service
               </Text>
+              </Link>
             </Box>
           </Flex>
         </Flex>
@@ -148,23 +155,31 @@ const Footer = () => {
               </AccordionButton>
               <AccordionPanel>
                 <Box>
-                  <Text color="#333333" fontSize="sm" onClick={() => setIsContactModalOpen(true)}>
+                <Link to="/contact-us">
+                  <Text color="#333333" fontSize="sm">
                     Contact Us
                   </Text>
-                  <Contact isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
-
+                  </Link>
+                  <Link to="/faqs">
                   <Text color="#333333" fontSize="sm">
                     FAQs
                   </Text>
+                  </Link>
+                  <Link to="/return&exchange">
                   <Text color="#333333" fontSize="sm">
                     Returns & Exchanges
                   </Text>
+                  </Link>
+                  <Link to="/Privacypolicy">
                   <Text color="#333333" fontSize="sm">
                     Privacy Policy
                   </Text>
+                  </Link>
+                  <Link to="/terms-of-service">
                   <Text color="#333333" fontSize="sm">
                     Terms of Service
                   </Text>
+                  </Link>
                 </Box>
               </AccordionPanel>
             </AccordionItem>

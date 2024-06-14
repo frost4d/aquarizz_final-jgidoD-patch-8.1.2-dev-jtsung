@@ -221,32 +221,6 @@ const Shop = () => {
             align="center"
             my="64px"
           >
-
-              <Button
-                variant="link"
-                color="#333333"
-                onClick={() => {
-                  navigate(`/profile/${user.uid}`);
-                }}
-              >
-                My Shop
-              </Button>
-            </Flex>
-          </Flex>
-          <Box className="shopContentWrapper">
-            <Box>
-              <SearchInput
-                handleSearch={handleSearchShop}
-                userLocation={location}
-              />
-            </Box>
-            <Flex
-              gap="24px 12px"
-              flexWrap="wrap"
-              justify="space-evenly"
-              align="center"
-              my="64px"
-            >
               <Flex
                 className="shop__contents"
                 justify="space-between"
@@ -264,7 +238,7 @@ const Shop = () => {
                   <Text as="b" size="md">
                     Filter
                   </Text>
-                  <form onSubmit={handleSubmit(handleFilter)}>
+                  <form onSubmit={handleSubmit(handleFilter)} onChange={handleFilter}>
                     <Flex flexDirection="column" p="12px">
                       <Checkbox {...register("accessories")}>
                         Accessories
@@ -348,10 +322,8 @@ const Shop = () => {
             </Flex>
           </Box>
         </Box>
-
-      </Box>
-      <Footer />
       </Flex>
+      <Footer />
     </>
   );
 };

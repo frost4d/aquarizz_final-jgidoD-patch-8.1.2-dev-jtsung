@@ -478,23 +478,6 @@ const LandingPageMarket = () => {
               handleSearch={handleSearchShop}
               
             />
-            <Flex justify="center" align="center" flexWrap="wrap">
-              {filteredPosts.map((post) => (
-                <Box
-                  key={post.id}
-                  p="4"
-                  m="4"
-                  borderWidth="1px"
-                  borderRadius="lg"
-                >
-                  <Heading as="h3" size="md">
-                    {post.title}
-                  </Heading>
-                  <Text>{post.description}</Text>
-                  <Image src={post.image} alt={post.title} />
-                </Box>
-              ))}
-            </Flex>
             {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
           </Box>
 
