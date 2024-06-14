@@ -24,7 +24,7 @@ import {
   GridItem,
   Grid,
 } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import AddToCartPage from "./AddToCartPage";
 import Navigation from "./Navigation";
 import SearchInput from "./components/SearchInput";
@@ -48,7 +48,7 @@ const Shop = () => {
   const [shopPosts, setShopPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [location, setLocation] = useState(""); 
+  const [location, setLocation] = useState("");
   const primaryColor = "#FFC947";
   const primaryFont = '"Poppins", sans-serif';
   const tertiaryColor = "#6e6e6e";
@@ -56,6 +56,7 @@ const Shop = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState();
   const [filteredData, setFilteredData] = useState();
+  const [selectedTags, setSelectedTags] = useState([]);
   useEffect(() => {
     const fetchShopPosts = async () => {
       const postsCollection = collection(db, "shop");
@@ -88,9 +89,14 @@ const Shop = () => {
   const handleSearchShop = (searchTerm, userLocation) => {
     setSearchTerm(searchTerm);
     const filtered = shopPosts.filter((post) => {
-      const matchesSearchTerm = post.tag.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearchTerm = post.tag
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
       // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
-      const matchesLocation = !userLocation || (post.location && post.location.toLowerCase().includes(userLocation.toLowerCase()));
+      const matchesLocation =
+        !userLocation ||
+        (post.location &&
+          post.location.toLowerCase().includes(userLocation.toLowerCase()));
       return matchesSearchTerm && matchesLocation;
     });
     setFilteredPosts(filtered);
@@ -109,9 +115,25 @@ const Shop = () => {
     });
   };
 
-  const handleFilter = (data) => {
-    setFilter(data);
+
+  const handleFilter = (e) => {
+    const { name, checked } = e.target;
+    if (checked) {
+      setSelectedTags([...selectedTags, name]);
+    } else {
+      setSelectedTags(selectedTags.filter((tag) => tag !== name));
+    }
   };
+
+  useEffect(() => {
+    const filteredResults = shopPosts.filter((post) => {
+      return selectedTags.length === 0 || selectedTags.includes(post.tag.toLowerCase());
+    });
+    setFilteredPosts(filteredResults);
+  }, [selectedTags, shopPosts]);
+  // const handleFilter = (data) => {
+  //   setFilter(data);
+  // };
 
   useEffect(() => {
     const handleFilterData = () => {
@@ -140,15 +162,26 @@ const Shop = () => {
   console.log(shopPosts.filter((post) => post.tag === "fish"));
   console.log(shopPosts);
 
+
+  const handleLoginFirst = () => {
+    toast({
+      title: "Please login first!",
+      description: "Make sure you are logged in to start shopping!",
+      status: "error",
+      duration: 5000,
+      position: "top",
+    });
+  };
   return (
     <>
       <Flex direction="column" minH="100vh">
-      <Navigation />
-      <Box flex="1">
-        <Flex justify="space-between" p="0 64px 0 64px">
-          <Heading fontFamily={primaryFont}>Shop</Heading>
-          <Flex display={user ? "flex" : "none"} justify="space-between">
-{/* 
+        <Navigation />
+        <Box flex="1">
+          <Flex justify="space-between" p="0 64px 0 64px">
+            <Heading fontFamily={primaryFont}>Shop</Heading>
+            <Flex display={user ? "flex" : "none"} justify="space-between">
+              {/* 
+              
             <Button
               mr="12px"
               variant="ghost"
@@ -164,6 +197,7 @@ const Shop = () => {
                 <ModalBody>Link to create listing</ModalBody>
               </ModalContent>
             </Modal> */}
+
             {/* <Button variant="ghost" color="#333333"  onClick={() => {
     navigate("/profile", { state: { shopPosts } });
   }}> */}
@@ -178,7 +212,7 @@ const Shop = () => {
         </Flex>
         <Box className="shopContentWrapper">
           <Box >
-            <SearchInput  handleSearch={handleSearchShop} userLocation={location}/>
+            <SearchInput  handleSearch={(term) => handleSearchShop(term, location)}/>
           </Box>
           <Flex
             gap="24px 12px"
@@ -187,7 +221,6 @@ const Shop = () => {
             align="center"
             my="64px"
           >
-              
               <Flex
                 className="shop__contents"
                 justify="space-between"
@@ -234,22 +267,8 @@ const Shop = () => {
                       autoRows="minmax(200px, auto)"
                       rowGap={4}
                     >
-                      Apply
-                    </Button>
-                  </Flex>
-                </form>
-              </Box>
-              <Box className="gridItem__wrapper" flex="3">
-                {filteredPosts ? (
-                  <Grid
-                    className="gridItem__holder"
-                    templateColumns={`repeat(5, 1fr)`}
-                    gap="2"
-                    autoRows="minmax(200px, auto)"
-                    rowGap={4}
-                  >
-                    {filteredPosts &&
-                      filteredPosts.map((post) => (
+                      {filteredPosts &&
+                        filteredPosts.map((post) => (
                           <GridItem
                             className="gridItem"
                             p="6px"
@@ -260,16 +279,18 @@ const Shop = () => {
                               boxShadow: "0 3px 2px #e9e9e9",
                               transform: "translateY(-3px)",
                             }}
-                            onClick={() => {
-                              console.log(post.id);
-                            }}
+                            // onClick={() => {
+                            //   console.log(post.id);
+                            // }}
                           >
                             <Box
                               className="itemsWrapper"
                               h="100%"
                               w="100%"
                               onClick={() => {
-                                navigate("/AddToCart/" + post.id);
+                                !user
+                                  ? handleLoginFirst()
+                                  : navigate("/AddToCart/" + post.id);
                               }}
                             >
                               <Image
@@ -291,12 +312,13 @@ const Shop = () => {
                             </Box>
                           </GridItem>
                         ))}
-                  </Grid>
-                ) : (
-                  <Text>Feels empty here...</Text>
-                )}
-              </Box>
-              <Box className="filler" flex="1"></Box>
+                    </Grid>
+                  ) : (
+                    <Text>Feels empty here...</Text>
+                  )}
+                </Box>
+                <Box className="filler" flex="1"></Box>
+              </Flex>
             </Flex>
           </Box>
         </Box>

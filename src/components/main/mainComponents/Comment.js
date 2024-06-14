@@ -98,28 +98,28 @@ const Comments = (props) => {
     return querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   };
 
-//   const fetchComments = async () => {
-//     try {
-//       const data = [];
-//       const postRef = doc(db, "shop", id);
-//       const commentRef = collection(postRef, "comments");
-//       const querySnapshot = await getDocs(
-//         query(commentRef, orderBy("createdAt", "desc"), limit(5))
-//       );
+  //   const fetchComments = async () => {
+  //     try {
+  //       const data = [];
+  //       const postRef = doc(db, "shop", id);
+  //       const commentRef = collection(postRef, "comments");
+  //       const querySnapshot = await getDocs(
+  //         query(commentRef, orderBy("createdAt", "desc"), limit(5))
+  //       );
 
-//       querySnapshot.forEach((doc) => {
-//         data.push({ ...doc.data(), id: doc.id });
-//       });
+  //       querySnapshot.forEach((doc) => {
+  //         data.push({ ...doc.data(), id: doc.id });
+  //       });
 
-//       setCommentData(data);
-//     } catch (err) {
-//       console.error("Error fetching comments:", err.message);
-//     }
-//   };
+  //       setCommentData(data);
+  //     } catch (err) {
+  //       console.error("Error fetching comments:", err.message);
+  //     }
+  //   };
 
   const handleCommentSubmit = async (parentId) => {
     const obj = {
-    //   content: comment,
+      //   content: comment,
       content: parentId ? reply : comment,
       authorID: user?.uid,
       name: userProfile.name,
@@ -130,22 +130,22 @@ const Comments = (props) => {
     };
 
     try {
-        const postRef = doc(db, "shop", id);
-        if (parentId) {
-          const commentRef = doc(postRef, "comments", parentId);
-          const replyRef = collection(commentRef, "replies");
-          await addDoc(replyRef, obj);
-        } else {
-          const commentRef = collection(postRef, "comments");
-          await addDoc(commentRef, obj);
-        }
-        setComment("");
-        setReply("");
-        setReplyCommentId(null);
-        fetchComments();
-      } catch (err) {
-        console.error("Error adding comment: ", err.message);
+      const postRef = doc(db, "shop", id);
+      if (parentId) {
+        const commentRef = doc(postRef, "comments", parentId);
+        const replyRef = collection(commentRef, "replies");
+        await addDoc(replyRef, obj);
+      } else {
+        const commentRef = collection(postRef, "comments");
+        await addDoc(commentRef, obj);
       }
+      setComment("");
+      setReply("");
+      setReplyCommentId(null);
+      fetchComments();
+    } catch (err) {
+      console.error("Error adding comment: ", err.message);
+    }
 
     // try {
     //   const postRef = doc(db, "shop", id);
