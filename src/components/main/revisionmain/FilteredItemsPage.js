@@ -21,12 +21,12 @@ const FilteredItemsPage = () => {
 
   useEffect(() => {
     const fetchFilteredPosts = async () => {
-      const postsCollection = collection(db, "shop");
+      const postsCollection = collection(db, "discover");
       const querySnapshot = await getDocs(postsCollection);
       const tempPosts = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.tag.toLowerCase() === categoryName.toLowerCase()) {
+        if (data.tag === categoryName) {
           tempPosts.push({ id: doc.id, ...data });
         }
       });

@@ -1,7 +1,6 @@
 // ItemStatusPage.js
 import "./ReportPage.css";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   VStack,
   Text,
@@ -15,14 +14,12 @@ import {
   Box,
   Image,
   Flex,
-  Button,
+  Button
 } from "@chakra-ui/react";
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
-import { UserAuth } from "../../context/AuthContext";
-
 const statuses = [
   "All Order",
   "To Ship",
@@ -125,59 +122,36 @@ const items = [
   },
 ];
 
-
+const sideTabs = [
+  "Manage My Account",
+  "My Orders",
+  "Reviews"
+];
 const ReportPage = () => {
-  const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState(0);
   const [currentSideTab, setCurrentSideTab] = useState(0);
   const [orders, setOrders] = useState([]);
-  const { user } = UserAuth();
   const location = useLocation();
   // const { checkedOutItems = [] } = location.state || {};
   const checkedOutItems = location.state?.checkedOutItems || [];
 
-  // useEffect(() => {
-  //   const fetchOrders = async () => {
-  //     try {
-  //       const ordersRef = collection(db, "payments");
-  //       const querySnapshot = await getDocs(ordersRef);
-  //       const fetchedOrders = [];
-  //       querySnapshot.forEach((doc) => {
-  //         fetchedOrders.push({ id: doc.id, ...doc.data() });
-  //       });
-  //       setOrders(fetchedOrders);
-  //     } catch (error) {
-  //       console.error("Error fetching orders: ", error);
-  //     }
-  //   };
-
-  //   fetchOrders();
-  // }, []);
-
   useEffect(() => {
-    if (user) {
-      const fetchOrders = async () => {
-        try {
-          const ordersRef = collection(db, "payments");
-          const querySnapshot = await getDocs(ordersRef);
-          const fetchedOrders = [];
-          querySnapshot.forEach((doc) => {
-            const orderData = doc.data();
-            orderData.cartItems.forEach((item) => {
-              if (item.authorID === user.uid) {
-                fetchedOrders.push({ id: doc.id, ...orderData });
-              }
-            });
-          });
-          setOrders(fetchedOrders);
-        } catch (error) {
-          console.error("Error fetching orders: ", error);
-        }
-      };
+    const fetchOrders = async () => {
+      try {
+        const ordersRef = collection(db, "payments");
+        const querySnapshot = await getDocs(ordersRef);
+        const fetchedOrders = [];
+        querySnapshot.forEach((doc) => {
+          fetchedOrders.push({ id: doc.id, ...doc.data() });
+        });
+        setOrders(fetchedOrders);
+      } catch (error) {
+        console.error("Error fetching orders: ", error);
+      }
+    };
 
-      fetchOrders();
-    }
-  }, [user]);
+    fetchOrders();
+  }, []);
 
   const getStatusContent = (status) => {
     switch (status) {
@@ -222,113 +196,57 @@ const ReportPage = () => {
         default:
           newStatus = currentStatus;
       }
-
+  
       const orderRef = doc(db, "payments", orderId);
       await updateDoc(orderRef, { status: newStatus });
     } catch (error) {
       console.error("Error updating status: ", error);
     }
   };
-
-
-  const handleCancelOrder = async (orderId) => {
-    try {
-      const orderRef = doc(db, "payments", orderId);
-      await updateDoc(orderRef, { status: "Cancelled" });
-    } catch (error) {
-      console.error("Error cancelling order: ", error);
-    }
-  };
-
-  const handleRefundStatus = async (orderId) => {
-    try {
-      const orderRef = doc(db, "payments", orderId);
-      await updateDoc(orderRef, { status: "Refund" });
-    } catch (error) {
-      console.error("Error refunding order: ", error);
-    }
-  };
-
-  const handleManageClick = () => {
-    // Handle the click event here, e.g., navigate to the reviews page
-    navigate(`/profile/${user.uid}`);
-  };
-  const handleOrdersClick = () => {
-    // Handle the click event here, e.g., navigate to the reviews page
-    navigate(`/reports`);
-  };
-  const handleReviewsClick = () => {
-    // Handle the click event here, e.g., navigate to the reviews page
-    navigate("/transaction");
-  };
-
+  
   return (
     <Box>
       <Navigation />
 
       <VStack align="stretch" spacing="4" p="4">
         <Flex>
-          <Box
-            w="26%"
-            h="28vh"
-            // borderWidth="2px"
-            // borderColor="red"
-            py="8"
-            mr="4"
-            boxShadow="md"
-          >
-            <Center>
-              <VStack align="stretch" spacing="6">
-                <Text
-                  fontWeight="bold"
-                  cursor="pointer"
-                  onClick={handleReviewsClick}
-                >
-                  Manage Account
-                </Text>
-                <Text
-                  fontWeight="bold"
-                  cursor="pointer"
-                  onClick={handleReviewsClick}
-                >
-                  Orders
-                </Text>
-                <Text
-                  fontWeight="bold"
-                  cursor="pointer"
-                  onClick={handleReviewsClick}
-                >
-                  Transaction
-                </Text>
-              </VStack>
-            </Center>
-          </Box>
-          <Box w="100%">
-            <Tabs isLazy index={currentTab} onChange={setCurrentTab} w="100%">
-              <Box borderRadius="sm" boxShadow="md" p="4" w="100%">
-                <TabList
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: `repeat(${statuses.length}, 1fr)`, // Set the columns based on the number of statuses
-                    width: "100%",
-                  }}
-                >
-                  {statuses.map((status, index) => (
-                    <Tab key={index}>{status}</Tab>
-                  ))}
-                </TabList>
-              </Box>
-              <TabPanels>
+        <VStack align="start" spacing="5" mx="8" justifyContent="center" h="90vh">
+            {sideTabs.map((tab, index) => (
+              <Button
+              variant="link" color="#333333"
+                key={index}
+                colorScheme={index === currentSideTab ? "blue" : "gray"}
+                onClick={() => setCurrentSideTab(index)}
+              >
+                {tab}
+              </Button>
+            ))}
+          </VStack>
+        <Box w="100%">
+          <Tabs isLazy index={currentTab} onChange={setCurrentTab} w="100%">
+            <Box borderRadius="sm" boxShadow="md" p="4" w="100%">
+              <TabList
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${statuses.length}, 1fr)`, // Set the columns based on the number of statuses
+                  width: "100%",
+                }}
+              >
                 {statuses.map((status, index) => (
-                  <TabPanel key={index}>
-                    <VStack align="stretch" spacing="2">
-                      <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-                        Item Status: {status}
-                      </Text>
-                      <Divider />
-                    </VStack>
-                    {/* <Box borderRadius="lg" boxShadow="md" p="4" w="100%" h="auto"> */}
-
+                  <Tab key={index}>{status}</Tab>
+                ))}
+              </TabList>
+            </Box>
+            <TabPanels>
+              {statuses.map((status, index) => (
+                <TabPanel key={index}>
+                  <VStack align="stretch" spacing="2">
+                    <Text fontSize="2xl" fontWeight="bold" textAlign="center">
+                      Item Status: {status}
+                    </Text>
+                    <Divider />
+                  </VStack>
+                  {/* <Box borderRadius="lg" boxShadow="md" p="4" w="100%" h="auto"> */}
                     {/* <Text>{getStatusContent(status)}</Text> */}
                     {/* {checkedOutItems */}
                     {/* {orders.map(
@@ -362,10 +280,7 @@ const ReportPage = () => {
                           <Text fontSize="xl" fontWeight="bold">
                             {item.cartItems[0].postTitle}
                           </Text>
-                          <Text className="truncate">
-                            {item.cartItems[0].postContent}
-                          </Text>
-
+                          <Text className="truncate">{item.cartItems[0].postContent}</Text>
                           <Divider my={1} />
                           <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}
@@ -374,7 +289,7 @@ const ReportPage = () => {
                             Shipping Fee: P{item.shippingFee}
                           </Text>
                           <Text fontWeight="bold">
-                            Total Price: P{item.totalPrice}
+                            Total Price: P{item.cartItems[0].totalPrice}
                           </Text>
                           {(item.status === "To Ship" ||
                             item.status === "To Receive" ||
@@ -395,39 +310,16 @@ const ReportPage = () => {
                           >
                             Validate {status}
                           </Button>
-
-                          {status === "All Order" && (
-                            <Button
-                              colorScheme="red"
-                              onClick={() => handleCancelOrder(item.id)}
-                              mt="2"
-                            >
-                              Cancel Order
-                            </Button>
-                          )}
-
-                          {status === "Completed" && (
-                            <Button
-                              colorScheme="red"
-                              onClick={() => handleRefundStatus(item.id)}
-                              mt="2"
-                            >
-                              Refund
-                            </Button>
-                          )}
-
                         </VStack>
                       </Flex>
                     ))}
                     {/* )} */}
-
-                    {/* </Box> */}
-                  </TabPanel>
-                ))}
-              </TabPanels>
-            </Tabs>
-          </Box>
-
+                  {/* </Box> */}
+                </TabPanel>
+              ))}
+            </TabPanels>
+          </Tabs>
+        </Box>
         </Flex>
       </VStack>
     </Box>

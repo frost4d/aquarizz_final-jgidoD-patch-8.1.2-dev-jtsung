@@ -26,10 +26,6 @@ const PaymentPage = () => {
       console.log("Query Snapshot:", querySnapshot);
       const items = [];
       querySnapshot.forEach((doc) => {
-        const cartItems = doc.data().cartItems.map((item) => ({
-          ...item,
-          id: doc.id, // Assuming the item ID is the document ID in Firestore
-        }));
         items.push(...doc.data().cartItems);
       });
       console.log("Fetched items:", items);
@@ -105,7 +101,6 @@ const PaymentPage = () => {
         </Text>
         <Box borderRadius="sm" boxShadow="lg" borderWidth="1px" p="4" w="100%">
           <Text mx="10%" fontWeight="bold">Total Price: P{totalPrice}</Text>
-          <Text mx="10%" fontWeight="bold">Quantity: {checkedOutItems.reduce((acc, item) => acc + item.quantity, 0)}</Text>
           <Text mx="10%" fontWeight="bold">Shipping Fee: P{shippingFee}</Text>
           <Text mx="10%" fontWeight="bold">Payment Method: {paymentMethod}</Text>
           {/* {cartItems.map((item, index) => ( */}

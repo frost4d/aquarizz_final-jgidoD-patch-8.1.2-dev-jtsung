@@ -12,7 +12,7 @@
   margin: 3px 0;
 }
 
-.links__ > *:hover,
+.supportLink > *:hover,
 .shopLink > *:hover {
   text-decoration: underline;
   cursor: pointer;
@@ -81,6 +81,25 @@
     display: none;
   }
 } */
+.socialLink > * {
+  margin: 12px 12px 0 0;
+}
+.socialLink > *:hover {
+  cursor: pointer;
+}
+.addressWrapper > * {
+  margin: 3px;
+}
+.shopLink > *,
+.supportLink > * {
+  margin: 3px 0;
+}
+
+.supportLink > *:hover,
+.shopLink > *:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 .footer__imageWrapper {
   background: url("../../../assets//logo2.png") no-repeat;
