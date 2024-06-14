@@ -1,12 +1,6 @@
 import "./AddToCartPage.css";
 import { useState, useEffect, useRef } from "react";
-import {
-  doc,
-  getDoc,
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, getDoc, collection, addDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
@@ -53,6 +47,7 @@ import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import GooglePay from "../mainComponents/GooglePay";
 
+
 const AddToCartPage = ({ route }) => {
   const { id } = useParams();
   const { user, userProfile } = UserAuth();
@@ -67,6 +62,9 @@ const AddToCartPage = ({ route }) => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const toast = useToast();
+  
+  const [totalAvailable, setTotalAvailable] = useState(0);
+
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const cancelRef = useRef();
   // const [totalPrice, setTotalPrice] = useState(product.price);
@@ -75,7 +73,15 @@ const AddToCartPage = ({ route }) => {
   // };
   const onClose = () => setIsAlertOpen(false);
 
-  const addToCart = (item) => {
+
+  const getTotalPrice = () => {
+    return cartItems.reduce((total, item) => {
+      return total + (item.price * item.quantity);
+    }, 0);
+  };
+
+
+  const addToCart = (item) => { 
     setCartItemCount(cartItemCount + 1);
     const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
     // const updatedItems = [...existingItems, item];
@@ -85,6 +91,9 @@ const AddToCartPage = ({ route }) => {
   };
 
   const handleQuantityChange = (value) => {
+
+    // const quantityValue = parseInt(value);
+
     if (parseInt(value) <= product.totalAvailable) {
       setQuantity(parseInt(value));
       // setTotalPrice(product.price * parseInt(value));
@@ -130,6 +139,31 @@ const AddToCartPage = ({ route }) => {
     });
   };
 
+
+  const proceedToCheckout = () => {
+    if (!product) return;
+
+    if (quantity > product.totalAvailable) {
+      toast({
+        title: "Error",
+        description: "Quantity exceeds available stock.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+    const cartItem = {
+      ...product,
+      quantity,
+      userId: user.uid,
+    };
+
+    // navigate("/checkout", { state: { cartItems, totalPrice: getTotalPrice() } });
+    navigate("/checkout", { state: { cartItems: [cartItem], totalPrice: cartItem.price * quantity } });
+  };
+  
+
   const fetchSellerProfile = async (authorID) => {
     try {
       console.log("Fetching seller profile with authorID:", authorID);
@@ -147,6 +181,7 @@ const AddToCartPage = ({ route }) => {
     }
   };
 
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -154,7 +189,8 @@ const AddToCartPage = ({ route }) => {
         const docRef = doc(db, "shop", id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          const productData = docSnap.data();
+          // const productData = docSnap.data();
+          const productData = { id: docSnap.id, ...docSnap.data() };
           setProduct(productData);
           fetchSellerProfile(productData.authorID);
         } else {
@@ -209,7 +245,8 @@ const AddToCartPage = ({ route }) => {
       <Box h="100vh">
         <Navigation />
 
-        {sellerProfile && (
+
+        {sellerProfile && product && (
           <>
             <Box mx="12px ">
               <Breadcrumb>
@@ -232,6 +269,7 @@ const AddToCartPage = ({ route }) => {
                 p="10"
                 bg="#f8f9fa"
               >
+
                 {/* <Flex justify="center" align="center" mt="64px"> */}
                 <Center maxWidth="400px" minW="300px">
                   <Slider {...settings}>
@@ -290,6 +328,7 @@ const AddToCartPage = ({ route }) => {
                       &#8369; {product.price}
                     </Text>
 
+
                     <Text fontSize="md" mb="4">
                       Total Available:{" "}
                       {!product.totalAvailable ? (
@@ -301,13 +340,15 @@ const AddToCartPage = ({ route }) => {
 
                     <HStack spacing="4" alignItems="center">
                       <Text fontSize="md">Quantity:</Text>
+
                       <NumberInput
                         value={quantity}
                         min={1}
                         max={product.totalAvailable}
-                        onChange={(valueString) =>
-                          setQuantity(parseInt(valueString))
-                        }
+
+                        // onChange={(valueString) => setQuantity(parseInt(valueString))}
+                        onChange={handleQuantityChange}
+
                       >
                         <NumberInputField />
                         <NumberInputStepper>
@@ -317,7 +358,11 @@ const AddToCartPage = ({ route }) => {
                       </NumberInput>
                     </HStack>
 
+
                     <Flex flexWrap="wrap" className="transactionBtn__wrapper">
+
+                    <HStack spacing="4">
+
                       <Button
                         variant="link"
                         onClick={handleAddToCart}
@@ -325,15 +370,21 @@ const AddToCartPage = ({ route }) => {
                       >
                         Add to Wishlist
                       </Button>
-                      <GooglePay price={product.price} />
-                      {/* <Button
-                        onClick={() => {addToCard(product)}}
+
+                      {/* <GooglePay price={product.price}/> */}
+                      <Button
+                        onClick={proceedToCheckout}
+
                         colorScheme="blue"
                         >
                         Buy Now
-                        </Button> */}
+
+                      </Button>
+                    </HStack>
                     </Flex>
-                  </Box>
+                  </VStack>
+                  
+
                   {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
                 </Box>
               </Flex>
@@ -346,13 +397,14 @@ const AddToCartPage = ({ route }) => {
                     fontFamily="Poppins"
                     mb="2"
                     >
+
                     Seller Profile
                     </Heading> */}
                     <Flex gap="4">
                       <Avatar
                         size="lg"
                         name={sellerProfile.name}
-                        src={sellerProfile.avatarUrl || "/path/to/avatar.jpg"}
+                        src={sellerProfile.profileImage || "/path/to/avatar.jpg"}
                       />
                       <Box>
                         <Text
@@ -362,6 +414,7 @@ const AddToCartPage = ({ route }) => {
                           fontWeight="bold"
                         >
                           {sellerProfile.name}
+
                         </Text>
                         <Text fontSize="16px" color="#6e6e6e">
                           {sellerProfile.email}
@@ -415,9 +468,15 @@ const AddToCartPage = ({ route }) => {
         )}
         {/* <Flex w="100%" h="100vh" align="center" justify="center">
             <span className="loader"></span>
+
             </Flex> */}
-        <Footer />
+
+          </Flex>
+      <Footer />
+
       </Box>
+
+      
     </>
   );
 };

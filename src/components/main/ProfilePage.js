@@ -1,5 +1,6 @@
 import "./ProfilePage.css";
 import React, { useEffect, useRef, useState } from "react";
+import StarRating from "./revisionmain/StarRating";
 import {
   Navigate,
   useNavigate,
@@ -125,6 +126,7 @@ function EditableControls() {
 function ProfilePage() {
   const { userId } = useParams();
   // const { postId } = useParams();
+  const [userRating, setUserRating] = useState(0);
   const { user } = UserAuth();
   const [userData, setUserData] = useState(null);
   const [postData, setPostData] = useState(null);
@@ -139,7 +141,8 @@ function ProfilePage() {
   const profile = useDisclosure();
   const [shopPosts, setShopPosts] = useState([]);
   const [discoverPosts, setDiscoverPosts] = useState([]);
-
+  const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
   const {
     register,
     reset,
@@ -162,12 +165,6 @@ function ProfilePage() {
   const loadData = async () => {
     if (!userId) return; // Handle missing ID
 
-    // const docRef = collection(db, "users1"); // Replace "db" with  Firestore instance
-    // const docSnap = query(docRef, where("userID", "==", splitUrl[4]));
-    // const userDataVar = await getDocs(docSnap);
-    // let testData = userDataVar.forEach((doc) => doc.id);
-    // console.log(testData);
-
     const docRef = collection(db, "users1"); // Replace "db" with  Firestore instance
     const docSnap = query(docRef, where("userID", "==", userId));
     const userDataVar = await getDocs(docSnap);
@@ -177,6 +174,44 @@ function ProfilePage() {
     });
     setUserData(...tempArr);
   };
+
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const cartItemsRef = collection(db, "payments");
+        const q = query(cartItemsRef, where("status", "==", "Completed"));
+        const querySnapshot = await getDocs(q);
+        const fetchedReviews = [];
+        let totalRating = 0;
+        let numRatings = 0;
+
+        querySnapshot.forEach((doc) => {
+          const cartItemData = doc.data();
+          fetchedReviews.push({ id: doc.id, ...cartItemData });
+          cartItemData.cartItems.forEach((item) => {
+            totalRating += item.rating || 0;
+            numRatings++;
+          });
+        });
+
+        if (numRatings > 0) {
+          setAvgRating(totalRating / numRatings);
+        } else {
+          setAvgRating(0);
+        }
+
+        console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
+        setReviews(fetchedReviews);
+      } catch (error) {
+        console.error("Error fetching reviews: ", error);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+
 
   useEffect(() => {
     loadData();
@@ -438,6 +473,12 @@ function ProfilePage() {
                       <Text>User Avatar</Text>
                     )}
                   </Flex>
+                  <Box display="flex" justifyContent="center" alignItems="center" ml="45%" mt="10px" w="250px" 
+                  // borderWidth="2px" borderColor="red"
+                  >
+                  <StarRating rating={avgRating} avgRating={avgRating} />
+                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
+                  </Box>
                 </Box>
 
                 <Flex mx="100px" flexDirection="column">
@@ -617,7 +658,7 @@ function ProfilePage() {
 
               <Flex
                 w="100%"
-                // h="70vh"
+                h="auto"
                 justify="center"
                 align="center"
                 flexDirection="column"
@@ -626,15 +667,17 @@ function ProfilePage() {
                 pt="24px"
               >
                 {shopPosts.length === 0 ? (
-                  <Flex justify="center" align="center">
+                  <Flex justify="center" align="center" >
                     <Text color="#7f7f7f">It feels so lonely here...</Text>
                   </Flex>
                 ) : (
                   <>
                     <Tabs
+                    // borderWidth="2px" borderColor="red"
                       size="md"
                       variant="enclosed"
                       w="100%"
+                      h="auto"
                       justify="center"
                       align="center"
                     >
@@ -719,14 +762,37 @@ function ProfilePage() {
                                     align="center"
                                     justify="center"
                                   >
-                                    <Image
-                                      src={post.postImage}
-                                      w="40em"
-                                      alt="post image"
-                                      onError={(e) =>
-                                        (e.target.style.display = "none")
-                                      }
-                                    />
+
+                                    {post.postImage && (
+                                      <Image
+                                        src={post.postImage}
+                                        w="40em"
+                                        alt="post image"
+                                        onError={(e) =>
+                                          (e.target.style.display = "none")
+                                        }
+                                      />
+                                    )}
+                                    {post.postVideo && (
+                                      <video
+                                        controls
+                                        style={{
+                                          width: "100%",
+                                          height: "350px",
+                                          objectFit: "cover",
+                                        }}
+                                        onMouseEnter={(e) => e.target.play()}
+                                        onMouseLeave={(e) => e.target.pause()}
+                                      >
+                                        <source
+                                          src={post.postVideo}
+                                          type="video/mp4"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
+                                      </video>
+                                    )}
+
                                   </Flex>
                                   <Box w="100%">
                                     <Comment
@@ -740,6 +806,7 @@ function ProfilePage() {
                           </Flex>
                         </TabPanel>
                         <TabPanel>
+
                           {/* <Flex
                             flexDirection="column"
                             w="100%"
@@ -753,6 +820,7 @@ function ProfilePage() {
                             justify="center"
                           > */}
 
+
                           <Grid
                             className="gridItem__holder"
                             templateColumns={`repeat(5, 1fr)`}
@@ -761,6 +829,7 @@ function ProfilePage() {
                             rowGap={4}
                           >
                             {shopPosts.map((post) => (
+
                               // <Card
                               //   key={post.id}
                               //   w={{ base: "100%", md: "45%", lg: "30%" }}
@@ -769,6 +838,7 @@ function ProfilePage() {
                               //   // my="16px"
                               //   border="1px solid #e1e1e1"
                               // >
+
                               <GridItem
                                 className="gridItem"
                                 p="6px"
@@ -794,6 +864,7 @@ function ProfilePage() {
                                     postId={post.id}
                                     authorId={post.authorId}
                                   />
+
                                   {/* <Text
                                     as="kbd"
                                     fontSize="10px"
@@ -804,6 +875,7 @@ function ProfilePage() {
                                   <Button variant="link" color="#333333">
                                     {post.authorName}
                                   </Button> */}
+
 
                                   <Flex
                                     w="100%"
@@ -854,6 +926,7 @@ function ProfilePage() {
                                       )}
                                     </Box>
                                   </Flex>
+
                                   {/* <Flex
                                     w="100%"
                                     align="center"
@@ -876,6 +949,7 @@ function ProfilePage() {
                                       authorId={post.authorId}
                                     />
                                   </Box> */}
+
                                 </Flex>
                                 {/* </Card> */}
                               </GridItem>

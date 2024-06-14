@@ -1,4 +1,6 @@
 import "./Footer.css";
+import { useState } from "react";
+import Contact from "../../Contact";
 import {
   Box,
   Flex,
@@ -12,6 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { Facebook, Mail, Twitter } from "react-feather";
 const Footer = () => {
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
   return (
     <>
       <Flex
@@ -21,6 +25,7 @@ const Footer = () => {
         justify="space-evenly"
         flexWrap="wrap"
         py="16px"
+        mt="24px"
       >
         <Flex
           className="footerContents"
@@ -29,6 +34,7 @@ const Footer = () => {
           justify="center"
           flexDirection="column"
           flex="1"
+          
         >
           <Flex align="center" justify="center" mt="12px" w="100%">
             <Box className="footer__imageWrapper"></Box>
@@ -142,9 +148,11 @@ const Footer = () => {
               </AccordionButton>
               <AccordionPanel>
                 <Box>
-                  <Text color="#333333" fontSize="sm">
+                  <Text color="#333333" fontSize="sm" onClick={() => setIsContactModalOpen(true)}>
                     Contact Us
                   </Text>
+                  <Contact isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+
                   <Text color="#333333" fontSize="sm">
                     FAQs
                   </Text>

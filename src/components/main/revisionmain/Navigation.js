@@ -56,9 +56,7 @@ import logo from "../../../assets/logo2.png";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
-
 import Contact from "../../Contact";
-
 import Create from "./listing/Create";
 
 const Navigation = () => {
@@ -98,11 +96,13 @@ const Navigation = () => {
           as="nav"
           align="center"
           justify="space-between"
+          // borderWidth="2px"
+          // borderColor="blue"
         >
           <Box
             className="logoWrapper"
             onClick={() => {
-              navigate("/");
+              navigate("/")
             }}
             cursor="pointer"
             ml="-24px"
@@ -230,6 +230,7 @@ const Navigation = () => {
                     </MenuList>
                   </Menu>
                 )}
+
               </>
             ) : (
               <Button

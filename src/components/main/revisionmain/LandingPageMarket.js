@@ -1,4 +1,6 @@
 import "./LandingPageMarket.css";
+import { collection, getDocs, addDoc } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
   Flex,
@@ -70,6 +72,10 @@ const LandingPageMarket = () => {
   const [isUser, setIsUser] = useState(false);
   const { user, userProfile } = UserAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [shopPosts, setShopPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
   // const letter = user.name.charAt(0);
   // const [windowSize, setWindowSize] = useState();
   const {
@@ -79,6 +85,65 @@ const LandingPageMarket = () => {
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    const fetchShopPosts = async () => {
+      const postsCollection = collection(db, "shop");
+      const querySnapshot = await getDocs(postsCollection);
+      const tempPosts = [];
+      querySnapshot.forEach((doc) => {
+        tempPosts.push({ id: doc.id, ...doc.data() });
+      });
+      setShopPosts(tempPosts);
+      setFilteredPosts(tempPosts);
+    };
+    fetchShopPosts();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      const fetchUserLocation = async () => {
+        const usersCollection = collection(db, "users1");
+        const querySnapshot = await getDocs(usersCollection);
+        querySnapshot.forEach((doc) => {
+          if (doc.id === user.uid) {
+            setLocation(doc.data().location);
+          }
+        });
+      };
+      fetchUserLocation();
+    }
+  }, [user]);
+  // useEffect(() => {
+  //   const fetchUserLocation = async () => {
+  //     const usersCollection = collection(db, "users1");
+  //     const querySnapshot = await getDocs(usersCollection);
+  //     querySnapshot.forEach((doc) => {
+  //       if (doc.id === user.uid) {
+  //         setLocation(doc.data().location);
+  //       }
+  //     });
+  //   };
+  //   if (user) {
+  //     fetchUserLocation();
+  //   }
+  // }, [user]);
+
+  const handleSearchShop = (searchTerm, userLocation) => {
+    setSearchTerm(searchTerm);
+    const filtered = shopPosts.filter((post) => {
+      const matchesSearchTerm = post.tag
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
+      const matchesLocation =
+        !userLocation ||
+        (post.location &&
+          post.location.toLowerCase().includes(userLocation.toLowerCase()));
+      return matchesSearchTerm && matchesLocation;
+    });
+    setFilteredPosts(filtered);
+    navigate(`/shop?search=${searchTerm}&location=${userLocation}`);
+  };
   const handleCategoryClick = (categoryName) => {
     navigate(`/category/${categoryName}`);
   };
@@ -91,16 +156,28 @@ const LandingPageMarket = () => {
   useEffect(() => {
     checkUser();
   }, []);
+
   const handleLogout = async () => {
-    if (!user) return;
-    try {
-      signOut(auth);
-    } catch (err) {
-      console.log(err.message);
-    } finally {
-      window.location.reload();
+    if (user) {
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.log(err.message);
+      } finally {
+        window.location.reload();
+      }
     }
   };
+  // const handleLogout = async () => {
+  //   if (!user) return;
+  //   try {
+  //     signOut(auth);
+  //   } catch (err) {
+  //     console.log(err.message);
+  //   } finally {
+  //     window.location.reload();
+  //   }
+  // };
   const handleSearchClick = (data) => {
     console.log(data);
   };
@@ -397,7 +474,28 @@ const LandingPageMarket = () => {
             </Heading>
           </Box> */}
           <Box className="searchbarWrapper">
-            <SearchInput />
+            <SearchInput
+              handleSearch={handleSearchShop}
+              
+            />
+            <Flex justify="center" align="center" flexWrap="wrap">
+              {filteredPosts.map((post) => (
+                <Box
+                  key={post.id}
+                  p="4"
+                  m="4"
+                  borderWidth="1px"
+                  borderRadius="lg"
+                >
+                  <Heading as="h3" size="md">
+                    {post.title}
+                  </Heading>
+                  <Text>{post.description}</Text>
+                  <Image src={post.image} alt={post.title} />
+                </Box>
+              ))}
+            </Flex>
+            {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
           </Box>
 
           <Box className="searchBoxes" my="32px" w="100%" textAlign="center">
@@ -416,7 +514,7 @@ const LandingPageMarket = () => {
               <Box
                 className="fishWrapper"
                 mb="12px"
-                onClick={() => navigate("/shop")}
+                onClick={() => handleCategoryClick("Fish")}
                 cursor="pointer"
               >
                 <Box overflow="hidden" borderRadius="4px">
@@ -441,7 +539,7 @@ const LandingPageMarket = () => {
               <Box
                 className="decorWrapper"
                 mb="12px"
-                onClick={() => navigate("/shop")}
+                onClick={() => handleCategoryClick("Accessories")}
                 cursor="pointer"
               >
                 <Box overflow="hidden" borderRadius="4px">
@@ -464,7 +562,7 @@ const LandingPageMarket = () => {
 
               <Box
                 className="feedsWrapper"
-                onClick={() => navigate("/shop")}
+                onClick={() => handleCategoryClick("Feeds")}
                 cursor="pointer"
               >
                 <Box overflow="hidden" borderRadius="4px">
@@ -487,7 +585,7 @@ const LandingPageMarket = () => {
 
               <Box
                 className="aquariumWrapper"
-                onClick={() => navigate("/shop")}
+                onClick={() => handleCategoryClick("Aquarium")}
                 cursor="pointer"
               >
                 <Box overflow="hidden">

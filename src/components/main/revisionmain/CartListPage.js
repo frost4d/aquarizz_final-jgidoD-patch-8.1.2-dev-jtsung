@@ -12,6 +12,7 @@ const CartListPage = ({ cartItems = [], setCartItems }) => {
   // };
   const getTotalPrice = () => {
     const total = cartItems.reduce((acc, item) => {
+
       if (!item.quantity) return "";
 
       return acc + item.price * item.quantity;
@@ -51,19 +52,16 @@ const CartListPage = ({ cartItems = [], setCartItems }) => {
       ) : (
         <>
           {cartItems.map((item, index) => (
-            <CartItem
-              key={index}
-              item={item}
-              onRemove={() => removeFromCart(index)}
-              getTotalPrice={getTotalPrice}
-            />
+
+            <CartItem key={index} item={item} onRemove={() => removeFromCart(index)} getTotalPrice={getTotalPrice}/>
+
           ))}
           <Box mt="auto" textAlign="end" mr={10}>
             <Text fontSize="xx-large" fontWeight="bold">
               Total: &#8369; {getTotalPrice()}
             </Text>
             <Divider my={3} />
-            <PayPalScriptProvider options={{ "client-id": "YOUR_CLIENT_ID" }}>
+            {/* <PayPalScriptProvider options={{ "client-id": "YOUR_CLIENT_ID" }}>
               <PayPalButtons
                 createOrder={(data, actions) => {
                   return actions.order.create({
@@ -82,12 +80,17 @@ const CartListPage = ({ cartItems = [], setCartItems }) => {
                   });
                 }}
               />
+
             </PayPalScriptProvider>
             <Button
               colorScheme="yellow"
               bg="#FFC947"
               onClick={proceedToCheckout}
             >
+
+            </PayPalScriptProvider> */}
+            <Button colorScheme="yellow" bg="#FFC947" onClick={proceedToCheckout}>
+
               Proceed to Checkout
             </Button>
           </Box>
