@@ -1,8 +1,6 @@
 // ItemStatusPage.js
 import "./ReportPage.css";
 import React, { useState, useEffect } from "react";
-import { UserAuth } from "../../context/AuthContext";
-import Sidebar from "./Sidebar";
 import {
   VStack,
   Text,
@@ -21,7 +19,7 @@ import {
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs, where, query } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 const statuses = [
   "All Order",
   "To Ship",
@@ -124,9 +122,12 @@ const items = [
   },
 ];
 
-
+const sideTabs = [
+  "Manage My Account",
+  "My Orders",
+  "Reviews"
+];
 const ItemStatusPage = () => {
-  const { user } = UserAuth();
   const [currentTab, setCurrentTab] = useState(0);
   const [currentSideTab, setCurrentSideTab] = useState(0);
   const [orders, setOrders] = useState([]);
@@ -135,29 +136,22 @@ const ItemStatusPage = () => {
   const checkedOutItems = location.state?.checkedOutItems || [];
 
   useEffect(() => {
-    if (user) {
-      const fetchOrders = async () => {
-        try {
-          const ordersRef = collection(db, "payments");
-          const querySnapshot = await getDocs(ordersRef);
-          const fetchedOrders = [];
-          querySnapshot.forEach((doc) => {
-            const orderData = doc.data();
-            orderData.cartItems.forEach((item) => {
-            if (item.userId === user.uid) {
-              fetchedOrders.push({ id: doc.id, ...orderData });
-            }
-          });
+    const fetchOrders = async () => {
+      try {
+        const ordersRef = collection(db, "payments");
+        const querySnapshot = await getDocs(ordersRef);
+        const fetchedOrders = [];
+        querySnapshot.forEach((doc) => {
+          fetchedOrders.push({ id: doc.id, ...doc.data() });
         });
-          setOrders(fetchedOrders);
-        } catch (error) {
-          console.error("Error fetching orders: ", error);
-        }
-      };
+        setOrders(fetchedOrders);
+      } catch (error) {
+        console.error("Error fetching orders: ", error);
+      }
+    };
 
-      fetchOrders();
-    }
-  }, [user]);
+    fetchOrders();
+  }, []);
 
   const getStatusContent = (status) => {
     switch (status) {
@@ -189,10 +183,21 @@ const ItemStatusPage = () => {
   return (
     <Box>
       <Navigation />
+
+      <VStack align="stretch" spacing="4" p="4">
       <Flex>
-        <Sidebar />
-      <VStack align="stretch" spacing="4" p="4" w="80%">
-      <Flex>
+        <VStack align="start" spacing="6" mx="8" justifyContent="center" px="5" w="15%" h="30vh" borderWidth="1px">
+            {sideTabs.map((tab, index) => (
+              <Button
+              variant="link" color="#333333"
+                key={index}
+                colorScheme={index === currentSideTab ? "blue" : "gray"}
+                onClick={() => setCurrentSideTab(index)}
+              >
+                {tab}
+              </Button>
+            ))}
+          </VStack>
         <Box w="100%">
           <Tabs isLazy index={currentTab} onChange={setCurrentTab} w="100%">
             <Box borderRadius="sm" boxShadow="md" p="4" w="100%">
@@ -254,9 +259,7 @@ const ItemStatusPage = () => {
                           <Text className="truncate" mr="3">{item.cartItems[0].postContent}</Text>
                           <Divider my={1} />
                           <Text fontWeight="bold">
-
-                                Quantity: {item.cartItems[0].quantity}
-
+                                Quantity: {item.quantity}
                               </Text>
                           <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}
@@ -265,7 +268,7 @@ const ItemStatusPage = () => {
                             Shipping Fee: P{item.shippingFee}
                           </Text>
                           <Text fontWeight="bold">
-                            Total Price: P{item.totalPrice}
+                            Total Price: P{item.cartItems[0].totalPrice}
                           </Text>
                           {(item.status === "To Ship" ||
                             item.status === "To Receive" ||
@@ -288,7 +291,6 @@ const ItemStatusPage = () => {
         </Box>
         </Flex>
       </VStack>
-      </Flex>
     </Box>
   );
 };

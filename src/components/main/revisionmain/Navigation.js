@@ -34,7 +34,6 @@ import {
   DrawerContent,
   DrawerBody,
   DrawerHeader,
-  Avatar,
 } from "@chakra-ui/react";
 import {
   User,
@@ -56,8 +55,11 @@ import logo from "../../../assets/logo2.png";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
+
 import Contact from "../../Contact";
+
 import Create from "./listing/Create";
+
 
 const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -71,6 +73,7 @@ const Navigation = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const modalShop = useDisclosure();
+
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
@@ -96,8 +99,6 @@ const Navigation = () => {
           as="nav"
           align="center"
           justify="space-between"
-          // borderWidth="2px"
-          // borderColor="blue"
         >
           <Box
             className="logoWrapper"
@@ -175,69 +176,49 @@ const Navigation = () => {
 
             {userProfile ? (
               <>
-                {userProfile && (
-                  <Menu>
-                    <MenuButton>
-                      <Flex justify="center" align="center" mx="32px">
-                        <Avatar
-                          colorScheme={`"whiteAlpha" | "blackAlpha" | "gray"  "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink"`}
-                          size="sm"
-                          name={userProfile.name}
-                          scr={
-                            userProfile.profileImage || "/path/to/avatar.jpg"
-                          }
-                        />
-                        {/* {userProfile.name.charAt(0).toUpperCase()} */}
-                      </Flex>
-                    </MenuButton>
-                    <MenuList>
-                      <MenuGroup title="Profile">
-                        <MenuItem
-                          onClick={() => {
-                            navigate(`/profile/${user.uid}`);
-                          }}
-                        >
-                          My Account
-                        </MenuItem>
-
-                        <MenuItem>
+                <Menu>
+                  <MenuButton>
+                    <Flex
+                      justify="center"
+                      align="center"
+                      h="40px"
+                      w="40px"
+                      borderRadius="50%"
+                      bg="#FF7D29"
+                      mx="32px"
+                    >
+                      <Text as="b">
+                        {userProfile.name.charAt(0).toUpperCase()}
+                      </Text>
+                    </Flex>
+                  </MenuButton>
+                  <MenuList>
+                    <MenuGroup title="Profile">
+                      <MenuItem onClick={() => {
+                    navigate(`/profile/${user.uid}`);
+                  }}
+                  >My Account</MenuItem>
+                      <MenuItem>My Shop</MenuItem>
+                      <MenuItem onClick={() => {
+                    navigate(`/reports`);
+                  }}>My listing</MenuItem>
+                      <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
-                        </MenuItem>
-                      <MenuDivider />
-                      </MenuGroup>
-                      <MenuGroup title="My Shop">
-                        <MenuItem
-                          onClick={() => {
-                            navigate(`/reports`);
-                          }}
-                        >
-                          My Reports
-                        </MenuItem>
-                        <MenuItem onClick={() => {
-                    navigate(`/transaction`);
-                  }}>Transactions</MenuItem>
-                      </MenuGroup>
-                      <MenuDivider />
-
-                      <MenuGroup title="Support">
-                        <MenuItem onClick={() => setIsContactModalOpen(true)}>
-                          Contact Us
-                        </MenuItem>
-                        <Contact
-                          isOpen={isContactModalOpen}
-                          onClose={() => setIsContactModalOpen(false)}
-                        />
-                        <MenuItem>FAQs</MenuItem>
-                        <MenuItem>Return & Exchanges</MenuItem>
-                        <MenuItem>Privacy Policy</MenuItem>
-                        <MenuItem>Terms of Service</MenuItem>
-                      </MenuGroup>
-                      <MenuDivider />
-                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                    </MenuList>
-                  </Menu>
-                )}
-
+                      </MenuItem>
+                    </MenuGroup>
+                    <MenuDivider />
+                    <MenuGroup title="Support">
+                      <MenuItem onClick={() => setIsContactModalOpen(true)}>Contact Us</MenuItem>
+                      <Contact isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
+                      <MenuItem>FAQs</MenuItem>
+                      <MenuItem>Return & Exchanges</MenuItem>
+                      <MenuItem>Privacy Policy</MenuItem>
+                      <MenuItem>Terms of Service</MenuItem>
+                    </MenuGroup>
+                    <MenuDivider />
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </MenuList>
+                </Menu>
               </>
             ) : (
               <Button
@@ -277,9 +258,9 @@ const Navigation = () => {
             </Button>
             <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
           </Flex>
-          <Box mr="42px" display={{ base: "block", md: "none" }}>
-            <Button variant="ghost" onClick={onOpen} mr="-30px">
-              <HamburgerIcon size={32} />
+          <Box mr="42px">
+            <Button variant="ghost" onClick={onOpen}>
+              <HamburgerIcon size={32} mr="-48px" />
             </Button>
             <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
               <DrawerOverlay />
@@ -291,17 +272,15 @@ const Navigation = () => {
                     align="center"
                     my="14px"
                   >
-                    <Flex justify="center" align="center" mx="32px">
-                      {userProfile && (
-                        <Avatar
-                          size="xl"
-                          name={userProfile.name}
-                          scr={
-                            userProfile.profileImage || "/path/to/avatar.jpg"
-                          }
-                        />
-                      )}
-                      {/* {userProfile.name.charAt(0).toUpperCase()} */}
+                    <Flex
+                      justify="center"
+                      align="center"
+                      h="100px"
+                      w="100px"
+                      bg="gray.300"
+                      borderRadius="50%"
+                    >
+                      <User color="#ffff" size={60} />
                     </Flex>
                     <Box mt="12px">
                       {!userProfile ? (

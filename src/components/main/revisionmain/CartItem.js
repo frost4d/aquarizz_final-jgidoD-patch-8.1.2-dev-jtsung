@@ -1,62 +1,32 @@
 import React from "react";
-import {
-  VStack,
-  Text,
-  List,
-  ListItem,
-  Button,
-  Image,
-  Flex,
-  Divider,
-  Card,
-  CardBody,
-  Box,
-  Heading,
-} from "@chakra-ui/react";
-import { Trash2 } from "react-feather";
-import "./CartItem.css";
+import { VStack, Text, List, ListItem, Button, Image, Flex, Divider } from "@chakra-ui/react";
+
 const CartItem = ({ item, onRemove, isChecked, onCheckboxChange }) => {
   const handleRemove = () => {
     // Call the onRemove function with the item's id to remove it permanently
     onRemove(item.id);
   };
   return (
-    <Flex maxW="1200px">
-      <Flex align="start" mx={10}>
-        <Card border="1px solid #e1e1e1" key={item.id} p={3} borderRadius="md">
-          <CardBody>
-            <Flex align="center ">
-              <Image
-                src={item.postImage}
-                alt={item.postTitle}
-                boxSize="100px"
-                objectFit="cover"
-              />
-              <Flex className="cardItem" align="start" ml="4">
-                <Box className="cardItem__details">
-                  <Text fontSize="xl" fontWeight="bold">
-                    {item.postTitle}
-                  </Text>
-                  <Text>{item.postContent.substring(0, 150)} . . .</Text>
-                  <Heading size="sm">Quantity: {item.quantity}</Heading>
-                  <Heading size="sm">
-                    Total: &#8369;
-                    {item.quantity ? item.price * item.quantity : ""}
-                  </Heading>
-                </Box>
-                {/* <Divider my={1} /> */}
-                <Box px="12px">
-                  <Text as="b">&#8369; {item.price}</Text>
-                  <Button size="sm" colorScheme="red" onClick={handleRemove}>
-                    <Trash2 size={16} />
-                  </Button>
-                </Box>
-              </Flex>
-            </Flex>
-          </CardBody>
-        </Card>
-      </Flex>
-    </Flex>
+    <VStack align="stretch" spacing="4">
+    <List spacing={3} mx={10}>
+      <ListItem key={item.id} p={3} borderWidth="1px" borderRadius="md" style={{ boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)" }}>
+        <Flex>
+          <Image src={item.postImage} alt={item.postTitle} boxSize="200px" objectFit="cover" />
+          <VStack align="stretch" ml="4">
+            <Text fontSize="xl" fontWeight="bold">
+              {item.postTitle}
+            </Text>
+            <Text>{item.postContent}</Text>
+            <Divider my={1} />
+            <Text fontWeight="bold" >Price: P{item.price}</Text>
+            <Text>Quantity: {item.quantity}</Text>
+            <Text>Total: P{item.price * item.quantity}</Text>
+            <Button w="20" colorScheme="red" onClick={handleRemove}>Remove</Button>
+          </VStack>
+        </Flex>
+      </ListItem>
+    </List>
+  </VStack>
   );
 };
 
