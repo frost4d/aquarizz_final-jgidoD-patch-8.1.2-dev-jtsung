@@ -15,7 +15,8 @@ const CheckoutDetailsPage = () => {
   const { user, userProfile } = UserAuth();
   const location = useLocation();
   console.log("Location state in CheckoutDetailsPage:", location.state);
-  const { cartItems = [], totalPrice: itemsTotalPrice = 0 } = location.state || {};
+  const { cartItems = [], totalPrice: itemsTotalPrice = 0 } =
+    location.state || {};
   const [paymentMethod, setPaymentMethod] = useState("");
   const [shippingFee, setShippingFee] = useState(0);
   const [isGooglePaySelected, setIsGooglePaySelected] = useState(false);
@@ -55,7 +56,7 @@ const CheckoutDetailsPage = () => {
 
   const calculateShippingFee = (location, weight) => {
     let shippingFee = 0;
-  
+
     // Example logic: Calculate shipping fee based on location and weight
     if (location === "Olongapo") {
       if (weight <= 1) {
@@ -74,12 +75,11 @@ const CheckoutDetailsPage = () => {
         shippingFee = 200;
       }
     }
-  
-    console.log("Calculated shipping fee:", shippingFee); // Add this line to check the calculated shipping fee
-  
-    return shippingFee;
-};
 
+    console.log("Calculated shipping fee:", shippingFee); // Add this line to check the calculated shipping fee
+
+    return shippingFee;
+  };
   
 
 const handleProceedToPayment = async () => {
@@ -136,6 +136,7 @@ const handleProceedToPayment = async () => {
     console.error("Error adding document: ", e);
   }
 };
+
 
 const fee = (itemsTotalPrice + shippingFee) * 0.02;
   const totalPriceWithFee = (itemsTotalPrice + shippingFee + fee).toFixed(2);

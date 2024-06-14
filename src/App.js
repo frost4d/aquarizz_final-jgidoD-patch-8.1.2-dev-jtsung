@@ -26,8 +26,10 @@ import CheckoutDetailsPage from "./components/main/revisionmain/CheckoutDetailsP
 import PaymentPage from "./components/main/revisionmain/PaymentPage.js";
 import FilteredItemsPage from "./components/main/revisionmain/FilteredItemsPage.js";
 import ReportPage from "./components/main/revisionmain/ReportPage.js";
+
 import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
 import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
+
 
 function App() {
   return (
@@ -36,7 +38,10 @@ function App() {
         <ChakraProvider>
           <Routes>
             <Route path="/" element={<MarketPage />} />
-            <Route path="/category/:categoryName" element={<FilteredItemsPage />} />
+            <Route
+              path="/category/:categoryName"
+              element={<FilteredItemsPage />}
+            />
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
             <Route path="/discover" element={<Discover />} />
@@ -50,38 +55,15 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/reports" element={<ReportPage />} />
+
             <Route path="/transaction" element={<TransactionPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
 
+
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
-
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoutes>
-                  <Dashboard />
-                </ProtectedRoutes>
-              }
-            />
-
+            <Route path="/profile/:userId" element={<ProfilePage />} />
             {/* <Route
-              path="/discover"
-              element={
-                <ProtectedRoutes>
-                  <FishLibrary />
-                </ProtectedRoutes>
-              }
-            /> */}
-            <Route
-              path="/profile/:userId"
-              element={
-                <ProtectedRoutes>
-                  <ProfilePage />
-                </ProtectedRoutes>
-              }
-            />
-            <Route
               path="/profile/:userId/post/:postId"
               element={
                 <ProtectedRoutes>
@@ -96,7 +78,7 @@ function App() {
                   <About />
                 </ProtectedRoutes>
               }
-            />
+            /> */}
           </Routes>
         </ChakraProvider>
       </AuthContextProvider>

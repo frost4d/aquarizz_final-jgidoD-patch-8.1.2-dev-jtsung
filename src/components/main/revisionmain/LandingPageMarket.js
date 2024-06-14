@@ -40,6 +40,7 @@ import {
   AccordionIcon,
   AccordionPanel,
   background,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   User,
@@ -127,30 +128,22 @@ const LandingPageMarket = () => {
   //   }
   // }, [user]);
 
-  const handleSearchShop = (searchTerm) => {
+  const handleSearchShop = (searchTerm, userLocation) => {
     setSearchTerm(searchTerm);
-    const filtered = shopPosts.filter((post) =>
-      post.tag.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = shopPosts.filter((post) => {
+      const matchesSearchTerm = post.tag
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
+      const matchesLocation =
+        !userLocation ||
+        (post.location &&
+          post.location.toLowerCase().includes(userLocation.toLowerCase()));
+      return matchesSearchTerm && matchesLocation;
+    });
     setFilteredPosts(filtered);
-    navigate(`/shop?search=${searchTerm}`);
+    navigate(`/shop?search=${searchTerm}&location=${userLocation}`);
   };
-  // const handleSearchShop = (searchTerm, userLocation) => {
-  //   setSearchTerm(searchTerm);
-  //   const filtered = shopPosts.filter((post) => {
-  //     const matchesSearchTerm = post.tag
-  //       .toLowerCase()
-  //       .includes(searchTerm.toLowerCase());
-  //     // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
-  //     const matchesLocation =
-  //       !userLocation ||
-  //       (post.location &&
-  //         post.location.toLowerCase().includes(userLocation.toLowerCase()));
-  //     return matchesSearchTerm && matchesLocation;
-  //   });
-  //   setFilteredPosts(filtered);
-  //   navigate(`/shop?search=${searchTerm}&location=${userLocation}`);
-  // };
   const handleCategoryClick = (categoryName) => {
     navigate(`/category/${categoryName}`);
   };
@@ -212,10 +205,10 @@ const LandingPageMarket = () => {
           >
             <NavLink to="/shop">
               <Button
-                variant="ghost"
+                variant="none"
                 color="#000"
                 rightIcon={<ShoppingBag size={16} />}
-                _hover={{ bg: "rgba(255,255,255,.3)" }}
+                // _hover={{ bg: "rgba(255,255,255,.3)" }}
                 // onClick={() => {
                 //   navigate("/shop");
                 // }}
@@ -224,14 +217,14 @@ const LandingPageMarket = () => {
               </Button>
             </NavLink>
 
-            <NavLink to="discover">
+            <NavLink to="/discover">
               <Button
-                variant="ghost"
+                variant="none"
                 color="#000"
                 rightIcon={<Compass size={16} />}
-                _hover={{
-                  bg: "rgba(255,255,255,.3)",
-                }}
+                // _hover={{
+                //   bg: "rgba(255,255,255,.3)",
+                // }}
               >
                 Discover
               </Button>
@@ -239,43 +232,42 @@ const LandingPageMarket = () => {
 
             {userProfile ? (
               <>
-                <Menu>
-                  <MenuButton>
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="40px"
-                      w="40px"
-                      borderRadius="50%"
-                      bg="#FF7D29"
-                      mx="32px"
-                    >
-                      <Text as="b">
-                        {userProfile.name.charAt(0).toUpperCase()}
-                      </Text>
-                    </Flex>
-                  </MenuButton>
-                  <MenuList>
-                    <MenuGroup title="Profile">
-                      <MenuItem>My Account</MenuItem>
-                      <MenuItem>My Shop</MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuGroup title="Support">
-                      <MenuItem>Contact Us</MenuItem>
-                      <MenuItem>FAQs</MenuItem>
-                      <MenuItem>Return & Exchanges</MenuItem>
-                      <MenuItem>Privacy Policy</MenuItem>
-                      <MenuItem>Terms of Service</MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </MenuList>
-                </Menu>
+                {userProfile && (
+                  <Menu>
+                    <MenuButton>
+                      <Flex justify="center" align="center" mx="32px">
+                        <Avatar
+                          size="sm"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                        {/* {userProfile.name.charAt(0).toUpperCase()} */}
+                      </Flex>
+                    </MenuButton>
+                    <MenuList>
+                      <MenuGroup title="Profile">
+                        <MenuItem>My Account</MenuItem>
+                        <MenuItem>My Shop</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuGroup title="Support">
+                        <MenuItem>Contact Us</MenuItem>
+                        <MenuItem>FAQs</MenuItem>
+                        <MenuItem>Return & Exchanges</MenuItem>
+                        <MenuItem>Privacy Policy</MenuItem>
+                        <MenuItem>Terms of Service</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </MenuList>
+                  </Menu>
+                )}
               </>
             ) : (
               <Button
-                variant="ghost"
+                variant="none"
                 color="#000"
                 rightIcon={<User size={16} />}
                 _hover={{ bg: "rgba(255,255,255,.3)" }}
@@ -325,15 +317,17 @@ const LandingPageMarket = () => {
                     align="center"
                     my="14px"
                   >
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="100px"
-                      w="100px"
-                      bg="gray.300"
-                      borderRadius="50%"
-                    >
-                      <User color="#ffff" size={60} />
+                    <Flex justify="center" align="center" mx="32px">
+                      {userProfile && (
+                        <Avatar
+                          size="xl"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                      )}
+                      {/* {userProfile.name.charAt(0).toUpperCase()} */}
                     </Flex>
                     <Box mt="12px">
                       {!userProfile ? (
@@ -503,7 +497,7 @@ const LandingPageMarket = () => {
               <Box
                 className="fishWrapper"
                 mb="12px"
-                onClick={() => handleCategoryClick("fish")}
+                onClick={() => handleCategoryClick("Fish")}
                 cursor="pointer"
               >
                 <Box overflow="hidden" borderRadius="4px">

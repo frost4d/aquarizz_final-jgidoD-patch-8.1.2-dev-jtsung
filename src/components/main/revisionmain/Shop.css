@@ -19,7 +19,6 @@
   min-width: min(100%, 20em);
 }
 
-
 .shop__contents > :nth-child(2) {
   margin: 0 24px;
 }
@@ -57,12 +56,14 @@
 }
 
 @media only screen and (max-width: 500px) {
+  .shop__contents {
+    margin: 0 0;
+  }
   .gridItem__wrapper .gridItem__holder {
     grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: minmax(200px, auto);
+    grid-auto-rows: minmax(100px, auto);
   }
 }
-
 
 .truncate {
   display: -webkit-box;
@@ -70,4 +71,3 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-

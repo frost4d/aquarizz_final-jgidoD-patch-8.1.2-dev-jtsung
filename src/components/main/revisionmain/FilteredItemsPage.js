@@ -26,8 +26,7 @@ const FilteredItemsPage = () => {
       const tempPosts = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        // if (data.tag === categoryName) {
-          if (data.tag.toLowerCase() === categoryName.toLowerCase()) {
+        if (data.tag.toLowerCase() === categoryName.toLowerCase()) {
           tempPosts.push({ id: doc.id, ...data });
         }
       });

@@ -18,8 +18,9 @@ import {
   useToast,
   GridItem,
   Grid,
+  Avatar,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
 import { Plus } from "react-feather";
 import AddDiscoverModal from "./AddDiscoverModal";
@@ -27,6 +28,7 @@ import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
 const Discover = () => {
+  const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
   console.log("userProfile:", userProfile);
   const primaryColor = "#FFC947";
@@ -125,8 +127,7 @@ const Discover = () => {
     <>
       <Box h="100vh" overflowY="auto">
         <Navigation />
-        {userProfile ? (
-          <>
+     
             <Flex justify="space-between" p="0 86px 0px 64px">
               <Heading>Discover</Heading>
               <Flex display={user ? "flex" : "none"} justify="space-between">
@@ -191,26 +192,43 @@ const Discover = () => {
                         justify="center"
                         align="center"
                       >
-                        <Flex
-                          justify="center"
-                          align="center"
-                          borderRadius="50%"
-                          h="100px"
-                          w="100px"
-                          bg="#FF7D29"
-                          p="24px"
-                        >
-                          {/* <Heading size="lg">{userProfile?.name.charAt(0).toUpperCase()}</Heading> */}
-                          <Heading size="lg">
-                            {console.log("userProfile:", userProfile) ||
-                              userProfile?.name?.charAt(0).toUpperCase()}
-                          </Heading>
+                        {!userProfile ? (
+                      <Button
+                      border="1px solid #e1e1e1" borderColor="green"
+                        variant="link"
+                        onClick={() => {
+                          navigate("/");
+                        }}
+                        color="#000"
+                      >
+                        Please login first.
+                      </Button>
+                    ) : (
+                      userProfile && (
+                        <Flex justify="center" align="center" p="24px">
+                          <Avatar
+                            size="xl"
+                            name={userProfile.name}
+                            scr={
+                              userProfile.profileImage || "/path/to/avatar.jpg"
+                            }
+                          />
                         </Flex>
-                        <Heading size="md">{userProfile?.name}</Heading>
-                        <Text fontSize="xs">
-                          User since:
-                          {format(userProfile?.dateCreated, "yyyy-MM-HH")}
-                        </Text>
+                      )
+                    )}
+
+                    <Heading size="md">
+                      {!user ? "" : userProfile && userProfile.name}
+                    </Heading>
+                    <Text fontSize="xs">
+                      {!userProfile
+                        ? ""
+                        : userProfile &&
+                          ` User since: ${format(
+                            userProfile.dateCreated,
+                            "yyyy-MM-HH"
+                          )}`}
+                    </Text>
                       </Flex>
                     </Box>
                   </Box>
@@ -297,10 +315,7 @@ const Discover = () => {
               </Flex>
             </Box>
             <Footer />
-          </>
-        ) : (
-          <Box>Loading...</Box>
-        )}
+        
       </Box>
     </>
   );

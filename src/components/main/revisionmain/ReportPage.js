@@ -22,6 +22,7 @@ import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
 import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { UserAuth } from "../../context/AuthContext";
+
 const statuses = [
   "All Order",
   "To Ship",
@@ -123,6 +124,7 @@ const items = [
     price: 1000,
   },
 ];
+
 
 const ReportPage = () => {
   const navigate = useNavigate();
@@ -228,6 +230,7 @@ const ReportPage = () => {
     }
   };
 
+
   const handleCancelOrder = async (orderId) => {
     try {
       const orderRef = doc(db, "payments", orderId);
@@ -325,6 +328,7 @@ const ReportPage = () => {
                       <Divider />
                     </VStack>
                     {/* <Box borderRadius="lg" boxShadow="md" p="4" w="100%" h="auto"> */}
+
                     {/* <Text>{getStatusContent(status)}</Text> */}
                     {/* {checkedOutItems */}
                     {/* {orders.map(
@@ -361,6 +365,7 @@ const ReportPage = () => {
                           <Text className="truncate">
                             {item.cartItems[0].postContent}
                           </Text>
+
                           <Divider my={1} />
                           <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}
@@ -410,16 +415,19 @@ const ReportPage = () => {
                               Refund
                             </Button>
                           )}
+
                         </VStack>
                       </Flex>
                     ))}
                     {/* )} */}
+
                     {/* </Box> */}
                   </TabPanel>
                 ))}
               </TabPanels>
             </Tabs>
           </Box>
+
         </Flex>
       </VStack>
     </Box>

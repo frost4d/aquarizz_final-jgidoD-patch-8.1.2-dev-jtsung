@@ -124,6 +124,7 @@ const items = [
   },
 ];
 
+
 const ItemStatusPage = () => {
   const { user } = UserAuth();
   const [currentTab, setCurrentTab] = useState(0);
@@ -253,7 +254,9 @@ const ItemStatusPage = () => {
                           <Text className="truncate" mr="3">{item.cartItems[0].postContent}</Text>
                           <Divider my={1} />
                           <Text fontWeight="bold">
+
                                 Quantity: {item.cartItems[0].quantity}
+
                               </Text>
                           <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}

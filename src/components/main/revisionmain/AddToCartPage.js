@@ -27,7 +27,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogContent,
-  AlertDialogOverlay
+  AlertDialogOverlay,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
 } from "@chakra-ui/react";
 // import Slider from 'react-slick';
 // import 'slick-carousel/slick/slick.css';
@@ -39,13 +43,13 @@ import Navigation from "./Navigation";
 
 import Comments from "../mainComponents/Comment";
 import { UserAuth } from "../../context/AuthContext";
-
+import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import GooglePay from "../mainComponents/GooglePay";
 
 
 const AddToCartPage = ({ route }) => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const { user, userProfile } = UserAuth();
   const [post, setPost] = useState([]);
   const [cartItems, setCartItems] = useState([]);
@@ -58,7 +62,9 @@ const AddToCartPage = ({ route }) => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const toast = useToast();
+  
   const [totalAvailable, setTotalAvailable] = useState(0);
+
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const cancelRef = useRef();
   // const [totalPrice, setTotalPrice] = useState(product.price);
@@ -85,7 +91,9 @@ const AddToCartPage = ({ route }) => {
   };
 
   const handleQuantityChange = (value) => {
+
     // const quantityValue = parseInt(value);
+
     if (parseInt(value) <= product.totalAvailable) {
       setQuantity(parseInt(value));
       // setTotalPrice(product.price * parseInt(value));
@@ -131,6 +139,7 @@ const AddToCartPage = ({ route }) => {
     });
   };
 
+
   const proceedToCheckout = () => {
     if (!product) return;
 
@@ -154,6 +163,7 @@ const AddToCartPage = ({ route }) => {
     navigate("/checkout", { state: { cartItems: [cartItem], totalPrice: cartItem.price * quantity } });
   };
   
+
   const fetchSellerProfile = async (authorID) => {
     try {
       console.log("Fetching seller profile with authorID:", authorID);
@@ -217,8 +227,8 @@ const AddToCartPage = ({ route }) => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // if (loading) return <p>Loading...</p>;
+  // if (error) return <p>Error: {error}</p>;
 
   const settings = {
     dots: true,
@@ -228,18 +238,40 @@ const AddToCartPage = ({ route }) => {
     slidesToScroll: 1,
     afterChange: (current) => setCurrentSlide(current),
   };
-
+  console.log(sellerProfile);
+  console.log("here");
   return (
-    <>
+
       <Box h="100vh">
         <Navigation />
 
+
         {sellerProfile && product && (
-          <Center>
-            <Box>
-              <Flex p="10" mx="50px" bg="#f8f9fa">
+          <>
+            <Box mx="12px ">
+              <Breadcrumb>
+                <BreadcrumbItem>
+                  <BreadcrumbLink as={Link} to="/shop">
+                    Shop
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+
+                <BreadcrumbItem>
+                  <BreadcrumbLink as="b">{product.postTitle}</BreadcrumbLink>
+                </BreadcrumbItem>
+              </Breadcrumb>
+            </Box>
+            <Box className="itemContents__wrapper">
+              <Flex
+                flexWrap="wrap"
+                className="itemholder"
+                justify="center"
+                p="10"
+                bg="#f8f9fa"
+              >
+
                 {/* <Flex justify="center" align="center" mt="64px"> */}
-                <Box flex="1" minWidth="600px">
+                <Center maxWidth="400px" minW="300px">
                   <Slider {...settings}>
                     <Image
                       objectFit="cover"
@@ -247,8 +279,9 @@ const AddToCartPage = ({ route }) => {
                       alt="Post Image"
                       mb="24px"
                     />
-                    <Box display="flex" justifyContent="space-between">
+                    <Box p="4px" display="flex" justifyContent="space-between">
                       <Image
+                        border="1px solid #e1e1e1"
                         objectFit="cover"
                         src={product.postImage}
                         alt="Image 1"
@@ -256,6 +289,7 @@ const AddToCartPage = ({ route }) => {
                         h="auto"
                       />
                       <Image
+                        border="1px solid #e1e1e1"
                         objectFit="cover"
                         src={product.postImage}
                         alt="Image 2"
@@ -263,64 +297,58 @@ const AddToCartPage = ({ route }) => {
                         h="auto"
                       />
                       <Image
+                        border="1px solid #e1e1e1"
                         objectFit="cover"
                         src={product.postImage}
                         alt="Image 3"
-                        w="32%"
+                        w="100px"
                         h="auto"
                       />
                     </Box>
                   </Slider>
-                </Box>
-                <Box flex="2" pl="12">
-                  <VStack align="stretch" spacing="4">
-                    <Heading
-                      fontSize="50px"
-                      color="blue.500"
+                </Center>
+                <Box w="600px" maxW="600px" minW="300px">
+                  <Box spacing="4">
+                    <Text
+                      fontWeight="600"
+                      color="#000"
                       fontFamily="Poppins"
                       mb="2"
+                      fontSize="xl"
                     >
                       {product.postTitle}
-                    </Heading>
-
-                    <Text fontSize="28px" fontWeight="bold" mb="4">
-                      Product Description
                     </Text>
 
                     <Text
-                      color="#6e6e6e"
-                      mb="16px"
-                      bg="#e9ecef"
-                      w="100%"
-                      h="auto"
-                      p="3"
-                    >
-                      {product.postContent}
-                    </Text>
-                    <Text as="i" fontSize="sm" color="#6e6e6e">
-                      {product.tag}
-                    </Text>
-                    <Text
-                      fontSize="50px"
-                      fontWeight="bold"
+                      fontSize="3xl"
+                      fontWeight="700"
                       color="red.500"
                       mb="2"
                     >
-                      Price: P{product.price}
+                      &#8369; {product.price}
                     </Text>
 
-                    <Text fontSize="20px" mb="4">
-                      Total Available: {product.totalAvailable}
+
+                    <Text fontSize="md" mb="4">
+                      Total Available:{" "}
+                      {!product.totalAvailable ? (
+                        <Text color="gray.500">N/A</Text>
+                      ) : (
+                        product.totalAvailable
+                      )}
                     </Text>
 
                     <HStack spacing="4" alignItems="center">
-                      <Text fontSize="20px">Quantity:</Text>
+                      <Text fontSize="md">Quantity:</Text>
+
                       <NumberInput
                         value={quantity}
                         min={1}
                         max={product.totalAvailable}
+
                         // onChange={(valueString) => setQuantity(parseInt(valueString))}
                         onChange={handleQuantityChange}
+
                       >
                         <NumberInputField />
                         <NumberInputStepper>
@@ -330,7 +358,11 @@ const AddToCartPage = ({ route }) => {
                       </NumberInput>
                     </HStack>
 
+
+                    <Flex flexWrap="wrap" className="transactionBtn__wrapper">
+
                     <HStack spacing="4">
+
                       <Button
                         variant="link"
                         onClick={handleAddToCart}
@@ -338,68 +370,104 @@ const AddToCartPage = ({ route }) => {
                       >
                         Add to Wishlist
                       </Button>
+
                       {/* <GooglePay price={product.price}/> */}
                       <Button
                         onClick={proceedToCheckout}
+
                         colorScheme="blue"
-                      >
+                        >
                         Buy Now
+
                       </Button>
                     </HStack>
-                  </VStack>
+                    </Flex>
+                  </Box>
                   
+
                   {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
                 </Box>
               </Flex>
-
-              <Flex p="10" mx="50px" bg="#f8f9fa" mt="10">
+              <Flex p="12px" mx="auto" bg="#f8f9fa">
                 <Box flex="1">
                   <VStack align="stretch" spacing="4">
-                    <Heading
-                      fontSize="40px"
-                      color="blue.500"
-                      fontFamily="Poppins"
-                      mb="2"
+                    {/* <Heading
+                    fontSize="40px"
+                    color="blue.500"
+                    fontFamily="Poppins"
+                    mb="2"
                     >
-                      Seller Profile
-                    </Heading>
-                    <HStack spacing="4">
-                      <Avatar size="xl" name={sellerProfile.name} src={sellerProfile.profileImage || "/path/to/avatar.jpg"} />
-                      <VStack align="stretch">
-                        <Text fontSize="20px" fontWeight="bold">
-                        {sellerProfile.name}
+
+                    Seller Profile
+                    </Heading> */}
+                    <Flex gap="4">
+                      <Avatar
+                        size="lg"
+                        name={sellerProfile.name}
+                        src={sellerProfile.profileImage || "/path/to/avatar.jpg"}
+                      />
+                      <Box>
+                        <Text
+                          variant="link"
+                          color="#000"
+                          fontSize="20px"
+                          fontWeight="bold"
+                        >
+                          {sellerProfile.name}
+
                         </Text>
                         <Text fontSize="16px" color="#6e6e6e">
-                        {sellerProfile.email}
+                          {sellerProfile.email}
                         </Text>
-                        <Button colorScheme="blue" onClick={() => {
-                    navigate(`/profile/${product.authorID}`);
-                  }}>
+                        <Button
+                          variant="outline"
+                          colorScheme="blue"
+                          _hover={{ bg: "#2B6CB0", color: "#fff" }}
+                          onClick={() => {
+                            navigate(`/profile/${product.authorID}`);
+                          }}
+                        >
                           Visit Profile
                         </Button>
-                      </VStack>
-                    </HStack>
+                      </Box>
+                    </Flex>
                   </VStack>
                 </Box>
               </Flex>
+              <Box className="item__productDescription">
+                <Text fontSize="xl" fontWeight="bold">
+                  Product Description
+                </Text>
 
-              <Box p="10" mx="50px" bg="#f8f9fa" mt="10">
-                <Text fontSize="20px" fontWeight="bold" mb="20px">Customer Reviews</Text>
+                <Text
+                  color="#6e6e6e"
+                  mb="16px"
+                  bg="#EDF0F2"
+                  w="100%"
+                  h="auto"
+                  p="3"
+                  borderRadius="4px"
+                >
+                  {product.postContent}
+                </Text>
+                <Heading size="sm">Tags</Heading>
+                <Text as="i" fontSize="sm" color="#6e6e6e">
+                  #{product.tag}
+                </Text>
+              </Box>
+
+              <Box p="10" mx="max(auto, 32px)" bg="#f8f9fa" mt="10">
+                <Text fontSize="20px" fontWeight="bold" mb="20px">
+                  Reviews
+                </Text>
                 {/* <Comments postID={post.id} authorId={post.authorID} /> */}
                 <Comments id={id} authorId={product.authorID} />
               </Box>
             </Box>
-          </Center>
+          </>
         )}
-        <Flex w="100%" h="100vh" align="center" justify="center">
-            <span className="loader"></span>
-          </Flex>
       <Footer />
-
       </Box>
-
-      
-    </>
   );
 };
 
