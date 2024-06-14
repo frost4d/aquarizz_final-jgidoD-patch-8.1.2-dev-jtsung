@@ -382,7 +382,6 @@ const AddToCartPage = ({ route }) => {
                       </Button>
                     </HStack>
                     </Flex>
-
                   </Box>
                   
 
@@ -467,7 +466,6 @@ const AddToCartPage = ({ route }) => {
             </Box>
           </>
         )}
-
       <Footer />
       </Box>
   );

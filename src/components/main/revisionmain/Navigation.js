@@ -199,7 +199,6 @@ const Navigation = () => {
                         >
                           My Account
                         </MenuItem>
-
                         <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
                         </MenuItem>
@@ -218,7 +217,6 @@ const Navigation = () => {
                   }}>Transactions</MenuItem>
                       </MenuGroup>
                       <MenuDivider />
-
                       <MenuGroup title="Support">
                         <MenuItem onClick={() => setIsContactModalOpen(true)}>
                           Contact Us
@@ -227,10 +225,18 @@ const Navigation = () => {
                           isOpen={isContactModalOpen}
                           onClose={() => setIsContactModalOpen(false)}
                         />
-                        <MenuItem>FAQs</MenuItem>
-                        <MenuItem>Return & Exchanges</MenuItem>
-                        <MenuItem>Privacy Policy</MenuItem>
-                        <MenuItem>Terms of Service</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/faqs`);
+                          }}>FAQs</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/return&exchange`);
+                          }}>Return & Exchanges</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/Privacypolicy`);
+                          }}>Privacy Policy</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/terms-of-service`);
+                          }}>Terms of Service</MenuItem>
                       </MenuGroup>
                       <MenuDivider />
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
