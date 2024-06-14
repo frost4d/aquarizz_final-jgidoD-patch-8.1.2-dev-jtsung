@@ -34,6 +34,7 @@ import {
   DrawerContent,
   DrawerBody,
   DrawerHeader,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   User,
@@ -55,11 +56,8 @@ import logo from "../../../assets/logo2.png";
 import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
-
 import Contact from "../../Contact";
-
 import Create from "./listing/Create";
-
 
 const Navigation = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -73,7 +71,6 @@ const Navigation = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   const modalShop = useDisclosure();
-
 
   const [cartItemCount, setCartItemCount] = useState(0);
 
@@ -99,6 +96,8 @@ const Navigation = () => {
           as="nav"
           align="center"
           justify="space-between"
+          // borderWidth="2px"
+          // borderColor="blue"
         >
           <Box
             className="logoWrapper"
@@ -298,15 +297,17 @@ const Navigation = () => {
                     align="center"
                     my="14px"
                   >
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="100px"
-                      w="100px"
-                      bg="gray.300"
-                      borderRadius="50%"
-                    >
-                      <User color="#ffff" size={60} />
+                    <Flex justify="center" align="center" mx="32px">
+                      {userProfile && (
+                        <Avatar
+                          size="xl"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                      )}
+                      {/* {userProfile.name.charAt(0).toUpperCase()} */}
                     </Flex>
                     <Box mt="12px">
                       {!userProfile ? (

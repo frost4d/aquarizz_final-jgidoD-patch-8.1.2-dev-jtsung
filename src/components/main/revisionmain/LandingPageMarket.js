@@ -1,4 +1,6 @@
 import "./LandingPageMarket.css";
+import { collection, getDocs, addDoc } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 import {
   Box,
   Flex,
@@ -38,6 +40,7 @@ import {
   AccordionIcon,
   AccordionPanel,
   background,
+  Avatar,
 } from "@chakra-ui/react";
 import {
   User,
@@ -69,6 +72,10 @@ const LandingPageMarket = () => {
   const [isUser, setIsUser] = useState(false);
   const { user, userProfile } = UserAuth();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [shopPosts, setShopPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [location, setLocation] = useState("");
   // const letter = user.name.charAt(0);
   // const [windowSize, setWindowSize] = useState();
   const {
@@ -78,6 +85,65 @@ const LandingPageMarket = () => {
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    const fetchShopPosts = async () => {
+      const postsCollection = collection(db, "shop");
+      const querySnapshot = await getDocs(postsCollection);
+      const tempPosts = [];
+      querySnapshot.forEach((doc) => {
+        tempPosts.push({ id: doc.id, ...doc.data() });
+      });
+      setShopPosts(tempPosts);
+      setFilteredPosts(tempPosts);
+    };
+    fetchShopPosts();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      const fetchUserLocation = async () => {
+        const usersCollection = collection(db, "users1");
+        const querySnapshot = await getDocs(usersCollection);
+        querySnapshot.forEach((doc) => {
+          if (doc.id === user.uid) {
+            setLocation(doc.data().location);
+          }
+        });
+      };
+      fetchUserLocation();
+    }
+  }, [user]);
+  // useEffect(() => {
+  //   const fetchUserLocation = async () => {
+  //     const usersCollection = collection(db, "users1");
+  //     const querySnapshot = await getDocs(usersCollection);
+  //     querySnapshot.forEach((doc) => {
+  //       if (doc.id === user.uid) {
+  //         setLocation(doc.data().location);
+  //       }
+  //     });
+  //   };
+  //   if (user) {
+  //     fetchUserLocation();
+  //   }
+  // }, [user]);
+
+  const handleSearchShop = (searchTerm, userLocation) => {
+    setSearchTerm(searchTerm);
+    const filtered = shopPosts.filter((post) => {
+      const matchesSearchTerm = post.tag
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      // const matchesLocation = !location || (post.location && post.location.toLowerCase().includes(location.toLowerCase()));
+      const matchesLocation =
+        !userLocation ||
+        (post.location &&
+          post.location.toLowerCase().includes(userLocation.toLowerCase()));
+      return matchesSearchTerm && matchesLocation;
+    });
+    setFilteredPosts(filtered);
+    navigate(`/shop?search=${searchTerm}&location=${userLocation}`);
+  };
   const handleCategoryClick = (categoryName) => {
     navigate(`/category/${categoryName}`);
   };
@@ -90,16 +156,28 @@ const LandingPageMarket = () => {
   useEffect(() => {
     checkUser();
   }, []);
+
   const handleLogout = async () => {
-    if (!user) return;
-    try {
-      signOut(auth);
-    } catch (err) {
-      console.log(err.message);
-    } finally {
-      window.location.reload();
+    if (user) {
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.log(err.message);
+      } finally {
+        window.location.reload();
+      }
     }
   };
+  // const handleLogout = async () => {
+  //   if (!user) return;
+  //   try {
+  //     signOut(auth);
+  //   } catch (err) {
+  //     console.log(err.message);
+  //   } finally {
+  //     window.location.reload();
+  //   }
+  // };
   const handleSearchClick = (data) => {
     console.log(data);
   };
@@ -127,10 +205,10 @@ const LandingPageMarket = () => {
           >
             <NavLink to="/shop">
               <Button
-                variant="ghost"
+                variant="none"
                 color="#000"
                 rightIcon={<ShoppingBag size={16} />}
-                _hover={{ bg: "rgba(255,255,255,.3)" }}
+                // _hover={{ bg: "rgba(255,255,255,.3)" }}
                 // onClick={() => {
                 //   navigate("/shop");
                 // }}
@@ -139,14 +217,14 @@ const LandingPageMarket = () => {
               </Button>
             </NavLink>
 
-            <NavLink to="discover">
+            <NavLink to="/discover">
               <Button
-                variant="ghost"
+                variant="none"
                 color="#000"
                 rightIcon={<Compass size={16} />}
-                _hover={{
-                  bg: "rgba(255,255,255,.3)",
-                }}
+                // _hover={{
+                //   bg: "rgba(255,255,255,.3)",
+                // }}
               >
                 Discover
               </Button>
@@ -154,43 +232,42 @@ const LandingPageMarket = () => {
 
             {userProfile ? (
               <>
-                <Menu>
-                  <MenuButton>
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="40px"
-                      w="40px"
-                      borderRadius="50%"
-                      bg="#FF7D29"
-                      mx="32px"
-                    >
-                      <Text as="b">
-                        {userProfile.name.charAt(0).toUpperCase()}
-                      </Text>
-                    </Flex>
-                  </MenuButton>
-                  <MenuList>
-                    <MenuGroup title="Profile">
-                      <MenuItem>My Account</MenuItem>
-                      <MenuItem>My Shop</MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuGroup title="Support">
-                      <MenuItem>Contact Us</MenuItem>
-                      <MenuItem>FAQs</MenuItem>
-                      <MenuItem>Return & Exchanges</MenuItem>
-                      <MenuItem>Privacy Policy</MenuItem>
-                      <MenuItem>Terms of Service</MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </MenuList>
-                </Menu>
+                {userProfile && (
+                  <Menu>
+                    <MenuButton>
+                      <Flex justify="center" align="center" mx="32px">
+                        <Avatar
+                          size="sm"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                        {/* {userProfile.name.charAt(0).toUpperCase()} */}
+                      </Flex>
+                    </MenuButton>
+                    <MenuList>
+                      <MenuGroup title="Profile">
+                        <MenuItem>My Account</MenuItem>
+                        <MenuItem>My Shop</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuGroup title="Support">
+                        <MenuItem>Contact Us</MenuItem>
+                        <MenuItem>FAQs</MenuItem>
+                        <MenuItem>Return & Exchanges</MenuItem>
+                        <MenuItem>Privacy Policy</MenuItem>
+                        <MenuItem>Terms of Service</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </MenuList>
+                  </Menu>
+                )}
               </>
             ) : (
               <Button
-                variant="ghost"
+                variant="none"
                 color="#000"
                 rightIcon={<User size={16} />}
                 _hover={{ bg: "rgba(255,255,255,.3)" }}
@@ -240,15 +317,17 @@ const LandingPageMarket = () => {
                     align="center"
                     my="14px"
                   >
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="100px"
-                      w="100px"
-                      bg="gray.300"
-                      borderRadius="50%"
-                    >
-                      <User color="#ffff" size={60} />
+                    <Flex justify="center" align="center" mx="32px">
+                      {userProfile && (
+                        <Avatar
+                          size="xl"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                      )}
+                      {/* {userProfile.name.charAt(0).toUpperCase()} */}
                     </Flex>
                     <Box mt="12px">
                       {!userProfile ? (
@@ -400,7 +479,6 @@ const LandingPageMarket = () => {
               
             />
             {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
-
           </Box>
 
           <Box className="searchBoxes" my="32px" w="100%" textAlign="center">
@@ -416,10 +494,13 @@ const LandingPageMarket = () => {
               flexWrap="wrap"
               flexGrow="shrink"
             >
-
-              <Box className="fishWrapper" mb="12px" onClick={() => handleCategoryClick('Fish')} cursor="pointer">
+              <Box
+                className="fishWrapper"
+                mb="12px"
+                onClick={() => handleCategoryClick("Fish")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden" borderRadius="4px">
-
                   <Image
                     h="200px"
                     w="200px"
@@ -438,9 +519,13 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
 
-              <Box className="decorWrapper" mb="12px" onClick={() => handleCategoryClick('Accessories')} cursor="pointer">
+              <Box
+                className="decorWrapper"
+                mb="12px"
+                onClick={() => handleCategoryClick("Accessories")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden" borderRadius="4px">
-
                   <Image
                     h="200px"
                     w="200px"
@@ -458,9 +543,12 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
 
-              <Box className="feedsWrapper" onClick={() => handleCategoryClick('Feeds')} cursor="pointer">
+              <Box
+                className="feedsWrapper"
+                onClick={() => handleCategoryClick("Feeds")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden" borderRadius="4px">
-
                   <Image
                     h="200px"
                     w="200px"
@@ -478,9 +566,12 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
 
-              <Box className="aquariumWrapper" onClick={() => handleCategoryClick('Aquarium')} cursor="pointer">
+              <Box
+                className="aquariumWrapper"
+                onClick={() => handleCategoryClick("Aquarium")}
+                cursor="pointer"
+              >
                 <Box overflow="hidden">
-
                   <Image
                     h="200px"
                     w="200px"
