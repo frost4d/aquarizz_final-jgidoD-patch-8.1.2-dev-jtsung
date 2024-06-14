@@ -1,8 +1,12 @@
 import React from 'react';
 import { Box, Heading, Text, List, ListItem } from "@chakra-ui/react";
+import Footer from './Footer';
+import Navigation from './Navigation';
 
 const PrivacyPolicy = () => {
   return (
+    <Box>
+      <Navigation />
     <Box p={5}>
       <Heading mb={5}>Privacy Policy</Heading>
       <Text mb={5}>
@@ -62,6 +66,8 @@ const PrivacyPolicy = () => {
         If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at aquarizzcustomersupprt@gmail.com or through our contact us system.
       </Text>
     </Box>
+      <Footer />
+      </Box>
   );
 };
 

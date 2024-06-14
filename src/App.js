@@ -30,8 +30,9 @@ import Faqs from "./components/main/revisionmain/Faqs.js";
 import ReturnsExchanges from "./components/main/revisionmain/ReturnsExchanges.js";
 import PrivacyPolicy from "./components/main/revisionmain/PrivacyPolicy.js";
 import TermsOfService from "./components/main/revisionmain/TermsOfService.js"; 
-
 import ContactUs from "./components/main/revisionmain/ContactUs.js"; 
+import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
+import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
 
 
 function App() {
@@ -60,6 +61,8 @@ function App() {
             <Route path="/Privacypolicy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/transaction" element={<TransactionPage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
 
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}

@@ -176,49 +176,75 @@ const Navigation = () => {
 
             {userProfile ? (
               <>
-                <Menu>
-                  <MenuButton>
-                    <Flex
-                      justify="center"
-                      align="center"
-                      h="40px"
-                      w="40px"
-                      borderRadius="50%"
-                      bg="#FF7D29"
-                      mx="32px"
-                    >
-                      <Text as="b">
-                        {userProfile.name.charAt(0).toUpperCase()}
-                      </Text>
-                    </Flex>
-                  </MenuButton>
-                  <MenuList>
-                    <MenuGroup title="Profile">
-                      <MenuItem onClick={() => {
-                    navigate(`/profile/${user.uid}`);
-                  }}
-                  >My Account</MenuItem>
-                      <MenuItem>My Shop</MenuItem>
-                      <MenuItem onClick={() => {
-                    navigate(`/reports`);
-                  }}>My listing</MenuItem>
-                      <MenuItem>
+                {userProfile && (
+                  <Menu>
+                    <MenuButton>
+                      <Flex justify="center" align="center" mx="32px">
+                        <Avatar
+                          colorScheme={`"whiteAlpha" | "blackAlpha" | "gray"  "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink"`}
+                          size="sm"
+                          name={userProfile.name}
+                          scr={
+                            userProfile.profileImage || "/path/to/avatar.jpg"
+                          }
+                        />
+                        {/* {userProfile.name.charAt(0).toUpperCase()} */}
+                      </Flex>
+                    </MenuButton>
+                    <MenuList>
+                      <MenuGroup title="Profile">
+                        <MenuItem
+                          onClick={() => {
+                            navigate(`/profile/${user.uid}`);
+                          }}
+                        >
+                          My Account
+                        </MenuItem>
+                        <MenuItem>
                         <Link to="/ItemStatusPage">Check Item Status</Link>
-                      </MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuGroup title="Support">
-                      <MenuItem onClick={() => setIsContactModalOpen(true)}>Contact Us</MenuItem>
-                      <Contact isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
-                      <MenuItem>FAQs</MenuItem>
-                      <MenuItem>Return & Exchanges</MenuItem>
-                      <MenuItem>Privacy Policy</MenuItem>
-                      <MenuItem>Terms of Service</MenuItem>
-                    </MenuGroup>
-                    <MenuDivider />
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </MenuList>
-                </Menu>
+                        </MenuItem>
+                      <MenuDivider />
+                      </MenuGroup>
+                      <MenuGroup title="My Shop">
+                        <MenuItem
+                          onClick={() => {
+                            navigate(`/reports`);
+                          }}
+                        >
+                          My Reports
+                        </MenuItem>
+                        <MenuItem onClick={() => {
+                    navigate(`/transaction`);
+                  }}>Transactions</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuGroup title="Support">
+                        <MenuItem onClick={() => setIsContactModalOpen(true)}>
+                          Contact Us
+                        </MenuItem>
+                        <Contact
+                          isOpen={isContactModalOpen}
+                          onClose={() => setIsContactModalOpen(false)}
+                        />
+                        <MenuItem onClick={() => {
+                            navigate(`/faqs`);
+                          }}>FAQs</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/return&exchange`);
+                          }}>Return & Exchanges</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/Privacypolicy`);
+                          }}>Privacy Policy</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/terms-of-service`);
+                          }}>Terms of Service</MenuItem>
+                      </MenuGroup>
+                      <MenuDivider />
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </MenuList>
+                  </Menu>
+                )}
+
               </>
             ) : (
               <Button
@@ -258,9 +284,9 @@ const Navigation = () => {
             </Button>
             <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
           </Flex>
-          <Box mr="42px">
-            <Button variant="ghost" onClick={onOpen}>
-              <HamburgerIcon size={32} mr="-48px" />
+          <Box mr="42px" display={{ base: "block", md: "none" }}>
+            <Button variant="ghost" onClick={onOpen} mr="-30px">
+              <HamburgerIcon size={32} />
             </Button>
             <Drawer placement="right" isOpen={isOpen} onClose={onClose}>
               <DrawerOverlay />

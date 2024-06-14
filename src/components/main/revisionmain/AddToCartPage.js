@@ -196,7 +196,7 @@ const AddToCartPage = ({ route }) => {
   };
 
   return (
-    <>
+
       <Box h="100vh">
         <Navigation />
 
@@ -311,7 +311,11 @@ const AddToCartPage = ({ route }) => {
                         Buy Now
                       </Button> */}
                     </HStack>
-                  </VStack>
+
+                    </Flex>
+                  </Box>
+                  
+
                   {/* <CartListPage cartItems={cartItems} setCartItems={setCartItems} /> */}
                 </Box>
               </Flex>
@@ -355,15 +359,9 @@ const AddToCartPage = ({ route }) => {
             </Box>
           </Center>
         )}
-        <Flex w="100%" h="100vh" align="center" justify="center">
-            <span className="loader"></span>
-          </Flex>
+
       <Footer />
-
       </Box>
-
-      
-    </>
   );
 };
 

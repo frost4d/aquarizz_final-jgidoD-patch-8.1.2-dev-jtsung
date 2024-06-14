@@ -11,9 +11,13 @@ import {
   Button,
   VStack
 } from '@chakra-ui/react';
+import Footer from './Footer';
+import Navigation from './Navigation';
 
 const ContactUs = () => {
   return (
+    <Box>
+      <Navigation />
     <Box p={5}>
       <Heading mb={5}>Contact Us</Heading>
       <Text mb={3}>
@@ -45,6 +49,8 @@ const ContactUs = () => {
         </Box>
       </Flex>
     </Box>
+      <Footer />
+      </Box>
   );
 };
 

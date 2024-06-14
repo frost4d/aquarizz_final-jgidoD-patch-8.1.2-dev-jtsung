@@ -187,37 +187,52 @@ const Shop = () => {
             align="center"
             my="64px"
           >
-
-            <Flex
-              className="shop__contents"
-              m="0 64px"
-              justify="space-between"
-              align="start"
-              w="100%"
-            >
-              <Box
-                className="filter__wrapper"
-                p="2px 6px"
-                border="2px solid #e9e9e9"
-                flex="1"
+              
+              <Flex
+                className="shop__contents"
+                justify="space-between"
+                align="start"
+                w="100%"
               >
-                <Text as="b" size="md">
-                  Filter
-                </Text>
-                <form onSubmit={handleSubmit(handleFilter)}>
-                  <Flex flexDirection="column" p="12px">
-                    <Checkbox {...register("accessories")}>
-                      Accessories
-                    </Checkbox>
-                    <Checkbox {...register("aquarium")}>Aquarium</Checkbox>
-                    <Checkbox {...register("feeds")}>Feeds</Checkbox>
-                    <Checkbox {...register("fish")}>Fish</Checkbox>
-                    <Button
-                      mt="12px"
-                      variant="outline"
-                      bg="#7E8EF1"
-                      type="submit"
-                      color="#fff"
+
+                <Box
+                  className="filter__wrapper"
+                  ml="24px"
+                  p="2px 6px"
+                  border="2px solid #e9e9e9"
+                  flex="1"
+                >
+                  <Text as="b" size="md">
+                    Filter
+                  </Text>
+                  <form onSubmit={handleSubmit(handleFilter)} onChange={handleFilter}>
+                    <Flex flexDirection="column" p="12px">
+                      <Checkbox {...register("accessories")}>
+                        Accessories
+                      </Checkbox>
+                      <Checkbox {...register("aquarium")}>Aquarium</Checkbox>
+                      <Checkbox {...register("feeds")}>Feeds</Checkbox>
+                      <Checkbox {...register("fish")}>Fish</Checkbox>
+                      <Button
+                        mt="12px"
+                        variant="outline"
+                        bg="#7E8EF1"
+                        type="submit"
+                        color="#fff"
+                      >
+                        Apply
+                      </Button>
+                    </Flex>
+                  </form>
+                </Box>
+                <Box className="gridItem__wrapper" flex="3">
+                  {filteredPosts ? (
+                    <Grid
+                      className="gridItem__holder"
+                      templateColumns={`repeat(5, 1fr)`}
+                      gap="2"
+                      autoRows="minmax(200px, auto)"
+                      rowGap={4}
                     >
                       Apply
                     </Button>
@@ -283,12 +298,10 @@ const Shop = () => {
               </Box>
               <Box className="filler" flex="1"></Box>
             </Flex>
-
-          </Flex>
+          </Box>
         </Box>
-      </Box>
-      <Footer />
       </Flex>
+      <Footer />
     </>
   );
 };

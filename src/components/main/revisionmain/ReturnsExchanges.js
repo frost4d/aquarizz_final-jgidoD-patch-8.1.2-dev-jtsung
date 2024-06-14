@@ -1,9 +1,12 @@
 import React from 'react';
 import { Box, Heading, Text, List, ListItem, ListIcon } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
-
+import Footer from './Footer';
+import Navigation from './Navigation';
 const ReturnsExchanges = () => {
   return (
+    <Box>
+      <Navigation />
     <Box p={5}>
       <Heading mb={5}>Returns and Exchanges</Heading>
       <Text mb={3}>
@@ -64,6 +67,8 @@ const ReturnsExchanges = () => {
       By purchasing from AQUARIZZ, you agree to this Return and Exchange Policy. We appreciate your understanding and support. Thank you for choosing us for your fish-keeping needs!
       </Text>
     </Box>
+      <Footer />
+      </Box>
   );
 };
 

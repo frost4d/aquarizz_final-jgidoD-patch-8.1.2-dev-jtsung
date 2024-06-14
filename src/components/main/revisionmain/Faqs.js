@@ -9,9 +9,13 @@ import {
   AccordionIcon,
   Text
 } from "@chakra-ui/react";
+import Footer from './Footer';
+import Navigation from './Navigation';
 
 const Faqs = () => {
   return (
+    <Box>
+      <Navigation />
     <Box p={5}>
       <Heading mb={5}>FAQs</Heading>
       <Accordion allowToggle>
@@ -64,6 +68,8 @@ const Faqs = () => {
         </AccordionItem>
       </Accordion>
     </Box>
+      <Footer />
+      </Box>
   );
 };
 
