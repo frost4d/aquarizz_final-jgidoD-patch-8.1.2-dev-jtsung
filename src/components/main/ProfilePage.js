@@ -337,7 +337,7 @@ function ProfilePage() {
   const handleCancelUpload = () => {};
   return (
     <>
-      <Box h="100vh" position="relative">
+      <Box h="auto" position="relative">
         <Navigation />
         {userData && userData ? (
           <Box key={userData.id} zIndex="2">
@@ -750,7 +750,6 @@ function ProfilePage() {
                                   <Button variant="link" color="#333333">
                                     {post.authorName}
                                   </Button>
-
                                   <Flex
                                     pl="32px"
                                     py="32px"
