@@ -19,10 +19,11 @@ import {
   GridItem,
   Grid,
   Avatar,
+  Divider
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
-import { Plus } from "react-feather";
+import { Edit, Plus } from "react-feather";
 import AddDiscoverModal from "./AddDiscoverModal";
 import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
@@ -200,6 +201,7 @@ const Discover = () => {
                   >
                     <Box p="24px">
                       <Flex
+                        className="userprofile__wrapper__discover"
                         flexDirection="column"
                         justify="center"
                         align="center"
@@ -241,14 +243,37 @@ const Discover = () => {
                             "yyyy-MM-HH"
                           )}`}
                     </Text>
+                    <Divider m="12px 0" />
+                    <Box>
+                      <Button
+                        variant="outline"
+                        w="100%"
+                        mr="12px"
+                        // variant="ghost"
+                        rightIcon={<Edit size={16} />}
+                        onClick={addDiscover.onOpen}
+                      >
+                        <AddDiscoverModal
+                          isOpen={addDiscover.isOpen}
+                          onClose={addDiscover.onClose}
+                        />
+                        New Post
+                      </Button>
+                    </Box>
                       </Flex>
                     </Box>
                   </Box>
                   {/* )} */}
-                  <Box flex="10" 
-                  // borderWidth="2px" borderColor="red"
-                  >
+                  <Flex
+                justify="center"
+                align="center"
+                flex="2"
+                // borderWidth="2px" borderColor="red"
+                m="24px 24px"
+                className="bodyWrapper__contents"
+              >
                     <Grid
+                      className="grid__discover"
                       templateColumns={`repeat(4, 1fr)`}
                       gap="4"
                       autoRows="minmax(200px, auto)"
@@ -334,7 +359,7 @@ const Discover = () => {
                         </GridItem>
                       ))}
                     </Grid>
-                  </Box>
+                  </Flex>
                   <Box flex="1"></Box>
                 </Flex>
               </Flex>

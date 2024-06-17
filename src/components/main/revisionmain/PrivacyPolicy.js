@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Heading, Text, List, ListItem } from "@chakra-ui/react";
+import { Box, Heading, Text, List, ListItem, Center } from "@chakra-ui/react";
 import Footer from './Footer';
 import Navigation from './Navigation';
 
@@ -10,6 +10,8 @@ const PrivacyPolicy = () => {
     <Box>
       <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
     <Box p={5}>
+      <Center>
+        <Box w="80%" py="8">
       <Heading mb={5}>Privacy Policy</Heading>
       <Text mb={5}>
       Welcome to AQUARIZZ, a social media platform and e-commerce site dedicated to fish keeping enthusiasts. Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit and interact with our platform. By using AQUARIZZ, you agree to the practices described in this policy.
@@ -67,6 +69,8 @@ const PrivacyPolicy = () => {
       <Text mb={3}>
         If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at aquarizzcustomersupprt@gmail.com or through our contact us system.
       </Text>
+      </Box>
+      </Center>
     </Box>
       <Footer />
       </Box>

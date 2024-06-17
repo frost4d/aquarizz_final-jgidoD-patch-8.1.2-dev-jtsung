@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Heading, Text, List, ListItem, ListIcon } from "@chakra-ui/react";
+import { Box, Heading, Text, List, ListItem, ListIcon, Center } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import Footer from './Footer';
 import Navigation from './Navigation';
@@ -12,9 +12,11 @@ const ReturnsExchanges = () => {
         cartItemCount={cartItemCount}
         setCartItemCount={setCartItemCount}
       />
-    <Box p={5}>
+    <Box p={5} bg="#f8f9fa">
+      <Center>
+        <Box w="80%" py="10">
       <Heading mb={5}>Returns and Exchanges</Heading>
-      <Text mb={3}>
+      <Text mb={5}>
         If you are not completely satisfied with your purchase, we're here to help. Our return and exchange policy allows you to return or exchange items within 30 days of receipt.
       </Text>
       <Heading size="md" mb={2}>Return Policy</Heading>
@@ -71,6 +73,8 @@ const ReturnsExchanges = () => {
       <Text mb={3}>
       By purchasing from AQUARIZZ, you agree to this Return and Exchange Policy. We appreciate your understanding and support. Thank you for choosing us for your fish-keeping needs!
       </Text>
+      </Box>
+      </Center>
     </Box>
       <Footer />
       </Box>

@@ -8,6 +8,7 @@ import {
   AccordionPanel,
   AccordionIcon,
   Text,
+  Center,
 } from "@chakra-ui/react";
 import Footer from "./Footer";
 import Navigation from "./Navigation";
@@ -22,7 +23,9 @@ const Faqs = () => {
         setCartItemCount={setCartItemCount}
       />
 
-      <Box p={5}>
+      <Box p={5} bg="#f8f9fa">
+        <Center>
+          <Box w="80%" py="10" h="59vh" mb="1">
         <Heading mb={5}>FAQs</Heading>
         <Accordion allowToggle>
           <AccordionItem>
@@ -72,6 +75,8 @@ const Faqs = () => {
             </AccordionPanel>
           </AccordionItem>
         </Accordion>
+        </Box>
+        </Center>
       </Box>
       <Footer />
     </Box>
