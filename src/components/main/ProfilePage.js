@@ -16,7 +16,7 @@ import {
   query,
   where,
   updateDoc,
-  getDoc
+  getDoc,
 } from "firebase/firestore";
 import {
   Box,
@@ -147,6 +147,7 @@ function ProfilePage() {
   const [cartItemCount, setCartItemCount] = useState(0);
   const [hasShop, setHasShop] = useState(false);
 
+
   const {
     register,
     reset,
@@ -178,7 +179,6 @@ function ProfilePage() {
     });
     setUserData(...tempArr);
   };
-
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -213,6 +213,7 @@ function ProfilePage() {
     };
 
     const checkShop = async () => {
+
       const shopRef = collection(db, "shop");
       const q = query(shopRef, where("authorID", "==", userId));
       const docSnap = await getDocs(q);
@@ -228,6 +229,18 @@ function ProfilePage() {
   }, []);
 
 
+      const docSnap = await getDoc(shopRef);
+      if (!docSnap.exists()) {
+        console.log("doesn't exist" + userId);
+        setHasShop(false);
+      } else {
+        setHasShop(true);
+      }
+    };
+
+    checkShop();
+    fetchReviews();
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -341,11 +354,13 @@ function ProfilePage() {
   const handleCancelUpload = () => {};
   return (
     <>
+
       <Box h="auto">
         <Navigation 
         cartItemCount={cartItemCount}
         setCartItemCount={setCartItemCount}
         />
+
         {userData && userData ? (
           <Box key={userData.id} zIndex="2">
             <Flex
@@ -431,7 +446,6 @@ function ProfilePage() {
                                         align="center"
                                         flexDirection="column"
                                       >
-                                        {" "}
                                         <Text as="b">
                                           Image is ready for upload!
                                         </Text>
@@ -492,8 +506,14 @@ function ProfilePage() {
                       <Text>User Avatar</Text>
                     )}
                   </Flex>
-                  <Box display="flex" justifyContent="center" alignItems="center" ml="45%" mt="10px" w="250px" 
-                  // borderWidth="2px" borderColor="red"
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    ml="45%"
+                    mt="10px"
+                    w="250px"
+                    // borderWidth="2px" borderColor="red"
                   >
                     {hasShop ? (
                       <StarRating rating={avgRating} avgRating={avgRating} />
@@ -507,8 +527,10 @@ function ProfilePage() {
                           } ratings)`
                         : ""}
                     </Text>
+
                   {/* <StarRating rating={avgRating} avgRating={avgRating} />
                   <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text> */}
+
                   </Box>
                 </Box>
 
@@ -699,13 +721,15 @@ function ProfilePage() {
                 // borderWidth="2px" borderColor="blue"
               >
                 {shopPosts.length === 0 ? (
+
                   <Flex justify="center" align="center" p="10" mb="20">
+
                     <Text color="#7f7f7f">It feels so lonely here...</Text>
                   </Flex>
                 ) : (
                   <>
                     <Tabs
-                    // borderWidth="2px" borderColor="red"
+                      // borderWidth="2px" borderColor="red"
                       size="md"
                       variant="enclosed"
                       w="100%"
@@ -757,7 +781,6 @@ function ProfilePage() {
                                   <Button variant="link" color="#333333">
                                     {post.authorName}
                                   </Button>
-
                                   <Flex
                                     pl="32px"
                                     py="32px"
@@ -796,7 +819,6 @@ function ProfilePage() {
                                     align="center"
                                     justify="center"
                                   >
-
                                     {post.postImage && (
                                       <Image
                                         src={post.postImage}
@@ -827,7 +849,6 @@ function ProfilePage() {
                                         tag.
                                       </video>
                                     )}
-
                                   </Flex>
                                   <Box w="100%">
                                     <Comment
@@ -841,7 +862,6 @@ function ProfilePage() {
                           </Flex>
                         </TabPanel>
                         <TabPanel>
-
                           {/* <Flex
                             flexDirection="column"
                             w="100%"
@@ -855,7 +875,6 @@ function ProfilePage() {
                             justify="center"
                           > */}
 
-
                           <Grid
                             className="gridItem__holder"
                             templateColumns={`repeat(5, 1fr)`}
@@ -864,7 +883,6 @@ function ProfilePage() {
                             rowGap={4}
                           >
                             {shopPosts.map((post) => (
-
                               // <Card
                               //   key={post.id}
                               //   w={{ base: "100%", md: "45%", lg: "30%" }}
@@ -911,7 +929,6 @@ function ProfilePage() {
                                   <Button variant="link" color="#333333">
                                     {post.authorName}
                                   </Button> */}
-
 
                                   <Flex
                                     w="100%"
@@ -985,7 +1002,6 @@ function ProfilePage() {
                                       authorId={post.authorId}
                                     />
                                   </Box> */}
-
                                 </Flex>
                                 {/* </Card> */}
                               </GridItem>

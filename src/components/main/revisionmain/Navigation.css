@@ -5,9 +5,24 @@
 .navlink_isActive {
   border-bottom: 2px solid #ffc947;
 }
+.navlink_inactive {
+  background-color: #fff;
+}
+
+
 
 @media only screen and (max-width: 950px) {
   .navWrapper__dashboard .navbarButtons__dashboard {
+    display: none;
+  }
+
+  .grid__discover {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media only screen and (max-width: 950px) {
+  .mainWrapper .navbarButtons {
     display: none;
   }
 }
@@ -17,10 +32,23 @@
     display: none;
   }
 }
-
-.mainWrapper .navbarMobiles .navlink_isActive__mobile {
+@media only screen and (min-width: 800px) {
+  .addNew__mobiles {
+    display: none;
+  }
 }
 
+@media only screen and (min-width: 400px) {
+  .addNew__mobiles__icon {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .addNew__mobiles {
+    display: none;
+  }
+}
 
 /* Navigation.css */
 

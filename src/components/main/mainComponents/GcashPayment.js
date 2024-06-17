@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Button, Box, Text } from '@chakra-ui/react';
-import axios from 'axios';
+import React, { useState } from "react";
+import { Button, Box, Text } from "@chakra-ui/react";
+import axios from "axios";
 
 const GCashPayment = ({ price, onPaymentUrlReceived }) => {
   const [paymentUrl, setPaymentUrl] = useState(null);
@@ -8,24 +8,24 @@ const GCashPayment = ({ price, onPaymentUrlReceived }) => {
   const initiateGCashPayment = async () => {
     try {
       const response = await axios.post(
-        'https://api.paymongo.com/v1/sources',
+        "https://api.paymongo.com/v1/sources",
         {
           data: {
             attributes: {
               amount: parseFloat(price) * 100, // Amount in centavos
               redirect: {
-                success: 'http://localhost:3000/payment-success',
-                failed: 'http://localhost:3000/payment-failure',
+                success: "http://localhost:3000/payment-success",
+                failed: "http://localhost:3000/payment-failure",
               },
-              type: 'gcash',
-              currency: 'PHP',
+              type: "gcash",
+              currency: "PHP",
             },
           },
         },
         {
           headers: {
-            Authorization: `Basic ${btoa('sk_test_Xyt9bzECbWfrttDC7zLkHquw')}`,
-            'Content-Type': 'application/json',
+            Authorization: `Basic ${btoa("sk_test_Xyt9bzECbWfrttDC7zLkHquw")}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -34,7 +34,7 @@ const GCashPayment = ({ price, onPaymentUrlReceived }) => {
       setPaymentUrl(url);
       onPaymentUrlReceived(url);
     } catch (error) {
-      console.error('Error initiating GCash payment:', error);
+      console.error("Error initiating GCash payment:", error);
     }
   };
 
