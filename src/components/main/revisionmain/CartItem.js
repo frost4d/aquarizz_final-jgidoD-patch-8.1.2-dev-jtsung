@@ -45,9 +45,9 @@ const CartItem = ({ item, onRemove, isChecked, onCheckboxChange }) => {
                   </Heading>
                 </Box>
                 {/* <Divider my={1} /> */}
-                <Box px="12px">
-                  <Text as="b">&#8369; {item.price}</Text>
-                  <Button size="sm" colorScheme="red" onClick={handleRemove}>
+                <Box px="5px">
+                  {/* <Text as="b">&#8369; {item.price}</Text> */}
+                  <Button mt="20" size="md" colorScheme="red" onClick={handleRemove}>
                     <Trash2 size={16} />
                   </Button>
                 </Box>

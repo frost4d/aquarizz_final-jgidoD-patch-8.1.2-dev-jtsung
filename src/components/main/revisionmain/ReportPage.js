@@ -20,7 +20,7 @@ import {
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, query, orderBy } from "firebase/firestore";
 import { UserAuth } from "../../context/AuthContext";
 
 const statuses = [
@@ -125,7 +125,6 @@ const items = [
   },
 ];
 
-
 const ReportPage = () => {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState(0);
@@ -135,6 +134,8 @@ const ReportPage = () => {
   const location = useLocation();
   // const { checkedOutItems = [] } = location.state || {};
   const checkedOutItems = location.state?.checkedOutItems || [];
+  const [cartItemCount, setCartItemCount] = useState(0);
+
 
   // useEffect(() => {
   //   const fetchOrders = async () => {
@@ -159,7 +160,8 @@ const ReportPage = () => {
       const fetchOrders = async () => {
         try {
           const ordersRef = collection(db, "payments");
-          const querySnapshot = await getDocs(ordersRef);
+          // const querySnapshot = await getDocs(ordersRef);
+          const querySnapshot = await getDocs(query(ordersRef, orderBy("createdAt", "desc")));
           const fetchedOrders = [];
           querySnapshot.forEach((doc) => {
             const orderData = doc.data();
@@ -223,13 +225,20 @@ const ReportPage = () => {
           newStatus = currentStatus;
       }
 
+      const updatedOrders = orders.map((order) => {
+        if (order.id === orderId) {
+          return { ...order, status: newStatus };
+        }
+        return order;
+      });
+      setOrders(updatedOrders);
+
       const orderRef = doc(db, "payments", orderId);
       await updateDoc(orderRef, { status: newStatus });
     } catch (error) {
       console.error("Error updating status: ", error);
     }
   };
-
 
   const handleCancelOrder = async (orderId) => {
     try {
@@ -264,7 +273,10 @@ const ReportPage = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation
+        cartItemCount={cartItemCount}
+        setCartItemCount={setCartItemCount}
+      />
 
       <VStack align="stretch" spacing="4" p="4">
         <Flex>
@@ -282,14 +294,14 @@ const ReportPage = () => {
                 <Text
                   fontWeight="bold"
                   cursor="pointer"
-                  onClick={handleReviewsClick}
+                  onClick={handleManageClick}
                 >
                   Manage Account
                 </Text>
                 <Text
                   fontWeight="bold"
                   cursor="pointer"
-                  onClick={handleReviewsClick}
+                  onClick={handleOrdersClick}
                 >
                   Orders
                 </Text>
@@ -340,7 +352,13 @@ const ReportPage = () => {
                               item.status === status || status === "All Order"
                           )
                           .map((item) => ( */}
-                    {filterOrdersByStatus(status).map((item, index) => (
+                    {filterOrdersByStatus(status).map((item, index) => {
+                      const customerName = item.customerName;
+                      console.log("Customer Name:", customerName);
+                      if (!customerName) {
+                        console.log("Item without customer name:", item);
+                      }
+                      return (
                       <Flex
                         key={index}
                         p="2"
@@ -357,18 +375,21 @@ const ReportPage = () => {
                         />
                         <VStack align="stretch" ml="4">
                           <Text fontSize="md" fontWeight="bold">
-                            {item.cartItems[0].authorName}
+                            Customer Name: {customerName}
                           </Text>
                           <Text fontSize="xl" fontWeight="bold">
-                            {item.cartItems[0].postTitle}
+                            Product Name: {item.cartItems[0].postTitle}
                           </Text>
-                          <Text className="truncate">
+                          <Text className="truncate" mr="4">
                             {item.cartItems[0].postContent}
                           </Text>
 
                           <Divider my={1} />
                           <Text fontWeight="bold">
                             Price: P{item.cartItems[0].price}
+                          </Text>
+                          <Text fontWeight="bold">
+                            Quantity: {item.cartItems[0].quantity}
                           </Text>
                           <Text fontWeight="bold">
                             Shipping Fee: P{item.shippingFee}
@@ -393,7 +414,8 @@ const ReportPage = () => {
                             }
                             mt="2"
                           >
-                            Validate {status}
+                            {/* Validate {status} */}
+                            Validate {getStatusContent(status)}
                           </Button>
 
                           {status === "All Order" && (
@@ -415,10 +437,10 @@ const ReportPage = () => {
                               Refund
                             </Button>
                           )}
-
                         </VStack>
                       </Flex>
-                    ))}
+                      )
+})}
                     {/* )} */}
 
                     {/* </Box> */}
@@ -427,7 +449,6 @@ const ReportPage = () => {
               </TabPanels>
             </Tabs>
           </Box>
-
         </Flex>
       </VStack>
     </Box>

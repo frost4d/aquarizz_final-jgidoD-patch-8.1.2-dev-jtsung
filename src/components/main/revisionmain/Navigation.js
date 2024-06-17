@@ -1,5 +1,5 @@
 import "./Navigation.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -59,7 +59,7 @@ import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
 
-const Navigation = () => {
+const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -69,14 +69,18 @@ const Navigation = () => {
   const { user, userProfile } = UserAuth();
 
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-
   const modalShop = useDisclosure();
 
-  const [cartItemCount, setCartItemCount] = useState(0);
+  useEffect(() => {
+    // Get cart items from local storage
+    const existingItems = JSON.parse(localStorage.getItem("wishlist")) || [];
+    // Update cart item count if setCartItemCount is a function
+    if (typeof setCartItemCount === "function") {
+      setCartItemCount(existingItems.length);
+    }
+  }, [setCartItemCount]);
+  
 
-  const incrementBadgeCount = () => {
-    setCartItemCount(cartItemCount + 1);
-  };
 
   const handleLogout = async () => {
     if (!user) return;
@@ -126,7 +130,7 @@ const Navigation = () => {
             >
               <Button
                 borderRadius="0"
-                // variant="ghost"
+                variant="ghost"
                 color="#000"
                 rightIcon={<ShoppingBag size={16} />}
                 // _hover={{ bg: "rgba(249,249,249,1)" }}
@@ -143,7 +147,7 @@ const Navigation = () => {
             >
               <Button
                 borderRadius="0"
-                // variant="ghost"
+                variant="ghost"
                 color="#000"
                 rightIcon={<Compass size={16} />}
                 // _hover={{
@@ -158,9 +162,12 @@ const Navigation = () => {
             {!userProfile ? (
               ""
             ) : (
-              <NavLink to="/CartPage">
+              <NavLink className={({ isActive }) =>
+                isActive ? "navlink_isActive" : "navlink_inactive"
+              } to="/CartPage">
                 <Button
                   borderRadius="0"
+                  variant="ghost"
                   color="#000"
                   rightIcon={
                     <Badge colorScheme="red" borderRadius="full" px="2">

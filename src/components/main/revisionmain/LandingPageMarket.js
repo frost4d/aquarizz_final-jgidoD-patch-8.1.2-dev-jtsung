@@ -63,6 +63,8 @@ import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import Footer from "./Footer";
+import Contact from "../../Contact";
+
 const LandingPageMarket = () => {
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -76,6 +78,8 @@ const LandingPageMarket = () => {
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [location, setLocation] = useState("");
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const modalShop = useDisclosure();
   // const letter = user.name.charAt(0);
   // const [windowSize, setWindowSize] = useState();
   const {
@@ -253,11 +257,23 @@ const LandingPageMarket = () => {
                       </MenuGroup>
                       <MenuDivider />
                       <MenuGroup title="Support">
-                        <MenuItem>Contact Us</MenuItem>
-                        <MenuItem>FAQs</MenuItem>
-                        <MenuItem>Return & Exchanges</MenuItem>
-                        <MenuItem>Privacy Policy</MenuItem>
-                        <MenuItem>Terms of Service</MenuItem>
+                        <MenuItem onClick={() => setIsContactModalOpen(true)}>Contact Us</MenuItem>
+                        <Contact
+                          isOpen={isContactModalOpen}
+                          onClose={() => setIsContactModalOpen(false)}
+                        />
+                        <MenuItem onClick={() => {
+                            navigate(`/faqs`);
+                          }}>FAQs</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/return&exchange`);
+                          }}>Return & Exchanges</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/Privacypolicy`);
+                          }}>Privacy Policy</MenuItem>
+                        <MenuItem onClick={() => {
+                            navigate(`/terms-of-service`);
+                          }}>Terms of Service</MenuItem>
                       </MenuGroup>
                       <MenuDivider />
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>

@@ -1,9 +1,9 @@
 import React from "react";
-import { VStack, Box, Text, Divider, Button } from "@chakra-ui/react";
+import { VStack, Box, Text, Divider, Button, Flex } from "@chakra-ui/react";
 import CartItem from "./CartItem";
 import { useNavigate } from "react-router-dom";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"; // Change import path
-
+import Footer from "./Footer";
 const CartListPage = ({ cartItems = [], setCartItems }) => {
   const navigate = useNavigate();
 
@@ -43,6 +43,8 @@ const CartListPage = ({ cartItems = [], setCartItems }) => {
   };
 
   return (
+    <Box w="100%">
+    <Flex flexDirection="column" w="100%" justifyContent="center" alignItems="center">
     <VStack align="stretch" spacing="4" p="4" justify="center">
       <Text fontSize="2xl" fontWeight="bold" textAlign="center">
         Your Cart
@@ -97,6 +99,9 @@ const CartListPage = ({ cartItems = [], setCartItems }) => {
         </>
       )}
     </VStack>
+    </Flex>
+     {/* <Footer /> */}
+    </Box>
   );
 };
 
