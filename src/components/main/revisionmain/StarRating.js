@@ -25,11 +25,9 @@ const StarRating = ({ rating, onRate, avgRating }) => {
 
   const stars = Array.from({ length: 5 }, (_, index) => {
     const isFilled = index < rating;
-    return <StarIcon key={index} color={isFilled ? "yellow.400" : "gray.300"} />;
-  });
 
-  const avgStars = Array.from({ length: 5 }, (_, index) => {
-    const isFilled = index < (hoverRating || rating);
+  // const avgStars = Array.from({ length: 5 }, (_, index) => {
+  //   const isFilled = index < rating;
     return (
       <StarIcon
         key={index}
@@ -46,7 +44,7 @@ const StarRating = ({ rating, onRate, avgRating }) => {
     <VStack>
       {/* <Flex>{stars}</Flex> */}
       {/* <Text>Average Rating:</Text> */}
-      <Flex>{avgStars}</Flex>
+      <Flex>{stars}</Flex>
     </VStack>
   );
 };

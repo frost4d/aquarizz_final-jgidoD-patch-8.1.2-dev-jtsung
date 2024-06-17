@@ -28,6 +28,8 @@ import AddDiscoverModal from "./AddDiscoverModal";
 import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
+import PostModal from "./PostModal";
+
 const Discover = () => {
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
@@ -42,7 +44,12 @@ const Discover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
+  const [cartItemCount, setCartItemCount] = useState(0);
+
   // const letter = userProfile.name.charAt(0);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
@@ -88,6 +95,11 @@ const Discover = () => {
       console.error("Error adding document: ", err);
     }
   };
+
+  const openPostModal = (post) => {
+    setSelectedPost(post);
+    onOpen();
+  };
   // const handleAddDiscover = (formData) => {
   //   // Add logic to save the form data to your database or state
   //   console.log(formData);
@@ -127,48 +139,22 @@ const Discover = () => {
   return (
     <>
       <Box h="100vh" overflowY="auto">
-        <Navigation />
 
-        {/* <Flex justify="space-between" align="center" p="0 86px 0px 64px">
-          <Heading>Discover</Heading>
-          <Flex display={user ? "flex" : "none"} justify="space-between">
-            <Button
-              mr="12px"
-              variant="ghost"
-              leftIcon={<Plus size={16} />}
-              onClick={addDiscover.onOpen}
-            >
-              <AddDiscoverModal
-                isOpen={addDiscover.isOpen}
-                onClose={addDiscover.onClose}
-              />
-              Create
-            </Button>
-            <Button variant="link" color="#333333">
-              My Shop
-            </Button>
-          </Flex>
-        </Flex> */}
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
+     
+            <Flex justify="space-between" p="0 86px 0px 64px">
+              <Heading>Discover</Heading>
+              <Flex display={user ? "flex" : "none"} justify="space-between">
+                <Button
+                  mr="12px"
+                  variant="ghost"
+                  leftIcon={<Plus size={16} />}
+                  onClick={addDiscover.onOpen}
+                >
+                  <AddDiscoverModal
+                    isOpen={addDiscover.isOpen}
+                    onClose={addDiscover.onClose}
 
-        <Box
-        // p="24px"
-        //  borderWidth="2px" borderColor="blue"
-        >
-          <Flex
-            gap="24px 24px"
-            flexWrap="wrap"
-            justify="space-evenly"
-            align="center"
-            mt="32px"
-          >
-            <Flex w="100%" justify="center" p="12px 24px">
-              <form onSubmit={handleSearchDiscover}>
-                <Flex w="100%" justify="space-between">
-                  <Input
-                    borderRadius="24px"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <Button
                     p="12px 24px"
@@ -181,6 +167,7 @@ const Discover = () => {
                 </Flex>
               </form>
             </Flex>
+
             <Flex
               w="100%"
               gap="24px 12px"
@@ -193,6 +180,7 @@ const Discover = () => {
                 flex="1"
                 // border="1px solid #e1e1e1" borderColor="green"
                 className="bodyWrapper__profile"
+
               >
                 <Box p="24px">
                   <Flex
@@ -275,40 +263,68 @@ const Discover = () => {
                   autoRows="minmax(200px, auto)"
                   rowGap={12}
                 >
-                  {filteredPosts.map((post) => (
-                    <GridItem
-                      key={post.id}
-                      // border="1px solid #e1e1e1"
-                      // p="6px"
-                      colSpan={1}
-                      rowSpan={1}
-                    >
-                      <Flex>
-                        <Box w="100%">
-                          {post.postImage && (
-                            <Image
-                              borderRadius="8"
-                              objectFit="cover"
-                              maxWidth="300px"
-                              // w="100%"
-                              h="370px"
-                              src={post.postImage}
-                              alt="Post Image"
-                            />
-                          )}
 
-                          {post.postVideo && (
-                            <video
-                              controls
-                              style={{
-                                borderRadius: "8px",
-                                maxWidth: "300px",
-                                width: "100%",
-                                height: "370px",
-                                objectFit: "cover",
-                              }}
-                              onMouseEnter={(e) => e.target.play()}
-                              onMouseLeave={(e) => e.target.pause()}
+                      {filteredPosts.map((post) => (
+                        <GridItem
+                          key={post.id}
+                          // border="1px solid #e1e1e1"
+                          // p="6px"
+                          colSpan={1}
+                          rowSpan={1}
+                          onClick={() => openPostModal(post)}
+                      cursor="pointer"
+                        >
+                          <Flex>
+                            <Box w="100%">
+                              {post.postImage && (
+                                <Image
+                                borderRadius="8"
+                                  objectFit="cover"
+                                  maxWidth="300px"
+                                  // w="100%"
+                                  h="370px"
+                                  src={post.postImage}
+                                  alt="Post Image"
+                                />
+                              )}
+
+                              {post.postVideo && (
+                                <video
+                                  controls
+                                  onLoadedMetadata={(e) => {
+                                    e.target.volume = 0.85
+                                  }}
+                                  style={{
+                                    borderRadius: "8px",
+                                  maxWidth:"300px",
+                                    width: "100%",
+                                    height: "370px",
+                                    objectFit: "cover",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (e.target.paused) {
+                                      e.target.play();
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.pause();
+                                  }}
+                                  // onMouseEnter={(e) => e.target.play()}
+                                  // onMouseLeave={(e) => e.target.pause()}
+                                >
+                                  <source
+                                    src={post.postVideo}
+                                    type="video/mp4"
+                                  />
+                                  Your browser does not support the video tag.
+                                </video>
+                              )}
+                            </Box>
+                          </Flex>
+                          <Box mt="12px">
+                            <Text className="truncate" textAlign="justify" fontSize="16px" fontWeight="620" mr="3" 
+                            // color="#6e6e6e"
+
                             >
                               <source src={post.postVideo} type="video/mp4" />
                               Your browser does not support the video tag.
@@ -351,6 +367,7 @@ const Discover = () => {
         </Box>
         <Footer />
       </Box>
+      <PostModal isOpen={isOpen} onClose={onClose} post={selectedPost} />
     </>
   );
 };

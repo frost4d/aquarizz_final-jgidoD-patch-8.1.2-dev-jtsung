@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Heading, Text, List, ListItem } from "@chakra-ui/react";
 import Footer from './Footer';
 import Navigation from './Navigation';
 
 const PrivacyPolicy = () => {
+  const [cartItemCount, setCartItemCount] = useState(0);
+
   return (
     <Box>
-      <Navigation />
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
     <Box p={5}>
       <Heading mb={5}>Privacy Policy</Heading>
       <Text mb={5}>

@@ -66,6 +66,7 @@ function App() {
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/transaction" element={<TransactionPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/about" element={<About />} />
 
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}

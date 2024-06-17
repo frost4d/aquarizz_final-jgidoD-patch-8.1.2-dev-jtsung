@@ -23,6 +23,9 @@ const CheckoutDetailsPage = () => {
   const [isGCashSelected, setIsGCashSelected] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [cartItemCount, setCartItemCount] = useState(0);
+  
+
   // const [shippingFee, setShippingFee] = useState(
   //   calculateShippingFee("Metro Manila", totalWeight)
   // );
@@ -92,13 +95,16 @@ const handleProceedToPayment = async () => {
 
 
   try {
+    const userDoc = await getDoc(doc(db, "users1", user.uid)); 
+    const userName = userDoc.exists() ? userDoc.data().name : "Unknown User"; 
 
     const docRef = await addDoc(collection(db, "payments"), {
       cartItems,
       totalPrice: totalPriceWithFee,
       paymentMethod,
       shippingFee,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      customerName: userName,
     });
     console.log("Document written with ID: ", docRef.id);
 
@@ -143,7 +149,7 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
 
   return (
     <Box>
-      <Navigation />
+       <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
       <VStack align="stretch" spacing="4" p="4">
         <Text fontSize="2xl" fontWeight="bold" textAlign="center">
           Checkout Details
@@ -186,10 +192,14 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
           <ModalCloseButton />
           <ModalBody>
             {isGCashSelected && (
+              <Box>
               <GCashPayment 
-                price={(itemsTotalPrice + shippingFee).toFixed(2)} 
+                // price={(itemsTotalPrice + shippingFee).toFixed(2)} 
+                price={totalPriceWithFee.toString()} 
                 onPaymentUrlReceived={(url) => setPaymentUrl(url)} 
               />
+              <Text fontWeight="bold">2% Fee Charge: P{fee.toFixed(2)}</Text>
+              </Box>
             )}
           </ModalBody>
           <ModalFooter>

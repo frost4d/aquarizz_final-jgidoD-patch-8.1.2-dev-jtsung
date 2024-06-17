@@ -62,14 +62,34 @@ const PostOptions = (props) => {
   // };
   const handleDelete = async () => {
     try {
-      const postRef = doc(db, "posts", postId);
-      // const commentRef = collection(postRef, "comments");
-      await deleteDoc(postRef);
+      const shopRef = doc(db, "shop", postId); // Assuming postId is the document ID in the "shop" collection
+      const discoverRef = doc(db, "discover", postId); // Assuming postId is the document ID in the "discover" collection
+      await deleteDoc(shopRef);
+      await deleteDoc(discoverRef);
       props.fetchData();
+  
+      // Show toast message for successful deletion
+      props.fetchData();
+      toast({
+        title: "Post Deleted",
+        description: "Your post has been successfully deleted.",
+        status: "success",
+        duration: 3000,
+        position: "top",
+      });
     } catch (err) {
       console.log(err.message);
+      // Show toast message for error if needed
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting the post.",
+        status: "error",
+        duration: 3000,
+        position: "top",
+      });
     }
   };
+  
   const handleCopyLink = () => {
     //will get the link of the current post
     const getLink = `profile/${authorId}/post/${postId}`;
@@ -144,7 +164,7 @@ const PostOptions = (props) => {
             onClick={() => {
               deleteOverlay.onOpen();
             }}
-            isDisabled={authorId !== user.uid}
+   
           >
             Delete
           </MenuItem>
