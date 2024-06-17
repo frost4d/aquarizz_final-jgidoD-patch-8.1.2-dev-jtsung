@@ -27,6 +27,8 @@ import AddDiscoverModal from "./AddDiscoverModal";
 import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
+import PostModal from "./PostModal";
+
 const Discover = () => {
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
@@ -41,7 +43,12 @@ const Discover = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
+  const [cartItemCount, setCartItemCount] = useState(0);
+
   // const letter = userProfile.name.charAt(0);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
@@ -87,6 +94,11 @@ const Discover = () => {
       console.error("Error adding document: ", err);
     }
   };
+
+  const openPostModal = (post) => {
+    setSelectedPost(post);
+    onOpen();
+  };
   // const handleAddDiscover = (formData) => {
   //   // Add logic to save the form data to your database or state
   //   console.log(formData);
@@ -126,7 +138,7 @@ const Discover = () => {
   return (
     <>
       <Box h="100vh" overflowY="auto">
-        <Navigation />
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
      
             <Flex justify="space-between" p="0 86px 0px 64px">
               <Heading>Discover</Heading>
@@ -149,7 +161,7 @@ const Discover = () => {
               </Flex>
             </Flex>
 
-            <Box 
+            <Box mb="12"
             // p="24px"
             //  borderWidth="2px" borderColor="blue"
              >
@@ -249,6 +261,8 @@ const Discover = () => {
                           // p="6px"
                           colSpan={1}
                           rowSpan={1}
+                          onClick={() => openPostModal(post)}
+                      cursor="pointer"
                         >
                           <Flex>
                             <Box w="100%">
@@ -267,6 +281,9 @@ const Discover = () => {
                               {post.postVideo && (
                                 <video
                                   controls
+                                  onLoadedMetadata={(e) => {
+                                    e.target.volume = 0.85
+                                  }}
                                   style={{
                                     borderRadius: "8px",
                                   maxWidth:"300px",
@@ -274,8 +291,16 @@ const Discover = () => {
                                     height: "370px",
                                     objectFit: "cover",
                                   }}
-                                  onMouseEnter={(e) => e.target.play()}
-                                  onMouseLeave={(e) => e.target.pause()}
+                                  onMouseEnter={(e) => {
+                                    if (e.target.paused) {
+                                      e.target.play();
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.pause();
+                                  }}
+                                  // onMouseEnter={(e) => e.target.play()}
+                                  // onMouseLeave={(e) => e.target.pause()}
                                 >
                                   <source
                                     src={post.postVideo}
@@ -317,6 +342,7 @@ const Discover = () => {
             <Footer />
         
       </Box>
+      <PostModal isOpen={isOpen} onClose={onClose} post={selectedPost} />
     </>
   );
 };

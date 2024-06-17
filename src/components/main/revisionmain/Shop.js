@@ -57,8 +57,13 @@ const Shop = () => {
   const [filter, setFilter] = useState();
   const [filteredData, setFilteredData] = useState();
   const [selectedTags, setSelectedTags] = useState([]);
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  
   useEffect(() => {
     const fetchShopPosts = async () => {
+      setLoading(true);
       const postsCollection = collection(db, "shop");
       const querySnapshot = await getDocs(postsCollection);
       const tempPosts = [];
@@ -67,6 +72,7 @@ const Shop = () => {
       });
       setShopPosts(tempPosts);
       setFilteredPosts(tempPosts);
+      setLoading(false);
     };
     fetchShopPosts();
   }, []);
@@ -175,7 +181,7 @@ const Shop = () => {
   return (
     <>
       <Flex direction="column" minH="100vh">
-        <Navigation />
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
         <Box flex="1">
           <Flex justify="space-between" p="0 64px 0 64px">
             <Heading fontFamily={primaryFont}>Shop</Heading>
@@ -221,6 +227,13 @@ const Shop = () => {
             align="center"
             my="64px"
           >
+            {loading ? (
+        <Flex
+          w="100%" h="100vh" align="center" justify="center"
+        >
+          <span className="loader"></span>
+        </Flex>
+      ) : (
               <Flex
                 className="shop__contents"
                 justify="space-between"
@@ -319,6 +332,7 @@ const Shop = () => {
                 </Box>
                 <Box className="filler" flex="1"></Box>
               </Flex>
+      )}
             </Flex>
           </Box>
         </Box>

@@ -2,32 +2,40 @@ import React, { useState, useEffect } from "react";
 import { VStack, Text, Divider, Box, Image, Flex } from "@chakra-ui/react";
 import Navigation from "./Navigation";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs, query, where, doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, updateDoc, getDoc, orderBy } from "firebase/firestore";
 import StarRating from "./StarRating"; // Import the StarRating component
 import Sidebar from "./Sidebar";
+import { UserAuth } from "../../context/AuthContext";
 
 const ReviewsPage = () => {
+  const { user } = UserAuth();
   const [reviews, setReviews] = useState([]);
   const [avgRating, setAvgRating] = useState(0);
+  const [cartItemCount, setCartItemCount] = useState(0);
+
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         const cartItemsRef = collection(db, "payments");
         const q = query(cartItemsRef, where("status", "==", "Completed"));
-        const querySnapshot = await getDocs(q);
+        // const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(q, orderBy("createdAt", "desc"));
         const fetchedReviews = [];
         let totalRating = 0;
         let numRatings = 0;
 
         querySnapshot.forEach((doc) => {
           const cartItemData = doc.data();
-          fetchedReviews.push({ id: doc.id, ...cartItemData });
           cartItemData.cartItems.forEach((item) => {
-            totalRating += item.rating || 0;
-            numRatings++;
+            if (item.userId === user.uid) { // Check if the item belongs to the current user
+              fetchedReviews.push({ id: doc.id, ...cartItemData });
+              totalRating += item.rating || 0;
+              numRatings++;
+            }
           });
         });
+  
 
         if (numRatings > 0) {
           setAvgRating(totalRating / numRatings);
@@ -43,7 +51,7 @@ const ReviewsPage = () => {
     };
 
     fetchReviews();
-  }, []);
+  }, [user]);
 
   const handleRate = async (itemId, rating) => {
     try {
@@ -93,7 +101,7 @@ const ReviewsPage = () => {
   
   return (
     <Box>
-      <Navigation />
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
       <Flex>
         <Sidebar />
       <VStack align="stretch" spacing="4" p="4" w="80%">

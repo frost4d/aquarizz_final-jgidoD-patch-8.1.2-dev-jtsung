@@ -91,7 +91,7 @@ const Register = () => {
       });
       user.updateProfile({ displayName: data.name });
 
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       switch (err.code) {
         case "auth/email-already-in-use":
@@ -290,7 +290,7 @@ const Register = () => {
                 type="file"
                 accept="image/png, image/jpeg"
                 {...register("userPhoto", {
-                  required: true,
+                  // required: true,
                   onChange: (e) => {
                     handlePhotoChange(e);
                   },

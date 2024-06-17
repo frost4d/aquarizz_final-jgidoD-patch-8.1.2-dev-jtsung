@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Heading, Text, List, ListItem } from "@chakra-ui/react";
 import Footer from "./Footer";
 import Navigation from "./Navigation";
 
 const TermsOfService = () => {
+  const [cartItemCount, setCartItemCount] = useState(0);
+
   return (
     <Box>
-      <Navigation />
-    <Box p={5}>
-      <Heading mb={5} borderWidth="2px" borderColor="blue">Terms of Service</Heading>
+      <Navigation
+        cartItemCount={cartItemCount}
+        setCartItemCount={setCartItemCount}
+      />
+    <Box p={10}>
+      <Heading mb={5} 
+      // borderWidth="2px" borderColor="blue"
+      >
+        Terms of Service</Heading>
       <Text mb={3}>
         These terms and conditions outline the rules and regulations for the use
         of our website and services.

@@ -53,11 +53,7 @@ const GCashPayment = ({ price, onPaymentUrlReceived }) => {
           Pay with GCash
         </Text>
       </Button>
-      {paymentUrl && (
-        <Text>
-          Payment URL: {paymentUrl}
-        </Text>
-      )}
+      {paymentUrl && window.open(paymentUrl, "_blank")}
     </Box>
   );
 };

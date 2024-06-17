@@ -21,7 +21,7 @@ import {
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs, where, query } from "firebase/firestore";
+import { collection, getDocs, where, query, orderBy } from "firebase/firestore";
 const statuses = [
   "All Order",
   "To Ship",
@@ -133,13 +133,16 @@ const ItemStatusPage = () => {
   const location = useLocation();
   // const { checkedOutItems = [] } = location.state || {};
   const checkedOutItems = location.state?.checkedOutItems || [];
+  const [cartItemCount, setCartItemCount] = useState(0);
+
 
   useEffect(() => {
     if (user) {
       const fetchOrders = async () => {
         try {
           const ordersRef = collection(db, "payments");
-          const querySnapshot = await getDocs(ordersRef);
+          // const querySnapshot = await getDocs(ordersRef);
+          const querySnapshot = await getDocs(query(ordersRef, orderBy("createdAt", "desc")));
           const fetchedOrders = [];
           querySnapshot.forEach((doc) => {
             const orderData = doc.data();
@@ -188,7 +191,7 @@ const ItemStatusPage = () => {
 
   return (
     <Box>
-      <Navigation />
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
       <Flex>
         <Sidebar />
       <VStack align="stretch" spacing="4" p="4" w="80%">
@@ -266,6 +269,9 @@ const ItemStatusPage = () => {
                           </Text>
                           <Text fontWeight="bold">
                             Total Price: P{item.totalPrice}
+                          </Text>
+                          <Text fontWeight="bold">
+                            Shipping Status: {item.paymentMethod}
                           </Text>
                           {(item.status === "To Ship" ||
                             item.status === "To Receive" ||

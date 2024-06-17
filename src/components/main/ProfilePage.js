@@ -16,6 +16,7 @@ import {
   query,
   where,
   updateDoc,
+  getDoc
 } from "firebase/firestore";
 import {
   Box,
@@ -143,6 +144,9 @@ function ProfilePage() {
   const [discoverPosts, setDiscoverPosts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [avgRating, setAvgRating] = useState(0);
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const [hasShop, setHasShop] = useState(false);
+
   const {
     register,
     reset,
@@ -208,6 +212,18 @@ function ProfilePage() {
       }
     };
 
+    const checkShop = async () => {
+      const shopRef = collection(db, "shop");
+      const q = query(shopRef, where("authorID", "==", userId));
+      const docSnap = await getDocs(q);
+      if (docSnap.docs.length === 0) {
+        console.log("doesn't exist" + userId);
+        setHasShop(false);
+      } else {
+        setHasShop(true);
+      }
+    };
+    checkShop();
     fetchReviews();
   }, []);
 
@@ -325,8 +341,11 @@ function ProfilePage() {
   const handleCancelUpload = () => {};
   return (
     <>
-      <Box position="relative">
-        <Navigation />
+      <Box h="auto">
+        <Navigation 
+        cartItemCount={cartItemCount}
+        setCartItemCount={setCartItemCount}
+        />
         {userData && userData ? (
           <Box key={userData.id} zIndex="2">
             <Flex
@@ -476,8 +495,20 @@ function ProfilePage() {
                   <Box display="flex" justifyContent="center" alignItems="center" ml="45%" mt="10px" w="250px" 
                   // borderWidth="2px" borderColor="red"
                   >
-                  <StarRating rating={avgRating} avgRating={avgRating} />
-                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
+                    {hasShop ? (
+                      <StarRating rating={avgRating} avgRating={avgRating} />
+                    ) : (
+                      ""
+                    )}
+                    <Text ml="2" fontWeight="bold">
+                      {hasShop
+                        ? `${avgRating.toFixed(1)} / 5 (${
+                            reviews.length
+                          } ratings)`
+                        : ""}
+                    </Text>
+                  {/* <StarRating rating={avgRating} avgRating={avgRating} />
+                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text> */}
                   </Box>
                 </Box>
 
@@ -658,16 +689,17 @@ function ProfilePage() {
 
               <Flex
                 w="100%"
-                h="auto"
                 justify="center"
                 align="center"
                 flexDirection="column"
                 boxShadow="0px -4px 5px #e1e1e1"
                 mt="32px"
+                mb="6"
                 pt="24px"
+                // borderWidth="2px" borderColor="blue"
               >
                 {shopPosts.length === 0 ? (
-                  <Flex justify="center" align="center" >
+                  <Flex justify="center" align="center" p="10" mb="20">
                     <Text color="#7f7f7f">It feels so lonely here...</Text>
                   </Flex>
                 ) : (
@@ -677,7 +709,6 @@ function ProfilePage() {
                       size="md"
                       variant="enclosed"
                       w="100%"
-                      h="auto"
                       justify="center"
                       align="center"
                     >
@@ -693,6 +724,7 @@ function ProfilePage() {
                             w="100%"
                             align="center"
                             justify="center"
+                      
                           >
                             {discoverPosts.map((post) => (
                               <Card
@@ -701,6 +733,8 @@ function ProfilePage() {
                                 p="24px 24px"
                                 my="16px"
                                 border="1px solid #e1e1e1"
+                                //  borderWidth="2px"
+                                // borderColor="red"
                               >
                                 <Flex flexDirection="column">
                                   <Box>
@@ -775,6 +809,7 @@ function ProfilePage() {
                                     )}
                                     {post.postVideo && (
                                       <video
+                                      muted={true}
                                         controls
                                         style={{
                                           width: "100%",
@@ -852,6 +887,7 @@ function ProfilePage() {
                                 onClick={() => {
                                   console.log(post.id);
                                 }}
+                               
                               >
                                 <Flex flexDirection="column">
                                   <Box>

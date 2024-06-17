@@ -227,6 +227,14 @@ const AddToCartPage = ({ route }) => {
     }
   };
 
+
+  if (loading) return (
+    <Flex w="100%" h="100vh" align="center" justify="center">
+            <span className="loader"></span>
+          </Flex>
+  );
+  if (error) return <p>Error: {error}</p>;
+
   // if (loading) return <p>Loading...</p>;
   // if (error) return <p>Error: {error}</p>;
 
@@ -243,7 +251,7 @@ const AddToCartPage = ({ route }) => {
   return (
 
       <Box h="100vh">
-        <Navigation />
+        <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
 
 
         {sellerProfile && product && (
