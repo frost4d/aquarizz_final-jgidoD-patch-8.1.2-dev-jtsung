@@ -139,6 +139,7 @@ const Discover = () => {
   return (
     <>
       <Box h="100vh" overflowY="auto">
+
       <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
      
             <Flex justify="space-between" p="0 86px 0px 64px">
@@ -153,52 +154,42 @@ const Discover = () => {
                   <AddDiscoverModal
                     isOpen={addDiscover.isOpen}
                     onClose={addDiscover.onClose}
+
                   />
-                  Create
-                </Button>
-                <Button variant="link" color="#333333">
-                  My Shop
-                </Button>
-              </Flex>
+                  <Button
+                    p="12px 24px"
+                    ml="12px"
+                    type="submit"
+                    borderRadius="24px"
+                  >
+                    Search
+                  </Button>
+                </Flex>
+              </form>
             </Flex>
 
-            <Box mb="12"
-            // p="24px"
-            //  borderWidth="2px" borderColor="blue"
-             >
-              <Flex
-                gap="24px 24px"
-                flexWrap="wrap"
-                justify="space-evenly"
-                align="center"
-                mt="32px"
+            <Flex
+              w="100%"
+              gap="24px 12px"
+              justify="center"
+              align="start"
+              flexWrap="wrap"
+            >
+              {/* {userProfile && ( */}
+              <Box
+                flex="1"
+                // border="1px solid #e1e1e1" borderColor="green"
+                className="bodyWrapper__profile"
+
               >
-                <Flex w="100%" justify="center" p="12px 24px">
-                  <form onSubmit={handleSearchDiscover}>
-                    <Flex w="100%" justify="space-between">
-                      <Input
-                        borderRadius="24px"
-                        placeholder="Search"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                      <Button p="12px 24px" type="submit" borderRadius="24px">
-                        Search
-                      </Button>
-                    </Flex>
-                  </form>
-                </Flex>
-                <Flex
-                  w="100%"
-                  gap="24px 12px"
-                  justify="center"
-                  align="start"
-                  flexWrap="wrap"
-                >
-                  {/* {userProfile && ( */}
-                  <Box flex="10" 
-                  // border="1px solid #e1e1e1" borderColor="green"
+                <Box p="24px">
+                  <Flex
+                    className="userprofile__wrapper__discover"
+                    flexDirection="column"
+                    justify="center"
+                    align="center"
                   >
+
                     <Box p="24px">
                       <Flex
                         className="userprofile__wrapper__discover"
@@ -207,8 +198,10 @@ const Discover = () => {
                         align="center"
                       >
                         {!userProfile ? (
+
                       <Button
-                      border="1px solid #e1e1e1" borderColor="green"
+                        border="1px solid #e1e1e1"
+                        borderColor="green"
                         variant="link"
                         onClick={() => {
                           navigate("/");
@@ -259,12 +252,14 @@ const Discover = () => {
                         />
                         New Post
                       </Button>
+
                     </Box>
                       </Flex>
                     </Box>
                   </Box>
                   {/* )} */}
                   <Flex
+
                 justify="center"
                 align="center"
                 flex="2"
@@ -272,6 +267,7 @@ const Discover = () => {
                 m="24px 24px"
                 className="bodyWrapper__contents"
               >
+
                     <Grid
                       className="grid__discover"
                       templateColumns={`repeat(4, 1fr)`}
@@ -279,6 +275,7 @@ const Discover = () => {
                       autoRows="minmax(200px, auto)"
                       rowGap={12}
                     >
+
                       {filteredPosts.map((post) => (
                         <GridItem
                           key={post.id}
@@ -339,33 +336,53 @@ const Discover = () => {
                           <Box mt="12px">
                             <Text className="truncate" textAlign="justify" fontSize="16px" fontWeight="620" mr="3" 
                             // color="#6e6e6e"
+
                             >
-                              {post.postContent}
-                            </Text>
-                          </Box>
-                          <Flex justify="space-between" mt="10px">
-                            <Button fontSize="18px" variant="link" color="#333333"> 
-                              {post.authorName}
-                            </Button>
-                            <Text fontSize="xs" color="#6e6e6e" as="i">
-                              {formatDistanceToNow(post.createdAt)} ago
-                            </Text>
-                          </Flex>
-                          {/* <Box mt="12px">
+                              <source src={post.postVideo} type="video/mp4" />
+                              Your browser does not support the video tag.
+                            </video>
+                          )}
+                        </Box>
+                      </Flex>
+                      <Box mt="12px">
+                        <Text
+                          className="truncate"
+                          textAlign="justify"
+                          fontSize="16px"
+                          fontWeight="620"
+                          mr="3"
+                          // color="#6e6e6e"
+                        >
+                          {post.postContent}
+                        </Text>
+                      </Box>
+                      <Flex justify="space-between" mt="10px">
+                        <Button fontSize="18px" variant="link" color="#333333">
+                          {post.authorName}
+                        </Button>
+                        <Text fontSize="xs" color="#6e6e6e" as="i">
+                          {formatDistanceToNow(post.createdAt)} ago
+                        </Text>
+                      </Flex>
+                      {/* <Box mt="12px">
                             <Text className="truncate" textAlign="justify" fontSize="sm" color="#6e6e6e">
                               {post.postContent}
                             </Text>
                           </Box> */}
+
                         </GridItem>
                       ))}
                     </Grid>
                   </Flex>
                   <Box flex="1"></Box>
                 </Flex>
+
               </Flex>
-            </Box>
-            <Footer />
-        
+              {/* <Box flex="1"></Box> */}
+            </Flex>
+          </Flex>
+        </Box>
+        <Footer />
       </Box>
       <PostModal isOpen={isOpen} onClose={onClose} post={selectedPost} />
     </>

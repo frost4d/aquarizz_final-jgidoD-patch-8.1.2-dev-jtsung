@@ -148,6 +148,7 @@ function ProfilePage() {
   const [cartItemCount, setCartItemCount] = useState(0);
   const [hasShop, setHasShop] = useState(false);
 
+
   const {
     register,
     reset,
@@ -213,6 +214,7 @@ function ProfilePage() {
     };
 
     const checkShop = async () => {
+
       const shopRef = collection(db, "shop");
       const q = query(shopRef, where("authorID", "==", userId));
       const docSnap = await getDocs(q);
@@ -226,6 +228,7 @@ function ProfilePage() {
     checkShop();
     fetchReviews();
   }, []);
+
 
   useEffect(() => {
     loadData();
@@ -339,11 +342,13 @@ function ProfilePage() {
   const handleCancelUpload = () => {};
   return (
     <>
+
       <Box h="auto">
         <Navigation
           cartItemCount={cartItemCount}
           setCartItemCount={setCartItemCount}
         />
+
         {userData && userData ? (
           <Box key={userData.id} zIndex="2">
             <Flex
@@ -431,7 +436,6 @@ function ProfilePage() {
                                         align="center"
                                         flexDirection="column"
                                       >
-                                        {" "}
                                         <Text as="b">
                                           Image is ready for upload!
                                         </Text>
@@ -513,8 +517,11 @@ function ProfilePage() {
                           } ratings)`
                         : ""}
                     </Text>
+
                     {/* <StarRating rating={avgRating} avgRating={avgRating} />
+
                   <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text> */}
+
                   </Box>
                 </Box>
 
@@ -704,6 +711,7 @@ function ProfilePage() {
                 pt="24px"
                 // borderWidth="2px" borderColor="blue"
               >
+
                 <>
                   <Tabs
                     // borderWidth="2px" borderColor="red"
@@ -727,10 +735,13 @@ function ProfilePage() {
                           justify="center"
                         >
                           {discoverPosts.length === 0 ? (
+
                   <Flex justify="center" align="center" p="10" mb="20">
+
                     <Text color="#7f7f7f">It feels so lonely here...</Text>
                   </Flex>
                 ) : (
+
                   discoverPosts.map((post) => (
                             <Card
                               key={post.id}
@@ -837,6 +848,7 @@ function ProfilePage() {
                       </TabPanel>
                       <TabPanel>
                         {/* <Flex
+
                             flexDirection="column"
                             w="100%"
                             align="center"
@@ -848,6 +860,7 @@ function ProfilePage() {
                             flexWrap="wrap"
                             justify="center"
                           > */}
+
 
                         <Grid
                           className="gridItem__holder"
@@ -871,6 +884,7 @@ function ProfilePage() {
                             </Center>
                           ) : (
                             shopPosts.map((post) => (
+
                               // <Card
                               //   key={post.id}
                               //   w={{ base: "100%", md: "45%", lg: "30%" }}

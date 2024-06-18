@@ -490,10 +490,7 @@ const LandingPageMarket = () => {
             </Heading>
           </Box> */}
           <Box className="searchbarWrapper">
-            <SearchInput
-              handleSearch={handleSearchShop}
-              
-            />
+            <SearchInput handleSearch={handleSearchShop} />
             {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
           </Box>
 
