@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "./context/AuthContext";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db, storage } from "../firebase/firebaseConfig";
+import { db, storage, auth } from "../firebase/firebaseConfig";
 import { useEffect, useState } from "react";
 import {
   ref,
@@ -26,10 +26,14 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const Register = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { createUser } = UserAuth();
+  const [phoneNumber, setPhoneNumber] = useState();
+  const [verification, setVerification] = useState();
+  const [otp, setOtp] = useState();
   const [userData, setUserData] = useState();
   const [loading, setLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState();
@@ -71,6 +75,7 @@ const Register = () => {
 
   const handleRegister = async (data) => {
     try {
+      console.log("registered");
       const { user } = await createUser(data.email, data.password);
       toast({
         position: "top",
@@ -90,7 +95,6 @@ const Register = () => {
         phoneNumber: data.phoneNumber,
       });
       user.updateProfile({ displayName: data.name });
-
       navigate("/dashboard");
     } catch (err) {
       switch (err.code) {
@@ -105,33 +109,31 @@ const Register = () => {
       }
     }
 
-    // .then( (userCredentials) => {
-
-    //   toast({
-    //     title: "Account Created.",
-    //     description: "Welcome to Aquarizz!",
-    //     status: "success",
-    //     duration: 4000,
-    //     position: "top"
-    //   });
-
-    // }).catch((error) => {
-    //   switch (error.code) {
-    //     case "auth/email-already-in-use":
-    //       toast({
-    //         position: "top",
-    //         title: "Can't create account.",
-    //         description: "Sorry, email is already in use.",
-    //         status: "error",
-    //         duration: 4000,
-    //         position: "top"
-
-    //       });
-    //       break;
-    //   }
-    // });
-
     reset();
+  };
+
+  const sendOTP = async () => {
+    try {
+      const recaptcha = new RecaptchaVerifier(auth, "recaptcha", {});
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        `+63${phoneNumber}`,
+        recaptcha
+      );
+      setVerification(confirmation);
+      console.log(confirmation);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const verifyOTP = async () => {
+    try {
+      const data = await verification.confirm(otp);
+      console.log(data);
+    } catch (err) {
+      console.log(err.message);
+    }
   };
 
   return (
@@ -198,26 +200,39 @@ const Register = () => {
               </FormControl>
               <FormControl>
                 <FormLabel>Phone Number</FormLabel>
-                <Stack>
-                  <InputGroup>
-                    <InputLeftAddon children="+63" />
-                    <Input
-                      maxLength={10}
-                      {...register("phoneNumber", {
-                        required: true,
-                        minLength: {
-                          value: 10,
-                          message: "Please input correct phone number.",
-                        },
-                        maxLength: {
-                          value: 10,
-                          message: "Please input correct phone number.",
-                        },
-                      })}
-                      aria-invalid={errors.phoneNumber ? "true" : "false"}
-                    />
-                  </InputGroup>
-                </Stack>
+                <InputGroup>
+                  <InputLeftAddon children="+63" />
+                  <Input
+                    type="number"
+                    maxLength={10}
+                    {...register("phoneNumber", {
+                      required: true,
+                      minLength: {
+                        value: 10,
+                        message: "Please input correct phone number.",
+                      },
+                      maxLength: {
+                        value: 10,
+                        message: "Please input correct phone number.",
+                      },
+                    })}
+                    aria-invalid={errors.phoneNumber ? "true" : "false"}
+                    onChange={(e) => {
+                      setPhoneNumber(e.target.value);
+                    }}
+                  />
+                  <Button
+                    mx="12px"
+                    variant="none"
+                    onClick={() => {
+                      sendOTP();
+                      console.log(phoneNumber);
+                    }}
+                  >
+                    Send Code
+                  </Button>
+                </InputGroup>
+
                 {errors.phoneNumber?.type === "required" && (
                   <p style={{ color: "#d9534f", fontSize: "12px" }}>
                     Phone Number is required
@@ -229,6 +244,25 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
+              <Flex gap="1">
+                <Input
+                  onChange={(e) => {
+                    setOtp(e.target.value);
+                  }}
+                  {...register("otp", {
+                    required: true,
+                    maxLength: 6,
+                    minLength: "6",
+                  })}
+                />
+
+                <Button onClick={verifyOTP}>Verify</Button>
+                {errors.otp?.type === "required" && (
+                  <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                    OTP is required
+                  </p>
+                )}
+              </Flex>
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input
@@ -296,6 +330,7 @@ const Register = () => {
                   },
                 })}
               />
+              <Box id="recaptcha" textAlign="center"></Box>
               <Button bg="#ffc947" w="100%" type="submit">
                 Register
               </Button>

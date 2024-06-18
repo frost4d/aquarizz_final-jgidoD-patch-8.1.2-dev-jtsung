@@ -210,10 +210,10 @@ function ProfilePage() {
     };
 
     const checkShop = async () => {
-      const shopRef = doc(db, "shop", userId);
-
-      const docSnap = await getDoc(shopRef);
-      if (!docSnap.exists()) {
+      const shopRef = collection(db, "shop");
+      const q = query(shopRef, where("authorID", "==", userId));
+      const docSnap = await getDocs(q);
+      if (docSnap.docs.length === 0) {
         console.log("doesn't exist" + userId);
         setHasShop(false);
       } else {
