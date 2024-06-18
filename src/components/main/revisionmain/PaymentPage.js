@@ -68,6 +68,10 @@ const PaymentPage = () => {
     setCheckedOutItems(cartItems);
     navigate("/ItemStatusPage", { state: { checkedOutItems: cartItems } });
   };
+
+  const handleBackToShopping = () => {
+    navigate("/shop"); // Navigate to the shop page
+  };
   // useEffect(() => {
   //   if (paymentInitiated) {
   //     const timeout = setTimeout(() => {
@@ -118,6 +122,7 @@ const PaymentPage = () => {
                 p="2"
                 borderWidth="1px"
                 borderRadius="lg"
+                mb="4"
                 w="80%"
               >
                 <Flex>
@@ -131,7 +136,7 @@ const PaymentPage = () => {
                     <Text fontSize="xl" fontWeight="bold">
                       {item.postTitle}
                     </Text>
-                    <Text>{item.postContent}</Text>
+                    <Text textAlign="justify" mr="4">{item.postContent}</Text>
                     <Divider my={1} />
                     <Text fontWeight="bold">Price: P{item.price}</Text>
                   </VStack>
@@ -161,10 +166,13 @@ const PaymentPage = () => {
           </ModalContent>
         </Modal>
       )}
-       <Flex justify="center" align="center" mb="4">
-      {/* <Button colorScheme="blue" onClick={handleProceedToPayment}>
+       <Flex justify="center" align="center" mb="4" gap="4">
+       <Button colorScheme="blue" onClick={handleProceedToPayment}>
         View your item status
-      </Button> */}
+      </Button> 
+       <Button colorScheme="blue" onClick={handleBackToShopping}>
+        Back to Shopping
+      </Button> 
       </Flex>
     </Box>
   );

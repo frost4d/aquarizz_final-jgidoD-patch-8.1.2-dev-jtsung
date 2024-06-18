@@ -17,7 +17,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "./context/AuthContext";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db, storage } from "../firebase/firebaseConfig";
 import { useEffect, useState } from "react";
 import {
@@ -26,15 +26,19 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import { updateProfile, onAuthStateChanged } from "firebase/auth";
 
 const Register = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { createUser } = UserAuth();
+  const { createUser, user } = UserAuth();
   const [userData, setUserData] = useState();
   const [loading, setLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState();
   const navigate = useNavigate();
   const toast = useToast();
+  const [photoUrl, setPhotoUrl] = useState(null);
+  
+
 
   const {
     register,
@@ -43,31 +47,23 @@ const Register = () => {
     watch,
     formState: { errors },
   } = useForm();
+  
 
   const handlePhotoChange = async (e) => {
-    e.preventDefault();
-
+    const file = e.target.files[0];
+    setUserPhoto(file);
+  
     try {
-      const imageRef = ref(
-        storage,
-        `profileImages/${e.target.files[0].name + "&" + userData.name}`
-      );
-
-      await uploadBytes(imageRef, e.target.files[0]).then((snapshot) => {
-        console.log("Uploaded a blob or file!");
-        console.log(snapshot);
-      });
-      getDownloadURL(imageRef).then((url) => {
-        console.log(url);
-        if (url === null) {
-          console.log("error");
-        }
-        setUserPhoto(url);
-      });
-    } catch (err) {
-      console.log(err.message);
+      const storageRef = ref(storage, `profileImages/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setPhotoUrl(url);
+    } catch (error) {
+      console.error("Error uploading image: ", error);
     }
-  };
+  };  
+  
+  
 
   const handleRegister = async (data) => {
     try {
@@ -79,6 +75,11 @@ const Register = () => {
         description: "Your account is successfully created.",
         duration: 3000,
       });
+
+      let photoURL = null;
+    if (photoUrl) {
+      photoURL = photoUrl;
+    }
       await setDoc(doc(db, "users1", user.uid), {
         email: data.email,
         name: data.name,
@@ -88,8 +89,9 @@ const Register = () => {
         createdAt: serverTimestamp(),
         location: data.location,
         phoneNumber: data.phoneNumber,
+        profileImage: photoURL, 
       });
-      user.updateProfile({ displayName: data.name });
+      // user.updateProfile({ displayName: data.name });
 
       navigate("/");
     } catch (err) {
@@ -202,7 +204,8 @@ const Register = () => {
                   <InputGroup>
                     <InputLeftAddon children="+63" />
                     <Input
-                      maxLength={10}
+                      type="number"
+                      // maxLength={10}
                       {...register("phoneNumber", {
                         required: true,
                         minLength: {
@@ -212,6 +215,11 @@ const Register = () => {
                         maxLength: {
                           value: 10,
                           message: "Please input correct phone number.",
+                        },
+                        onChange: (e) => {
+                          if (e.target.value.length > 10) {
+                            e.target.value = e.target.value.slice(0, 10);
+                          }
                         },
                       })}
                       aria-invalid={errors.phoneNumber ? "true" : "false"}
@@ -289,13 +297,15 @@ const Register = () => {
                 id="photo-upload"
                 type="file"
                 accept="image/png, image/jpeg"
-                {...register("userPhoto", {
-                  // required: true,
-                  onChange: (e) => {
-                    handlePhotoChange(e);
-                  },
-                })}
+                onChange={handlePhotoChange}
+                // {...register("userPhoto", {
+                //   // required: true,
+                //   onChange: (e) => {
+                //     handlePhotoChange(e);
+                //   },
+                // })}
               />
+              {photoUrl && <img src={photoUrl} alt="Profile" style={{ maxWidth: "100px" }} />}
               <Button bg="#ffc947" w="100%" type="submit">
                 Register
               </Button>

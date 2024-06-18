@@ -19,11 +19,11 @@ import {
   GridItem,
   Grid,
   Avatar,
-  Divider,
+  Divider
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
-import { Divide, Edit, Plus } from "react-feather";
+import { Edit, Plus } from "react-feather";
 import AddDiscoverModal from "./AddDiscoverModal";
 import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
@@ -189,7 +189,16 @@ const Discover = () => {
                     justify="center"
                     align="center"
                   >
-                    {!userProfile ? (
+
+                    <Box p="24px">
+                      <Flex
+                        className="userprofile__wrapper__discover"
+                        flexDirection="column"
+                        justify="center"
+                        align="center"
+                      >
+                        {!userProfile ? (
+
                       <Button
                         border="1px solid #e1e1e1"
                         borderColor="green"
@@ -243,12 +252,14 @@ const Discover = () => {
                         />
                         New Post
                       </Button>
+
                     </Box>
-                  </Flex>
-                </Box>
-              </Box>
-              {/* )} */}
-              <Flex
+                      </Flex>
+                    </Box>
+                  </Box>
+                  {/* )} */}
+                  <Flex
+
                 justify="center"
                 align="center"
                 flex="2"
@@ -256,13 +267,14 @@ const Discover = () => {
                 m="24px 24px"
                 className="bodyWrapper__contents"
               >
-                <Grid
-                  className="grid__discover"
-                  templateColumns={`repeat(5, 1fr)`}
-                  gap="4"
-                  autoRows="minmax(200px, auto)"
-                  rowGap={12}
-                >
+
+                    <Grid
+                      className="grid__discover"
+                      templateColumns={`repeat(4, 1fr)`}
+                      gap="4"
+                      autoRows="minmax(200px, auto)"
+                      rowGap={12}
+                    >
 
                       {filteredPosts.map((post) => (
                         <GridItem
@@ -357,9 +369,14 @@ const Discover = () => {
                               {post.postContent}
                             </Text>
                           </Box> */}
-                    </GridItem>
-                  ))}
-                </Grid>
+
+                        </GridItem>
+                      ))}
+                    </Grid>
+                  </Flex>
+                  <Box flex="1"></Box>
+                </Flex>
+
               </Flex>
               {/* <Box flex="1"></Box> */}
             </Flex>

@@ -15,6 +15,7 @@ import {
   Card,
   CardHeader,
   CardBody,
+  Center,
 } from "@chakra-ui/react";
 import Footer from "./Footer";
 import Navigation from "./Navigation";
@@ -29,6 +30,8 @@ const ContactUs = () => {
         setCartItemCount={setCartItemCount}
       />
       <Box p={5} bg="#f8f9fa">
+        <Center>
+        <Box w="80%" py="4">
         <Box
           display={{ base: "none", md: "block" }}
           position="absolute"
@@ -36,10 +39,10 @@ const ContactUs = () => {
           left="100px"
           transform="rotate(15deg)"
         >
-          <Image
+          {/* <Image
             h="300px"
             src={require("../../../assets/cartoon fish(1).png")}
-          />
+          /> */}
         </Box>
         <Box
           display={{ base: "none", md: "block" }}
@@ -55,7 +58,7 @@ const ContactUs = () => {
         </Box>
         <Box justifyContent="center" alignItems="center">
           <Heading mb={5}>Contact Us</Heading>
-          <Text mb={3}>
+          <Text mb={10}>
             We’d love to hear from you! Whether you have a question about our
             services, or anything else, our team is ready to answer all your
             questions.
@@ -90,6 +93,8 @@ const ContactUs = () => {
             </Box>
           </Flex>
         </Box>
+      </Box>
+      </Center>
       </Box>
       <Footer />
     </Box>

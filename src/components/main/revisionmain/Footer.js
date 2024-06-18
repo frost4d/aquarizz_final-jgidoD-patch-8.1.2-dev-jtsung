@@ -1,4 +1,5 @@
 import "./Footer.css";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Flex,
@@ -13,6 +14,12 @@ import {
 import { Facebook, Mail, Twitter } from "react-feather";
 import { Link } from "react-router-dom";
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/category/${categoryName}`);
+  };
+
   return (
     <>
       <Flex
@@ -72,16 +79,16 @@ const Footer = () => {
               Shop
             </Heading>
             <Box className="shopLink">
-              <Text color="#333333" fontSize="sm">
+              <Text color="#333333" fontSize="sm" onClick={() => handleCategoryClick("Fish")}>
                 Fish
               </Text>
-              <Text color="#333333" fontSize="sm">
+              <Text color="#333333" fontSize="sm" onClick={() => handleCategoryClick("Accessories")}>
                 Accessories
               </Text>
-              <Text color="#333333" fontSize="sm">
+              <Text color="#333333" fontSize="sm" onClick={() => handleCategoryClick("Feeds")}>
                 Feeds
               </Text>
-              <Text color="#333333" fontSize="sm">
+              <Text color="#333333" fontSize="sm" onClick={() => handleCategoryClick("Aquarium")}>
                 Aquarium
               </Text>
             </Box>

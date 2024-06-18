@@ -1,6 +1,6 @@
 import "./CheckoutDetailsPage.css";
 import React, { useState, useEffect } from "react";
-import { VStack, Text, Input, Select, Button, Box, Flex, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+import { VStack, Text, Input, Select, Button, Box, Flex, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Center } from "@chakra-ui/react";
 import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
 import CartItem from "./CartItem";
 import Navigation from "./Navigation";
@@ -9,6 +9,7 @@ import { UserAuth } from "../../context/AuthContext";
 import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import GooglePay from "../mainComponents/GooglePay";
 import GCashPayment from "../mainComponents/GcashPayment";
+import Footer from "./Footer";
 
 const CheckoutDetailsPage = () => {
   const { id } = useParams(); 
@@ -154,12 +155,22 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
         <Text fontSize="2xl" fontWeight="bold" textAlign="center">
           Checkout Details
         </Text>
+        <Center>
+          <Flex flexDirection="column">
         {cartItems.map((item, index) => (
+          <Box mb="4">
           <CartItem key={index} item={item} onRemove={() => {}} />
+            </Box>
         ))}
+        
+        <Box px="10">
         <Text fontWeight="bold">Shipping Fee: P{shippingFee}</Text>
-        <Text fontWeight="bold">Total Price: P{itemsTotalPrice + shippingFee}</Text>
+        <Text mb="10" fontWeight="bold">Total Price: P{itemsTotalPrice + shippingFee}</Text>
+        <Center gap="4" mb="14">
         <Select
+          borderWidth="2px"
+          borderColor="black"
+          w="50%"
           placeholder="Select Payment Method"
           value={paymentMethod}
           onChange={handlePaymentMethodChange}
@@ -181,9 +192,13 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
             onPaymentUrlReceived={(url) => setPaymentUrl(url)} // Add this line to set the payment URL
           />
         )} */}
-        <Button colorScheme="blue" onClick={handleProceedToPayment}>
+        <Button colorScheme="blue" onClick={handleProceedToPayment} w="50%">
           Proceed to Payment
         </Button>
+        </Center>
+        </Box>
+        </Flex>
+        </Center>
       </VStack>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
@@ -217,6 +232,7 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
       </Modal>
       <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice + shippingFee }}>
       </Link>
+      <Footer />
     </Box>
     
   );

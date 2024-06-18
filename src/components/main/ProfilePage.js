@@ -65,6 +65,7 @@ import {
   TabPanel,
   Grid,
   GridItem,
+  Center,
 } from "@chakra-ui/react";
 import { db, auth, storage } from "../../firebase/firebaseConfig";
 import { UserAuth } from "../context/AuthContext";
@@ -229,19 +230,6 @@ function ProfilePage() {
   }, []);
 
 
-      const docSnap = await getDoc(shopRef);
-      if (!docSnap.exists()) {
-        console.log("doesn't exist" + userId);
-        setHasShop(false);
-      } else {
-        setHasShop(true);
-      }
-    };
-
-    checkShop();
-    fetchReviews();
-  }, []);
-
   useEffect(() => {
     loadData();
   }, []);
@@ -356,9 +344,9 @@ function ProfilePage() {
     <>
 
       <Box h="auto">
-        <Navigation 
-        cartItemCount={cartItemCount}
-        setCartItemCount={setCartItemCount}
+        <Navigation
+          cartItemCount={cartItemCount}
+          setCartItemCount={setCartItemCount}
         />
 
         {userData && userData ? (
@@ -379,6 +367,8 @@ function ProfilePage() {
                     ml="200px"
                     borderRadius="50%"
                     className="imageFlex"
+                    borderWidth="2px"
+                    // borderColor="#0d1b2a"
                   >
                     <Box
                       className="imageHoverOption"
@@ -528,7 +518,8 @@ function ProfilePage() {
                         : ""}
                     </Text>
 
-                  {/* <StarRating rating={avgRating} avgRating={avgRating} />
+                    {/* <StarRating rating={avgRating} avgRating={avgRating} />
+
                   <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text> */}
 
                   </Box>
@@ -720,169 +711,180 @@ function ProfilePage() {
                 pt="24px"
                 // borderWidth="2px" borderColor="blue"
               >
-                {shopPosts.length === 0 ? (
+
+                <>
+                  <Tabs
+                    // borderWidth="2px" borderColor="red"
+                    size="md"
+                    variant="enclosed"
+                    w="100%"
+                    justify="center"
+                    align="center"
+                  >
+                    <TabList mb="1em">
+                      <Tab w="8%">Posts</Tab>
+                      <Tab w="8%">Shop</Tab>
+                      <Tab w="8%">About</Tab>
+                    </TabList>
+                    <TabPanels>
+                      <TabPanel>
+                        <Flex
+                          flexDirection="column"
+                          w="100%"
+                          align="center"
+                          justify="center"
+                        >
+                          {discoverPosts.length === 0 ? (
 
                   <Flex justify="center" align="center" p="10" mb="20">
 
                     <Text color="#7f7f7f">It feels so lonely here...</Text>
                   </Flex>
                 ) : (
-                  <>
-                    <Tabs
-                      // borderWidth="2px" borderColor="red"
-                      size="md"
-                      variant="enclosed"
-                      w="100%"
-                      justify="center"
-                      align="center"
-                    >
-                      <TabList mb="1em">
-                        <Tab w="8%">Posts</Tab>
-                        <Tab w="8%">Shop</Tab>
-                        <Tab w="8%">About</Tab>
-                      </TabList>
-                      <TabPanels>
-                        <TabPanel>
-                          <Flex
-                            flexDirection="column"
-                            w="100%"
-                            align="center"
-                            justify="center"
-                      
-                          >
-                            {discoverPosts.map((post) => (
-                              <Card
-                                key={post.id}
-                                w="50%"
-                                p="24px 24px"
-                                my="16px"
-                                border="1px solid #e1e1e1"
-                                //  borderWidth="2px"
-                                // borderColor="red"
-                              >
-                                <Flex flexDirection="column">
-                                  <Box>
-                                    <Profile
-                                      name={post.name}
-                                      authorId={post.authorId}
-                                    />
-                                  </Box>
-                                  <PostOptions
-                                    postId={post.id}
+
+                  discoverPosts.map((post) => (
+                            <Card
+                              key={post.id}
+                              w="50%"
+                              p="24px 24px"
+                              my="16px"
+                              border="1px solid #e1e1e1"
+                              //  borderWidth="2px"
+                              // borderColor="red"
+                            >
+                              <Flex flexDirection="column">
+                                <Box>
+                                  <Profile
+                                    name={post.name}
                                     authorId={post.authorId}
                                   />
-                                  <Text
-                                    as="kbd"
-                                    fontSize="10px"
-                                    color="gray.500"
-                                  >
-                                    {formatDistanceToNow(post.createdAt)} ago
-                                  </Text>
-                                  <Button variant="link" color="#333333">
-                                    {post.authorName}
-                                  </Button>
-                                  <Flex
-                                    pl="32px"
-                                    py="32px"
-                                    justify="space-between"
-                                  >
-                                    <Box>
-                                      <Link to={"/AddToCart/" + post.id}>
-                                        <Heading size="md">
-                                          {post.postTitle}
-                                        </Heading>
-                                      </Link>
-                                      <br />
+                                </Box>
+                                <PostOptions
+                                  postId={post.id}
+                                  authorId={post.authorId}
+                                />
+                                <Text as="kbd" fontSize="10px" color="gray.500">
+                                  {formatDistanceToNow(post.createdAt)} ago
+                                </Text>
+                                <Button variant="link" color="#333333">
+                                  {post.authorName}
+                                </Button>
 
-                                      <Text
-                                        className="truncate"
-                                        fontSize="16px"
-                                        textAlign="justify"
-                                      >
-                                        {post.postContent}
-                                      </Text>
-                                    </Box>
+                                <Flex
+                                  pl="32px"
+                                  py="32px"
+                                  justify="space-between"
+                                >
+                                  <Box>
+                                    <Link to={"/AddToCart/" + post.id}>
+                                      <Heading size="md">
+                                        {post.postTitle}
+                                      </Heading>
+                                    </Link>
+                                    <br />
 
-                                    <Box mr="24px">
-                                      {!post.price ? (
-                                        <Text>₱ 0.00</Text>
-                                      ) : (
-                                        <>
-                                          <strong>₱ </strong>
-                                          {post.price}
-                                        </>
-                                      )}
-                                    </Box>
-                                  </Flex>
-                                  <Flex
-                                    w="100%"
-                                    align="center"
-                                    justify="center"
-                                  >
-                                    {post.postImage && (
-                                      <Image
-                                        src={post.postImage}
-                                        w="40em"
-                                        alt="post image"
-                                        onError={(e) =>
-                                          (e.target.style.display = "none")
-                                        }
-                                      />
+                                    <Text
+                                      className="truncate"
+                                      fontSize="16px"
+                                      textAlign="justify"
+                                    >
+                                      {post.postContent}
+                                    </Text>
+                                  </Box>
+
+                                  <Box mr="24px">
+                                    {!post.price ? (
+                                      <Text>₱ 0.00</Text>
+                                    ) : (
+                                      <>
+                                        <strong>₱ </strong>
+                                        {post.price}
+                                      </>
                                     )}
-                                    {post.postVideo && (
-                                      <video
-                                      muted={true}
-                                        controls
-                                        style={{
-                                          width: "100%",
-                                          height: "350px",
-                                          objectFit: "cover",
-                                        }}
-                                        onMouseEnter={(e) => e.target.play()}
-                                        onMouseLeave={(e) => e.target.pause()}
-                                      >
-                                        <source
-                                          src={post.postVideo}
-                                          type="video/mp4"
-                                        />
-                                        Your browser does not support the video
-                                        tag.
-                                      </video>
-                                    )}
-                                  </Flex>
-                                  <Box w="100%">
-                                    <Comment
-                                      postID={post.id}
-                                      authorId={post.authorId}
-                                    />
                                   </Box>
                                 </Flex>
-                              </Card>
-                            ))}
-                          </Flex>
-                        </TabPanel>
-                        <TabPanel>
-                          {/* <Flex
+                                <Flex w="100%" align="center" justify="center">
+                                  {post.postImage && (
+                                    <Image
+                                      src={post.postImage}
+                                      w="40em"
+                                      alt="post image"
+                                      onError={(e) =>
+                                        (e.target.style.display = "none")
+                                      }
+                                    />
+                                  )}
+                                  {post.postVideo && (
+                                    <video
+                                      muted={true}
+                                      controls
+                                      style={{
+                                        width: "100%",
+                                        height: "350px",
+                                        objectFit: "cover",
+                                      }}
+                                      onMouseEnter={(e) => e.target.play()}
+                                      onMouseLeave={(e) => e.target.pause()}
+                                    >
+                                      <source
+                                        src={post.postVideo}
+                                        type="video/mp4"
+                                      />
+                                      Your browser does not support the video
+                                      tag.
+                                    </video>
+                                  )}
+                                </Flex>
+                                <Box w="100%">
+                                  <Comment
+                                    postID={post.id}
+                                    authorId={post.authorId}
+                                  />
+                                </Box>
+                              </Flex>
+                            </Card>
+                          )))}
+                        </Flex>
+                      </TabPanel>
+                      <TabPanel>
+                        {/* <Flex
+
                             flexDirection="column"
                             w="100%"
                             align="center"
                             justify="center"
                           > */}
 
-                          {/* <Flex
+                        {/* <Flex
                             flexDirection="row"
                             flexWrap="wrap"
                             justify="center"
                           > */}
 
-                          <Grid
-                            className="gridItem__holder"
-                            templateColumns={`repeat(5, 1fr)`}
-                            gap="2"
-                            autoRows="minmax(200px, auto)"
-                            rowGap={4}
-                          >
-                            {shopPosts.map((post) => (
+
+                        <Grid
+                          className="gridItem__holder"
+                          templateColumns={`repeat(5, 1fr)`}
+                          gap="2"
+                          autoRows="minmax(200px, auto)"
+                          rowGap={4}
+                        >
+                          {shopPosts.length === 0 ? (
+                            <Center>
+                            <Flex
+                              justify="center"
+                              align="center"
+                              p="10"
+                              mb="20"
+                            >
+                              <Text color="#7f7f7f">
+                                It feels so lonely here...
+                              </Text>
+                            </Flex>
+                            </Center>
+                          ) : (
+                            shopPosts.map((post) => (
+
                               // <Card
                               //   key={post.id}
                               //   w={{ base: "100%", md: "45%", lg: "30%" }}
@@ -905,7 +907,6 @@ function ProfilePage() {
                                 onClick={() => {
                                   console.log(post.id);
                                 }}
-                               
                               >
                                 <Flex flexDirection="column">
                                   <Box>
@@ -1005,58 +1006,57 @@ function ProfilePage() {
                                 </Flex>
                                 {/* </Card> */}
                               </GridItem>
-                            ))}
-                            {/* </Flex> */}
-                          </Grid>
-                        </TabPanel>
-                        <TabPanel>
-                          <Flex
-                            flexDirection="column"
-                            w="100%"
-                            align="center"
-                            justify="center"
-                          >
-                            {userData && (
-                              <Card
-                                w="50%"
-                                p="24px 24px"
-                                my="16px"
-                                border="1px solid #e1e1e1"
-                              >
-                                <Flex flexDirection="column">
-                                  <Box>
-                                    <Heading as="h2" size="lg">
-                                      About {userData.name}
-                                    </Heading>
-                                    <Text color="#9c9c9c" fontSize="sm" as="i">
-                                      Member since{" "}
-                                      {formatDistanceToNow(
-                                        userData.dateCreated
-                                      )}{" "}
-                                      ago
-                                    </Text>
-                                    <Text fontSize="lg">
-                                      <strong>Location: </strong>
-                                      {userData.location}
-                                    </Text>
-                                    <Text fontSize="lg">
-                                      <strong>Email: </strong>
-                                      {userData.email}
-                                    </Text>
-                                    <Text fontSize="lg">
-                                      <strong>Phone Number: </strong>
-                                      {userData.phoneNumber}
-                                    </Text>
-                                  </Box>
-                                </Flex>
-                              </Card>
-                            )}
-                          </Flex>
-                        </TabPanel>
-                      </TabPanels>
-                    </Tabs>
-                  </>
-                )}
+                            ))
+                          )}
+
+                          {/* </Flex> */}
+                        </Grid>
+                      </TabPanel>
+                      <TabPanel>
+                        <Flex
+                          flexDirection="column"
+                          w="100%"
+                          align="center"
+                          justify="center"
+                        >
+                          {userData && (
+                            <Card
+                              w="50%"
+                              p="24px 24px"
+                              my="16px"
+                              border="1px solid #e1e1e1"
+                            >
+                              <Flex flexDirection="column">
+                                <Box>
+                                  <Heading as="h2" size="lg">
+                                    About {userData.name}
+                                  </Heading>
+                                  <Text color="#9c9c9c" fontSize="sm" as="i">
+                                    Member since{" "}
+                                    {formatDistanceToNow(userData.dateCreated)}{" "}
+                                    ago
+                                  </Text>
+                                  <Text fontSize="lg">
+                                    <strong>Location: </strong>
+                                    {userData.location}
+                                  </Text>
+                                  <Text fontSize="lg">
+                                    <strong>Email: </strong>
+                                    {userData.email}
+                                  </Text>
+                                  <Text fontSize="lg">
+                                    <strong>Phone Number: </strong>
+                                    {userData.phoneNumber}
+                                  </Text>
+                                </Box>
+                              </Flex>
+                            </Card>
+                          )}
+                        </Flex>
+                      </TabPanel>
+                    </TabPanels>
+                  </Tabs>
+                </>
               </Flex>
             </Flex>
           </Box>

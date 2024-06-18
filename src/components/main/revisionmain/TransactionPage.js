@@ -35,9 +35,13 @@ const TransactionPage = () => {
         const querySnapshot = await getDocs(query(transactionsRef, orderBy("createdAt", "desc")));
         const fetchedTransactions = [];
         querySnapshot.forEach((doc) => {
-          fetchedTransactions.push({ id: doc.id, ...doc.data() });
+          const transactionData = doc.data();
+            transactionData.cartItems.forEach((item) => {
+          if (item.authorID === user.uid) {
+            fetchedTransactions.push({ id: doc.id, ...doc.data() });
+          }
         });
-
+      });
         
         setTransactions(fetchedTransactions);
         setLoading(false);
@@ -154,6 +158,7 @@ const TransactionPage = () => {
                             Payment Method: {transaction.paymentMethod}
                           </Text>
                           <Text fontSize="md" fontWeight="bold">Total Price: P{transaction.totalPrice}</Text>
+                          <Text fontSize="md" fontWeight="bold">Status: {transaction.status}</Text>
                           <Text fontSize="md" fontWeight="bold">
                             Total Price with Fee Deducted: {" "}P
                             {totalPriceWithFeeDeducted.toFixed(2)}

@@ -84,15 +84,15 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   }, [setCartItemCount]);
   
 
-
   const handleLogout = async () => {
-    if (!user) return;
-    try {
-      signOut(auth);
-    } catch (err) {
-      console.log(err.message);
-    } finally {
-      window.location.reload();
+    if (user) {
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.log(err.message);
+      } finally {
+        window.location.reload();
+      }
     }
   };
   return (
