@@ -73,6 +73,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
 
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
+  const addDiscover = useDisclosure();
 
   useEffect(() => {
     // Get cart items from local storage
