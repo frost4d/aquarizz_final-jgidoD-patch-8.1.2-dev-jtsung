@@ -199,10 +199,10 @@ const Discover = () => {
             >
               {/* {userProfile && ( */}
               <Box
-                flex="10"
+                flex="1"
                 // border="1px solid #e1e1e1" borderColor="green"
                 className="bodyWrapper__profile"
-
+                ml="10"
               >
 
                     <Box p="24px">
@@ -273,11 +273,11 @@ const Discover = () => {
                     </Box>
                   </Box>
                   {/* )} */}
-                  <Flex
-
+                  
+                <Flex
                 justify="center"
                 align="center"
-                flex="2"
+                flex="16"
                 // borderWidth="2px" borderColor="red"
                 m="24px 24px"
                 className="bodyWrapper__contents"
@@ -291,7 +291,7 @@ const Discover = () => {
                       rowGap={12}
                     >
 
-{filteredPosts.map((post) => (
+                    {filteredPosts.map((post) => (
                         <GridItem
                           key={post.id}
                           // border="1px solid #e1e1e1"
@@ -307,8 +307,8 @@ const Discover = () => {
                                 <Image
                                 borderRadius="8"
                                   objectFit="cover"
-                                  maxWidth="300px"
-                                  // w="100%"
+                                  // maxWidth="300px"
+                                  w="100%"
                                   h="370px"
                                   src={post.postImage}
                                   alt="Post Image"
@@ -323,7 +323,7 @@ const Discover = () => {
                                   }}
                                   style={{
                                     borderRadius: "8px",
-                                  maxWidth:"300px",
+                                  // maxWidth:"500px",
                                     width: "100%",
                                     height: "370px",
                                     objectFit: "cover",
@@ -348,7 +348,7 @@ const Discover = () => {
                               )}
                             </Box>
                           </Flex>
-                          <Box mt="12px">
+                          <Box className="postContent" >
                             <Text className="truncate" textAlign="justify" fontSize="16px" fontWeight="620" mr="3" 
                             // color="#6e6e6e"
                             >

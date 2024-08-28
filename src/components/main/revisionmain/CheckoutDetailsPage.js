@@ -221,7 +221,7 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
             <Button colorScheme="blue" onClick={() => {
               onClose();
               navigate("/payment", {
-                state: { cartItems, totalPrice: itemsTotalPrice + shippingFee, paymentMethod, shippingFee, paymentUrl },
+                state: { cartItems, totalPrice: itemsTotalPrice , paymentMethod, shippingFee, paymentUrl },
               });
               localStorage.removeItem("wishlist");
             }}>
@@ -230,7 +230,7 @@ const fee = (itemsTotalPrice + shippingFee) * 0.02;
           </ModalFooter>
         </ModalContent>
       </Modal>
-      <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice + shippingFee }}>
+      <Link to="/payment" state={{ cartItems, totalPrice: itemsTotalPrice  }}>
       </Link>
       <Footer />
     </Box>

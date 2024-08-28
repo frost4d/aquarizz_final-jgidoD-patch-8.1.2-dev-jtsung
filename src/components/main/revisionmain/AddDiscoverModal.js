@@ -146,7 +146,7 @@ const AddDiscover = (props) => {
                 <Box>
                   <Textarea
                     placeholder="Text"
-                    {...register("text", { required: true })}
+                    {...register("text", { required: false })}
                     aria-invalid={errors.text ? "true" : "false"}
                   />
                   {errors.text?.type === "required" && (

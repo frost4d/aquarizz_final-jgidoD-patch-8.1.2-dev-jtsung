@@ -129,24 +129,6 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
     setComment("");
   };
 
-  // const handleAddComment = async () => {
-  //   if (!user || !post || !post.id) return;
-  //   const commentsRef = collection(db, "discover", post.id, "comments");
-
-  //   // Fetch user data from 'users1' collection
-  //   const userRef = doc(db, "users1", user.uid);
-  //   const userDoc = await getDoc(userRef);
-  //   const userName = userDoc.exists() ? userDoc.data().name : "Unknown";
-
-  //   await addDoc(commentsRef, {
-  //     userId: user.uid,
-  //     userName: userName,
-  //     comment: comment,
-  //     createdAt: new Date(),
-  //   });
-  //   setComment("");
-  // };
-
   const handleAddShare = async () => {
     if (!user || !post || !post.id) return;
 
@@ -164,38 +146,63 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
     });
     setShares(shares + 1);
   };
-
+  console.log("postVideo URL:", post.postVideo);
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="full">
       <ModalOverlay />
       <ModalContent bg="black">
         <ModalCloseButton color="white" />
         <ModalBody p={0} display="flex" flexDirection="row">
-          <Box flex="1" position="relative" h="100vh">
-            {post.postImage && (
-              <Image
-                src={post.postImage}
-                alt="Post Image"
-                objectFit="cover"
-                h="100%"
-                w="100%"
-              />
-            )}
-            {post.postVideo && (
-              <video
-                autoPlay
-                loop
-                controls
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              >
-                <source src={post.postVideo} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            )}
+          <Box
+            flex="1"
+            position="relative"
+            h="100vh"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Box
+              position="absolute"
+              inset="0"
+              zIndex="-1"
+              style={{
+                filter: "blur(40px)",
+              }}
+              backgroundImage={`url(${post.postVideo || post.postImage})`}
+              backgroundSize="cover"
+            />
+            <Box
+              position="absolute"
+              inset="0"
+              bg="rgba(0, 0, 0, 0.5)"
+              zIndex="-1"
+            />
+            <Box width="55%" height="100vh" position="relative" bg="black">
+              {post.postImage && (
+                <Image
+                  src={post.postImage}
+                  alt="Post Image"
+                  objectFit="cover"
+                  h="100%"
+                  w="100%"
+                />
+              )}
+              {post.postVideo && (
+                <video
+                  autoPlay
+                  loop
+                  controls
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                >
+                  <source src={post.postVideo} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              )}
+            </Box>
           </Box>
           <Box
             p="8"
@@ -206,8 +213,6 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
             display="flex"
             flexDirection="column"
             justifyContent="space-between"
-            // borderWidth="2px"
-            // borderColor="white"
           >
             <Flex align="center">
               <Avatar
@@ -230,8 +235,6 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
               justifyContent="center"
               borderTopWidth="2px"
               borderColor="white"
-              // borderWidth="2px"
-              // borderColor="white"
             >
               <Flex alignItems="center" flexDirection="column">
                 <IconButton
@@ -297,7 +300,13 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
                 >
                   <Avatar size="sm" mb="6" name={comment.userName} />
                   <Flex flexDirection="column">
-                    <Text py="4" color="white" ml="2" fontWeight="bold" fontSize="sm">
+                    <Text
+                      py="4"
+                      color="white"
+                      ml="2"
+                      fontWeight="bold"
+                      fontSize="sm"
+                    >
                       {post.authorName}
                     </Text>
                     <Text ml="2" fontSize="md" color="white">
