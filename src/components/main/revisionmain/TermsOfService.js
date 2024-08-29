@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Heading, Text, List, ListItem } from "@chakra-ui/react";
+import { Box, Heading, Text, List, ListItem, Center } from "@chakra-ui/react";
 import Footer from "./Footer";
 import Navigation from "./Navigation";
 
@@ -12,7 +12,9 @@ const TermsOfService = () => {
         cartItemCount={cartItemCount}
         setCartItemCount={setCartItemCount}
       />
-    <Box p={10}>
+    <Box p={5}>
+    <Center>
+    <Box w="80%" py="8">
       <Heading mb={5} 
       // borderWidth="2px" borderColor="blue"
       >
@@ -192,7 +194,8 @@ const TermsOfService = () => {
         If you have any questions about these Terms, please contact us at
         aquarizzcustomersupprt@gmail.com.
       </Text>
-
+      </Box>
+    </Center>
     </Box>
       <Footer />
     </Box>

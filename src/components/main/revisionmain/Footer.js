@@ -11,7 +11,7 @@ import {
   AccordionIcon,
   AccordionPanel,
 } from "@chakra-ui/react";
-import { Facebook, Mail, Twitter } from "react-feather";
+import { Facebook, Instagram, Mail, Twitter } from "react-feather";
 import { Link } from "react-router-dom";
 const Footer = () => {
   const navigate = useNavigate();
@@ -56,14 +56,17 @@ const Footer = () => {
               align="center"
             >
               <Box>
+              <a href="https://www.facebook.com/profile.php?id=61555612521494" target="_blank" rel="noopener noreferrer">
                 <Facebook size="18px" color="#3B5998" />
+              </a>
               </Box>
-              <Box>
+              <Box onClick={()=>{window.location.href = "mailto: aquarizzcustomersupprt@gmail.com"}}>
+                
                 <Mail size="18px" color="#FF0000" />
               </Box>
-              <Box>
-                <Twitter size="18px" color="#1DA1F2" />
-              </Box>
+              {/* <Box>
+                <Instagram size="18px" color="#1DA1F2" />
+              </Box> */}
             </Flex>
           </Box>
         </Flex>

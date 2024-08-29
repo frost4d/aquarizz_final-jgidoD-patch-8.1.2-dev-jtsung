@@ -61,15 +61,16 @@ const PostOptions = (props) => {
   //   console.log(docSnap);
   // };
   const handleDelete = async () => {
+    console.log(postId)
     try {
       const shopRef = doc(db, "shop", postId); // Assuming postId is the document ID in the "shop" collection
       const discoverRef = doc(db, "discover", postId); // Assuming postId is the document ID in the "discover" collection
       await deleteDoc(shopRef);
       await deleteDoc(discoverRef);
-      props.fetchData();
+      // props.fetchData();
   
       // Show toast message for successful deletion
-      props.fetchData();
+      // props.fetchData();
       toast({
         title: "Post Deleted",
         description: "Your post has been successfully deleted.",
@@ -88,18 +89,26 @@ const PostOptions = (props) => {
         position: "top",
       });
     }
+    finally {
+      window.location.reload()
+    }
   };
   
   const handleCopyLink = () => {
     //will get the link of the current post
-    const getLink = `profile/${authorId}/post/${postId}`;
     const url = window.location.href;
     const splitUrl = url.split("/");
-    const modifiedUrl = splitUrl.slice(0, -1).join("/");
+    const modifiedUrl = splitUrl.slice(0, 3).join("/");
+    // const getLink = `${splitUrl.slice(4)}`;
+    const getLink = splitUrl.slice(3)
+
     // console.log();
+    // console.log(splitUrl)
+    // console.log(modifiedUrl)
+    // console.log(getLink)
 
     navigator.clipboard
-      .writeText(`${modifiedUrl}/${getLink}`)
+      .writeText(`${modifiedUrl}/discover`)
       .then(() => {
         // setCopied(true);
         // // Optionally, display a success message or feedback
@@ -123,6 +132,7 @@ const PostOptions = (props) => {
   const handleShareButton = () => {
     shareModal.onOpen();
   };
+  console.log(authorId)
   return (
     <>
       <Menu>
@@ -136,7 +146,7 @@ const PostOptions = (props) => {
           <FontAwesomeIcon icon={faEllipsisH} />
         </MenuButton>
         <MenuList>
-          <MenuItem
+          {/* <MenuItem
             isDisabled={authorId !== user.uid}
             onClick={promoteModal.onOpen}
           >
@@ -159,7 +169,7 @@ const PostOptions = (props) => {
                 </ModalBody>
               </ModalContent>
             </Modal>
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem
             onClick={() => {
               deleteOverlay.onOpen();
@@ -168,9 +178,9 @@ const PostOptions = (props) => {
           >
             Delete
           </MenuItem>
-          <MenuItem onClick={handleShareButton}>
+          {/* <MenuItem onClick={handleShareButton}>
             Share
-            {/* modal for sharePost */}
+            modal for sharePost
             <Modal isOpen={shareModal.isOpen} onClose={shareModal.onClose}>
               <ModalOverlay />
               <ModalContent>
@@ -185,7 +195,7 @@ const PostOptions = (props) => {
                 </ModalFooter>
               </ModalContent>
             </Modal>
-          </MenuItem>
+          </MenuItem> */}
         </MenuList>
       </Menu>
       <AlertDialog

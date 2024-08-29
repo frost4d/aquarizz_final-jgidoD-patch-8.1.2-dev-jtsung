@@ -144,7 +144,7 @@ const Discover = () => {
      
             <Flex justify="space-between" p="0 86px 0px 64px">
               <Heading>Discover</Heading>
-              <Flex display={user ? "flex" : "none"} justify="space-between">
+              {/* <Flex display={user ? "flex" : "none"} justify="space-between">
               <Button
                   mr="12px"
                   variant="ghost"
@@ -160,7 +160,7 @@ const Discover = () => {
                 <Button variant="link" color="#333333">
                   My Shop
                 </Button>
-              </Flex>
+              </Flex> */}
             </Flex>
 
             <Box mb="12"
@@ -202,7 +202,7 @@ const Discover = () => {
                 flex="1"
                 // border="1px solid #e1e1e1" borderColor="green"
                 className="bodyWrapper__profile"
-                ml="10"
+                ml="24px"
               >
 
                     <Box p="24px">
@@ -299,16 +299,17 @@ const Discover = () => {
                           colSpan={1}
                           rowSpan={1}
                           onClick={() => openPostModal(post)}
+                          maxW="250px"
                       cursor="pointer"
                         >
-                          <Flex>
-                            <Box w="100%">
+                          <Flex justify='center' align="center"  >
+                            <Flex justify='center' align="center"  >
                               {post.postImage && (
                                 <Image
                                 borderRadius="8"
                                   objectFit="cover"
                                   // maxWidth="300px"
-                                  w="100%"
+                                  w="300px"
                                   h="370px"
                                   src={post.postImage}
                                   alt="Post Image"
@@ -324,7 +325,7 @@ const Discover = () => {
                                   style={{
                                     borderRadius: "8px",
                                   // maxWidth:"500px",
-                                    width: "100%",
+                                    width: "300px",
                                     height: "370px",
                                     objectFit: "cover",
                                   }}
@@ -346,15 +347,9 @@ const Discover = () => {
                                   Your browser does not support the video tag.
                                 </video>
                               )}
-                            </Box>
+                            </Flex>
                           </Flex>
-                          <Box className="postContent" >
-                            <Text className="truncate" textAlign="justify" fontSize="16px" fontWeight="620" mr="3" 
-                            // color="#6e6e6e"
-                            >
-                              {post.postContent}
-                            </Text>
-                          </Box>
+                         
                           <Flex justify="space-between" mt="10px">
                             <Button fontSize="18px" variant="link" color="#333333"> 
                               {post.authorName}
@@ -363,6 +358,13 @@ const Discover = () => {
                               {formatDistanceToNow(post.createdAt)} ago
                             </Text>
                           </Flex>
+                          <Box className="postContent" >
+                            <Text as="i" className="truncate" textAlign="justify" fontSize="13px" mr="3" 
+                            // color="#6e6e6e"
+                            >
+                              {post.postContent}
+                            </Text>
+                          </Box>
                           {/* <Box mt="12px">
                             <Text className="truncate" textAlign="justify" fontSize="sm" color="#6e6e6e">
                               {post.postContent}

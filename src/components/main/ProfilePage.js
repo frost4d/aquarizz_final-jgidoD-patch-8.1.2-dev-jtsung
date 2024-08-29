@@ -526,7 +526,6 @@ function ProfilePage() {
                 </Box>
 
                 <Flex mx="100px" flexDirection="column">
-                  {/* <Button onClick={handleGetId}>Function</Button> */}
                   <Box>
                     <Heading>{userData.name}</Heading>
                     <Text fontSize="sm">
@@ -541,7 +540,7 @@ function ProfilePage() {
 
                   <br />
 
-                  <Box>
+                  {/* <Box>
                     <Text>
                       <strong>Location: </strong>
                       {userData.location}
@@ -554,7 +553,7 @@ function ProfilePage() {
                       <strong>Phone Number: </strong>
                       {userData.phoneNumber}
                     </Text>
-                  </Box>
+                  </Box> */}
                 </Flex>
                 <Box display={userData.userID !== user.uid ? "none" : ""}>
                   {/* <Button
@@ -792,7 +791,7 @@ function ProfilePage() {
                                     </Text>
                                   </Box>
 
-                                  <Box mr="24px">
+                                  {/* <Box mr="24px">
                                     {!post.price ? (
                                       <Text>₱ 0.00</Text>
                                     ) : (
@@ -801,7 +800,7 @@ function ProfilePage() {
                                         {post.price}
                                       </>
                                     )}
-                                  </Box>
+                                  </Box> */}
                                 </Flex>
                                 <Flex w="100%" align="center" justify="center">
                                   {post.postImage && (

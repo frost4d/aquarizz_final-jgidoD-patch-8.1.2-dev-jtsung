@@ -23,7 +23,7 @@ const ReturnsExchanges = () => {
       <List spacing={3} mb={5}>
         <ListItem>
           <ListIcon as={CheckCircleIcon} color="green.500" />
-          You have 1 days to return an item or fish from the date you received it.
+          You have 3 days to return an item or fish from the date you received it.
         </ListItem>
         <ListItem>
           <ListIcon as={CheckCircleIcon} color="green.500" />

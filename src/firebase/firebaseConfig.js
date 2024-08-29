@@ -14,7 +14,7 @@ const firebaseConfig = {
   projectId: "aquarizz-9687c",
   storageBucket: "aquarizz-9687c.appspot.com",
   messagingSenderId: "876015324611",
-  appId: "1:876015324611:web:5475e022b55d50feea0176",
+  appId: "1:876015324611:web:5475e022b55d50feea0176"
   //demo
   // apiKey: "AIzaSyAch9jfDjzNNOAZtRl4GytrBftFmSjI-7I",
   // authDomain: "aquarizzdemo.firebaseapp.com",

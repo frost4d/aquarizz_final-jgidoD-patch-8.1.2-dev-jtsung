@@ -264,7 +264,7 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
                   {comments.length}
                 </Text>
               </Flex>
-              <Flex alignItems="center" flexDirection="column">
+              {/* <Flex alignItems="center" flexDirection="column">
                 <IconButton
                   mx="10"
                   icon={<FaShare />}
@@ -277,7 +277,7 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
                 <Text color="white" fontSize="lg">
                   {shares}
                 </Text>
-              </Flex>
+              </Flex> */}
             </Flex>
             <Flex
               flexDirection="column"

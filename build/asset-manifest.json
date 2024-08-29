@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.370d72ce.css",
+    "main.js": "/static/js/main.0f6b97f6.js",
+    "static/media/aquarium.png": "/static/media/aquarium.03982668ca34513c22e8.png",
+    "static/media/cartoon fish(1).png": "/static/media/cartoon fish(1).7f732451fa4b19006ba8.png",
+    "static/media/logo.svg": "/static/media/logo.daa4c6fdf811591f7d140768cc40153a.svg",
+    "static/media/marketMoving.gif": "/static/media/marketMoving.7e6fea2522bce0959975.gif",
+    "static/media/aquarium.gif": "/static/media/aquarium.41206c0507a43fd9e38e.gif",
+    "static/media/feeds.jpg": "/static/media/feeds.61aa48d8f725538fd075.jpg",
+    "static/media/shoppingMoving.gif": "/static/media/shoppingMoving.07e7a0194098d8f7c8ca.gif",
+    "static/media/fish swimming(1).png": "/static/media/fish swimming(1).942d69917a47113fda51.png",
+    "static/media/decor.jpg": "/static/media/decor.17704bb8b25313be58be.jpg",
+    "static/media/discoverMoving.gif": "/static/media/discoverMoving.b95b7fac92a8c592d09e.gif",
+    "static/media/fishes.jpg": "/static/media/fishes.e79b0031a1ced4e83b9b.jpg",
+    "static/media/contentInfo.png": "/static/media/contentInfo.0900596df6cb1ee08ffb.png",
+    "index.html": "/index.html",
+    "main.370d72ce.css.map": "/static/css/main.370d72ce.css.map",
+    "main.0f6b97f6.js.map": "/static/js/main.0f6b97f6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.370d72ce.css",
+    "static/js/main.0f6b97f6.js"
+  ]
+}

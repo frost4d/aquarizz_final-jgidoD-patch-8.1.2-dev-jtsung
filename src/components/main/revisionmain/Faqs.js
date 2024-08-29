@@ -36,8 +36,8 @@ const Faqs = () => {
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
-              We offer a 1-day return policy. You can return any item within 1
-              days of purchase for a full refund.
+              We offer a 3-days return policy. You can return any item the
+              day you received the product for a full refund.
             </AccordionPanel>
           </AccordionItem>
 
