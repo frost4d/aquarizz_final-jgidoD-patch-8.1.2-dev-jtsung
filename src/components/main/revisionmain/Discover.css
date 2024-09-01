@@ -56,6 +56,19 @@
     grid-template-columns: repeat(1, 1fr);
   }
 }
+@media only screen and (max-width: 370px) {
+  .bodyWrapper__profile .userprofile__wrapper__discover {
+    display: none;
+    flex: 0;
+  }
+
+  .newpost__nav{
+    display: none;
+  }
+  .bodyWrapper__contents .grid__discover {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
 
 
 

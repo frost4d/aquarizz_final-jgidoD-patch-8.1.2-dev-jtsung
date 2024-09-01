@@ -206,34 +206,26 @@ const Register = () => {
                   <InputGroup>
                     <InputLeftAddon children="+63" />
                     <Input
-                    type="number"
-                    maxLength={10}
-                    {...register("phoneNumber", {
-                      required: true,
-                      minLength: {
-                        value: 10,
-                        message: "Please input correct phone number.",
-                      },
-                      maxLength: {
-                        value: 10,
-                        message: "Please input correct phone number.",
-                      },
-                    })}
-                    aria-invalid={errors.phoneNumber ? "true" : "false"}
-                    onChange={(e) => {
-                      setPhoneNumber(e.target.value);
-                    }}
-                  />
-                  {/* <Button
-                    mx="12px"
-                    variant="none"
-                    onClick={() => {
-                      sendOTP();
-                      console.log(phoneNumber);
-                    }}
-                  >
-                    Send Code
-                  </Button> */}
+                      type="number"
+                      // maxLength={10}
+                      {...register("phoneNumber", {
+                        required: true,
+                        minLength: {
+                          value: 10,
+                          message: "Please input correct phone number.",
+                        },
+                        maxLength: {
+                          value: 10,
+                          message: "Please input correct phone number.",
+                        },
+                        onChange: (e) => {
+                          if (e.target.value.length > 10) {
+                            e.target.value = e.target.value.slice(0, 10);
+                          }
+                        },
+                      })}
+                      aria-invalid={errors.phoneNumber ? "true" : "false"}
+                    />
                   </InputGroup>
                 </Stack>
                 {errors.phoneNumber?.type === "required" && (

@@ -105,6 +105,8 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import FollowButton from "./revisionmain/FollowButton";
+import MessageButton from "./revisionmain/MessageButton";
 function EditableControls() {
   const {
     isEditing,
@@ -147,6 +149,9 @@ function ProfilePage() {
   const [avgRating, setAvgRating] = useState(0);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [hasShop, setHasShop] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [friendsCount, setFriendsCount] = useState(0);
 
 
   const {
@@ -182,6 +187,39 @@ function ProfilePage() {
   };
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) return;
+
+      // Fetch user data
+      const userRef = collection(db, 'users1');
+      const q = query(userRef, where('userID', '==', userId));
+      const userSnap = await getDocs(q);
+      const userDoc = userSnap.docs[0]?.data();
+      setUserData(userDoc);
+
+      // Fetch followers count
+      const followersRef = collection(db, 'followers');
+      const followersQuery = query(followersRef, where('userId', '==', userId));
+      const followersSnap = await getDocs(followersQuery);
+      setFollowersCount(followersSnap.size);
+
+      // Fetch following count
+      const followingRef = collection(db, 'following');
+      const followingQuery = query(followingRef, where('userId', '==', userId));
+      const followingSnap = await getDocs(followingQuery);
+      setFollowingCount(followingSnap.size);
+
+      // Fetch friends count
+      const friendsRef = collection(db, 'friends');
+      const friendsQuery = query(friendsRef, where('userId', '==', userId));
+      const friendsSnap = await getDocs(friendsQuery);
+      setFriendsCount(friendsSnap.size);
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  useEffect(() => {
     const fetchReviews = async () => {
       try {
         const cartItemsRef = collection(db, "payments");
@@ -190,44 +228,86 @@ function ProfilePage() {
         const fetchedReviews = [];
         let totalRating = 0;
         let numRatings = 0;
-
+  
         querySnapshot.forEach((doc) => {
           const cartItemData = doc.data();
-          fetchedReviews.push({ id: doc.id, ...cartItemData });
-          cartItemData.cartItems.forEach((item) => {
+  
+          // Filter only the cart items that belong to the current user
+          const userCartItems = cartItemData.cartItems.filter(
+            (item) => item.authorID === user.uid
+          );
+  
+          // Only calculate ratings for the current user's items
+          userCartItems.forEach((item) => {
+            fetchedReviews.push({ id: doc.id, ...cartItemData });
             totalRating += item.rating || 0;
             numRatings++;
           });
         });
-
+  
         if (numRatings > 0) {
           setAvgRating(totalRating / numRatings);
         } else {
           setAvgRating(0);
         }
-
-        console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
+  
+        console.log("Fetched reviews for current user:", fetchedReviews); // Log fetched reviews for debugging
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("Error fetching reviews: ", error);
       }
     };
-
-    const checkShop = async () => {
-
-      const shopRef = collection(db, "shop");
-      const q = query(shopRef, where("authorID", "==", userId));
-      const docSnap = await getDocs(q);
-      if (docSnap.docs.length === 0) {
-        console.log("doesn't exist" + userId);
-        setHasShop(false);
-      } else {
-        setHasShop(true);
-      }
-    };
-    checkShop();
+  
     fetchReviews();
-  }, []);
+  }, [user.uid]);
+  
+  // useEffect(() => {
+  //   const fetchReviews = async () => {
+  //     try {
+  //       const cartItemsRef = collection(db, "payments");
+  //       const q = query(cartItemsRef, where("status", "==", "Completed"));
+  //       const querySnapshot = await getDocs(q);
+  //       const fetchedReviews = [];
+  //       let totalRating = 0;
+  //       let numRatings = 0;
+
+  //       querySnapshot.forEach((doc) => {
+  //         const cartItemData = doc.data();
+  //         fetchedReviews.push({ id: doc.id, ...cartItemData });
+  //         cartItemData.cartItems.forEach((item) => {
+  //           totalRating += item.rating || 0;
+  //           numRatings++;
+  //         });
+  //       });
+
+  //       if (numRatings > 0) {
+  //         setAvgRating(totalRating / numRatings);
+  //       } else {
+  //         setAvgRating(0);
+  //       }
+
+  //       console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
+  //       setReviews(fetchedReviews);
+  //     } catch (error) {
+  //       console.error("Error fetching reviews: ", error);
+  //     }
+  //   };
+
+  //   const checkShop = async () => {
+
+  //     const shopRef = collection(db, "shop");
+  //     const q = query(shopRef, where("authorID", "==", userId));
+  //     const docSnap = await getDocs(q);
+  //     if (docSnap.docs.length === 0) {
+  //       console.log("doesn't exist" + userId);
+  //       setHasShop(false);
+  //     } else {
+  //       setHasShop(true);
+  //     }
+  //   };
+  //   checkShop();
+  //   fetchReviews();
+  // }, []);
 
 
   useEffect(() => {
@@ -505,7 +585,7 @@ function ProfilePage() {
                     w="250px"
                     // borderWidth="2px" borderColor="red"
                   >
-                    {hasShop ? (
+                    {/* {hasShop ? (
                       <StarRating rating={avgRating} avgRating={avgRating} />
                     ) : (
                       ""
@@ -516,11 +596,11 @@ function ProfilePage() {
                             reviews.length
                           } ratings)`
                         : ""}
-                    </Text>
+                    </Text> */}
 
-                    {/* <StarRating rating={avgRating} avgRating={avgRating} />
+                    <StarRating rating={avgRating} avgRating={avgRating} />
 
-                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text> */}
+                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
 
                   </Box>
                 </Box>
@@ -539,7 +619,24 @@ function ProfilePage() {
                   </Box>
 
                   <br />
-
+                  <Flex>
+                  <FollowButton userId={userId} currentUserId={user?.uid} />
+                  <MessageButton userId={userData?.userID} />
+                  </Flex>
+                  <Flex mt="4">
+            <Box mr="4">
+              <Text fontSize="lg" fontWeight="bold">{followersCount}</Text>
+              <Text>Followers</Text>
+            </Box>
+            <Box mr="4">
+              <Text fontSize="lg" fontWeight="bold">{followingCount}</Text>
+              <Text>Following</Text>
+            </Box>
+            <Box>
+              <Text fontSize="lg" fontWeight="bold">{friendsCount}</Text>
+              <Text>Friends</Text>
+            </Box>
+          </Flex>
                   {/* <Box>
                     <Text>
                       <strong>Location: </strong>

@@ -19,7 +19,9 @@ import {
   GridItem,
   Grid,
   Avatar,
-  Divider
+  Divider,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
@@ -42,10 +44,11 @@ const Discover = () => {
   const [discoverPosts, setDiscoverPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
   const [cartItemCount, setCartItemCount] = useState(0);
-
+  const [users, setUsers] = useState([]);
   // const letter = userProfile.name.charAt(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -70,13 +73,77 @@ const Discover = () => {
   }, [userProfile]);
   console.log("userProfile:", userProfile);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersCollection = collection(db, "users1");
+        const querySnapshot = await getDocs(usersCollection);
+        const usersList = [];
+        querySnapshot.forEach((doc) => {
+          usersList.push({ id: doc.id, ...doc.data() });
+        });
+        setUsers(usersList);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+  
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const searchTermLower = searchTerm.toLowerCase();
+
+      // Filter users and posts separately
+      const filteredUsers = users.filter((user) =>
+        user.name?.toLowerCase().startsWith(searchTermLower)
+      );
+
+      const filteredPosts = discoverPosts.filter((post) =>
+        // post.authorName?.toLowerCase().startsWith(searchTermLower) ||
+        post.tag?.toLowerCase().startsWith(searchTermLower) ||
+        post.postTitle?.toLowerCase().startsWith(searchTermLower) ||
+        post.postContent?.toLowerCase().startsWith(searchTermLower)
+      );
+
+      // Combine and show top 5 suggestions with separation
+      setSuggestions([
+        ...filteredUsers.slice(0, 5).map(user => ({ ...user, type: 'user' })),
+        ...filteredPosts.slice(0, 5).map(post => ({ ...post, type: 'post' }))
+      ]);
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchTerm, discoverPosts, users]);
+
   const handleSearchDiscover = (e) => {
     e.preventDefault();
-    const filtered = discoverPosts.filter((post) =>
-      post.tag.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    
+    const searchTermLower = searchTerm.toLowerCase();
+    const filtered = discoverPosts.filter((post) => {
+      return (
+        // post.authorName?.toLowerCase().includes(searchTermLower) ||
+        post.tag?.toLowerCase().includes(searchTermLower) ||
+        post.postTitle?.toLowerCase().includes(searchTermLower) ||
+        post.postContent?.toLowerCase().includes(searchTermLower)
+      );
+    });
+    
     setFilteredPosts(filtered);
+  };  
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'user') {
+      navigate(`/profile/${suggestion.id}`);
+    } else {
+      setSearchTerm(suggestion.postContent || suggestion.tag);
+    }
+    setSuggestions([]);
+    setFilteredPosts([suggestion]);
   };
+  
+  
 
   const handleAddDiscover = async (formData) => {
     try {
@@ -174,7 +241,7 @@ const Discover = () => {
                 align="center"
                 mt="32px"
               >
-                <Flex w="100%" justify="center" p="12px 24px">
+                <Flex w="100%" justify="center" p="12px 24px" border="2px">
                   <form onSubmit={handleSearchDiscover}>
                     <Flex w="100%" justify="space-between">
                       <Input
@@ -183,10 +250,36 @@ const Discover = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
+                    
+
                       <Button p="12px 24px" type="submit" borderRadius="24px">
                         Search
                       </Button>
                     </Flex>
+                    {suggestions.length > 0 && (
+                    <List
+                      bg="white"
+                      borderRadius="8px"
+                      boxShadow="lg"
+                      mt="2"
+                      w="100%"
+                      maxW="600px"
+                      position="absolute"
+                      zIndex="1000"
+                    >
+                      {suggestions.map((suggestion) => (
+                        <ListItem
+                          key={suggestion.id}
+                          p="8px"
+                          borderBottom="1px solid #e1e1e1"
+                          cursor="pointer"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          { suggestion.name || suggestion.postContent || suggestion.tag }
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
                   </form>
                 </Flex>
 

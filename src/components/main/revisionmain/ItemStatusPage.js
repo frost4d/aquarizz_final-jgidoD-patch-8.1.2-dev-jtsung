@@ -244,7 +244,7 @@ const ItemStatusPage = () => {
                 <TabPanel key={index}>
                   <VStack align="stretch" spacing="2">
                     <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-                      Item Status: {status}
+                      Order Status: {status}
                     </Text>
                     <Divider />
                   </VStack>
