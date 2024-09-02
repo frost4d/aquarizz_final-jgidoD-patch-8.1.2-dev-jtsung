@@ -241,7 +241,7 @@ const Discover = () => {
                 align="center"
                 mt="32px"
               >
-                <Flex w="100%" justify="center" p="12px 24px" border="2px">
+                <Flex w="100%" justify="center" p="12px 24px">
                   <form onSubmit={handleSearchDiscover}>
                     <Flex w="100%" justify="space-between">
                       <Input
