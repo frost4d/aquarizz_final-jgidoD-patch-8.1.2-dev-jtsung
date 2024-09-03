@@ -53,7 +53,7 @@ import LoginModal from "./LoginModal";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import logo from "../../../assets/logo2.png";
-import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { BellIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
@@ -74,6 +74,8 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
   const addDiscover = useDisclosure();
+
+  const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
 
   useEffect(() => {
     // Get cart items from local storage
@@ -166,22 +168,26 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             {!userProfile ? (
               ""
             ) : (
-              <NavLink className={({ isActive }) =>
-                isActive ? "navlink_isActive" : "navlink_inactive"
-              } to="/CartPage">
-                <Button
-                  borderRadius="0"
-                  variant="ghost"
-                  color="#000"
-                  rightIcon={
-                    <Badge colorScheme="red" borderRadius="full" px="2">
-                      {cartItemCount}
-                    </Badge>
-                  }
-                >
-                  <ShoppingCart size={16} />
-                </Button>
-              </NavLink>
+              <Menu>
+              <MenuButton as={Button} variant="ghost" rightIcon={
+                <>
+                  <BellIcon size={16} />
+                  <Badge colorScheme="red" borderRadius="full" px="2">
+                    3 {/* Replace with dynamic notification count */}
+                  </Badge>
+                </>
+              }>
+              </MenuButton>
+              <MenuList>
+                {notificationItems.length ? (
+                  notificationItems.map((item, index) => (
+                    <MenuItem key={index}>{item}</MenuItem>
+                  ))
+                ) : (
+                  <MenuItem>No new notifications</MenuItem>
+                )}
+              </MenuList>
+            </Menu>
             )}
 
             {userProfile ? (
