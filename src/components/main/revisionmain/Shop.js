@@ -220,10 +220,10 @@ const Shop = () => {
             </Flex>
           </Flex>
 
-        </Flex>
+
         <Box className="shopContentWrapper">
           <Box >
-            <SearchInput  handleSearch={(term) => handleSearchShop(term, location)}/>
+            {/* <SearchInput  handleSearch={(term) => handleSearchShop(term, location)}/> */}
           </Box>
           <Flex
             gap="24px 12px"

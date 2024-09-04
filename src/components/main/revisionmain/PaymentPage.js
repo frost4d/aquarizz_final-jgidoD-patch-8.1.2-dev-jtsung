@@ -12,6 +12,8 @@ const PaymentPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [checkedOutItems, setCheckedOutItems] = useState([]);
+  const [cartItemCount, setCartItemCount] = useState(0);
+
 
   useEffect(() => {
     const fetchCheckedOutItems = async () => {
@@ -102,7 +104,9 @@ const PaymentPage = () => {
 
   return (
     <Box>
-      <Navigation />
+      {/* <Navigation /> */}
+      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
+
       <VStack align="stretch" spacing="4" p="4">
         <Text fontSize="2xl" fontWeight="bold" textAlign="center">
           Payment Details

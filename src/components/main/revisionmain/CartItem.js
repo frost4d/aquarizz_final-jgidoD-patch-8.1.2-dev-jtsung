@@ -21,18 +21,18 @@ const CartItem = ({ item, onRemove, isChecked, onCheckboxChange }) => {
     onRemove(item.id);
   };
   return (
-    <Flex maxW="1200px">
-      <Flex align="start" mx={10}>
-        <Card border="1px solid #e1e1e1" key={item.id} p={3} borderRadius="md">
+    <Flex maxW="1200px"  >
+      <Flex align="start" mx={10} w="100%" >
+        <Card w="100%" border="1px solid #e1e1e1" key={item.id} p={3} borderRadius="md">
           <CardBody>
-            <Flex align="center ">
+            <Flex  align="center ">
               <Image
                 src={item.postImage}
                 alt={item.postTitle}
                 boxSize="100px"
                 objectFit="cover"
               />
-              <Flex className="cardItem" align="start" ml="4">
+              <Flex w="100%"  className="cardItem" justify="space-between" ml="4">
                 <Box className="cardItem__details">
                   <Text fontSize="xl" fontWeight="bold">
                     {item.postTitle}

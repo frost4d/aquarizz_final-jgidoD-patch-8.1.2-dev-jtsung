@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         <Box w="80%" py="8">
       <Heading mb={5}>Privacy Policy</Heading>
       <Text mb={5}>
-      Welcome to AQUARIZZ, a social media platform and e-commerce site dedicated to fish keeping enthusiasts. Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit and interact with our platform. By using AQUARIZZ, you agree to the practices described in this policy.
+      Welcome to AQUARIZZ, an e-commerce site dedicated to fish keeping enthusiasts. Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and protect your information when you visit and interact with our platform. By using AQUARIZZ, you agree to the practices described in this policy.
 </Text>
       
       <Heading size="md" mb={5}>Information We Collect</Heading>

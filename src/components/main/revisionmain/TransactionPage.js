@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
 import { format } from "date-fns";
 import {
+  HStack,
   VStack,
   Text,
   Divider,
@@ -25,25 +26,35 @@ const TransactionPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const navigate = useNavigate();
   const [cartItemCount, setCartItemCount] = useState(0);
-
+  const [totalSales, setTotalSales] = useState(0);
+  const [soldProducts, setSoldProducts] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const transactionsRef = collection(db, "payments");
-        // const querySnapshot = await getDocs(transactionsRef);
         const querySnapshot = await getDocs(query(transactionsRef, orderBy("createdAt", "desc")));
         const fetchedTransactions = [];
+        let sales = 0;
+        let productsSold = 0;
+
         querySnapshot.forEach((doc) => {
           const transactionData = doc.data();
-            transactionData.cartItems.forEach((item) => {
-          if (item.authorID === user.uid) {
-            fetchedTransactions.push({ id: doc.id, ...doc.data() });
-          }
+          transactionData.cartItems.forEach((item) => {
+            if (item.authorID === user.uid) {
+              fetchedTransactions.push({ id: doc.id, ...transactionData });
+              const priceWithFeeDeducted = item.price * 0.92;
+              sales += priceWithFeeDeducted * item.quantity;
+              productsSold += item.quantity;
+            }
+          });
         });
-      });
-        
+
         setTransactions(fetchedTransactions);
+        setTotalSales(sales);
+        setSoldProducts(productsSold);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching transactions: ", error);
@@ -51,7 +62,97 @@ const TransactionPage = () => {
     };
 
     fetchTransactions();
-  }, []);
+  }, [user.uid]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const cartItemsRef = collection(db, "payments");
+        const q = query(cartItemsRef, where("status", "==", "Completed"));
+        const querySnapshot = await getDocs(q);
+        const fetchedReviews = [];
+        let totalRating = 0;
+        let numRatings = 0;
+  
+        querySnapshot.forEach((doc) => {
+          const cartItemData = doc.data();
+  
+          // Filter only the cart items that belong to the current user
+          const userCartItems = cartItemData.cartItems.filter(
+            (item) => item.authorID === user.uid
+          );
+  
+          // Only calculate ratings for the current user's items
+          userCartItems.forEach((item) => {
+            fetchedReviews.push({ id: doc.id, ...cartItemData });
+            totalRating += item.rating || 0;
+            numRatings++;
+          });
+        });
+  
+        if (numRatings > 0) {
+          setAvgRating(totalRating / numRatings);
+        } else {
+          setAvgRating(0);
+        }
+  
+        console.log("Fetched reviews for current user:", fetchedReviews); // Log fetched reviews for debugging
+        setReviews(fetchedReviews);
+      } catch (error) {
+        console.error("Error fetching reviews: ", error);
+      }
+    };
+  
+    fetchReviews();
+  }, [user.uid]);
+  
+  // useEffect(() => {
+  //   const fetchReviews = async () => {
+  //     try {
+  //       const cartItemsRef = collection(db, "payments");
+  //       const q = query(cartItemsRef, where("status", "==", "Completed"));
+  //       const querySnapshot = await getDocs(q);
+  //       const fetchedReviews = [];
+  //       let totalRating = 0;
+  //       let numRatings = 0;
+
+  //       querySnapshot.forEach((doc) => {
+  //         const cartItemData = doc.data();
+  //         fetchedReviews.push({ id: doc.id, ...cartItemData });
+  //         cartItemData.cartItems.forEach((item) => {
+  //           totalRating += item.rating || 0;
+  //           numRatings++;
+  //         });
+  //       });
+
+  //       if (numRatings > 0) {
+  //         setAvgRating(totalRating / numRatings);
+  //       } else {
+  //         setAvgRating(0);
+  //       }
+
+  //       console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
+  //       setReviews(fetchedReviews);
+  //     } catch (error) {
+  //       console.error("Error fetching reviews: ", error);
+  //     }
+  //   };
+
+  //   // const checkShop = async () => {
+
+  //   //   const shopRef = collection(db, "shop");
+  //   //   const q = query(shopRef, where("authorID", "==", userId));
+  //   //   const docSnap = await getDocs(q);
+  //   //   if (docSnap.docs.length === 0) {
+  //   //     console.log("doesn't exist" + userId);
+  //   //     setHasShop(false);
+  //   //   } else {
+  //   //     setHasShop(true);
+  //   //   }
+  //   // };
+  //   // checkShop();
+  //   fetchReviews();
+  // }, []);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -120,14 +221,57 @@ const TransactionPage = () => {
               </Text>
             </Center>
             <Divider />
+
+            <HStack>
+            <Box p="4" my="4" borderWidth="2px" boxShadow="md" minWidth="350px">
+                <Center>
+                  <VStack>
+              <Text fontSize="2xl" fontWeight="bold">
+                Total Sales: 
+                </Text>
+              <Text fontSize="4xl" fontWeight="bold">  
+                P{totalSales.toFixed(2)}
+              </Text>
+              </VStack>
+              </Center>
+            </Box>
+            <Box p="4" my="4" borderWidth="2px" boxShadow="md" minWidth="350px">
+              <Center>
+                <VStack>
+              <Text fontSize="2xl" fontWeight="bold">
+                Total Products Sold: 
+              </Text>
+              <Text fontSize="4xl" fontWeight="bold">        
+                {soldProducts}
+              </Text>
+              </VStack>
+              </Center>
+            </Box>
+            <Box p="4" my="4" borderWidth="2px" boxShadow="md" minWidth="350px">
+              <Center>
+                <VStack>
+              <Text fontSize="2xl" fontWeight="bold">
+                Total Ratings: 
+              </Text>
+              <Text fontSize="4xl" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
+              </VStack>
+              </Center>
+            </Box>
+            </HStack>
+            
             {loading ? (
               <Flex w="100%" h="100vh" align="center" justify="center">
                 <span className="loader"></span>
               </Flex>
             ) : (
               // transactions.map((transaction) => (
-              currentItems.map((transaction) => {
-                const totalPriceWithFeeDeducted = transaction.totalPrice * 0.92;
+                currentItems.map((transaction) => {
+                  const totalPriceWithFeeDeducted = transaction.cartItems.reduce((acc, item) => {
+                    if (item.authorID === user.uid) {
+                      return acc + (item.price * item.quantity * 0.92);
+                    }
+                    return acc;
+                  }, 0);
 
                 return (
                   <Center>
@@ -153,12 +297,12 @@ const TransactionPage = () => {
                 
                           {/* </Box>
               ))} */}
-                          <Text fontSize="md" fontWeight="bold">Customer Name: {item.customerName}</Text>
+                          <Text fontSize="md" fontWeight="bold">Customer Name: {transaction.customerName}</Text>
                           <Text fontSize="md" fontWeight="bold">
                             Payment Method: {transaction.paymentMethod}
                           </Text>
-                          <Text fontSize="md" fontWeight="bold">Total Price: P{transaction.totalPrice}</Text>
-                          <Text fontSize="md" fontWeight="bold">Status: {transaction.status}</Text>
+                          <Text fontSize="md" fontWeight="bold">Total Price: P{item.price * item.quantity}</Text>
+                          {/* <Text fontSize="md" fontWeight="bold">Status: {transaction.status}</Text> */}
                           <Text fontSize="md" fontWeight="bold">
                             Total Price with Fee Deducted: {" "}P
                             {totalPriceWithFeeDeducted.toFixed(2)}

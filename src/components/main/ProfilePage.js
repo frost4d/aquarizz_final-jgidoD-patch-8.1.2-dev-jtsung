@@ -17,6 +17,7 @@ import {
   where,
   updateDoc,
   getDoc,
+  onSnapshot
 } from "firebase/firestore";
 import {
   Box,
@@ -105,6 +106,8 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import FollowButton from "./revisionmain/FollowButton";
+import MessageButton from "./revisionmain/MessageButton";
 function EditableControls() {
   const {
     isEditing,
@@ -147,7 +150,10 @@ function ProfilePage() {
   const [avgRating, setAvgRating] = useState(0);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [hasShop, setHasShop] = useState(false);
-
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [friendsCount, setFriendsCount] = useState(0);
+  const [reposts, setReposts] = useState([]);
 
   const {
     register,
@@ -163,15 +169,15 @@ function ProfilePage() {
     navigate("/");
   };
 
-  //check the location
+
   let getUrl = window.location.href;
-  //take out every `/` to array
+  
   let splitUrl = getUrl.split("/");
 
   const loadData = async () => {
-    if (!userId) return; // Handle missing ID
+    if (!userId) return; 
 
-    const docRef = collection(db, "users1"); // Replace "db" with  Firestore instance
+    const docRef = collection(db, "users1"); 
     const docSnap = query(docRef, where("userID", "==", userId));
     const userDataVar = await getDocs(docSnap);
     let tempArr = [];
@@ -182,6 +188,55 @@ function ProfilePage() {
   };
 
   useEffect(() => {
+    const fetchReposts = async () => {
+      try {
+        const repostsCollection = collection(db, 'users1', userId, 'reposts');
+        const q = query(repostsCollection);
+        const querySnapshot = await getDocs(q);
+        const repostsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setReposts(repostsData);
+      } catch (error) {
+        console.error("Error fetching reposts: ", error);
+      }
+    };
+
+    fetchReposts();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) return;
+
+      // Fetch user data
+      const userRef = collection(db, 'users1');
+      const q = query(userRef, where('userID', '==', userId));
+      const userSnap = await getDocs(q);
+      const userDoc = userSnap.docs[0]?.data();
+      setUserData(userDoc);
+
+      // Fetch followers count
+      const followersRef = collection(db, 'followers');
+      const followersQuery = query(followersRef, where('userId', '==', userId));
+      const followersSnap = await getDocs(followersQuery);
+      setFollowersCount(followersSnap.size);
+
+      // Fetch following count
+      const followingRef = collection(db, 'following');
+      const followingQuery = query(followingRef, where('userId', '==', userId));
+      const followingSnap = await getDocs(followingQuery);
+      setFollowingCount(followingSnap.size);
+
+      // Fetch friends count
+      const friendsRef = collection(db, 'friends');
+      const friendsQuery = query(friendsRef, where('userId', '==', userId));
+      const friendsSnap = await getDocs(friendsQuery);
+      setFriendsCount(friendsSnap.size);
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  useEffect(() => {
     const fetchReviews = async () => {
       try {
         const cartItemsRef = collection(db, "payments");
@@ -190,44 +245,38 @@ function ProfilePage() {
         const fetchedReviews = [];
         let totalRating = 0;
         let numRatings = 0;
-
+  
         querySnapshot.forEach((doc) => {
           const cartItemData = doc.data();
-          fetchedReviews.push({ id: doc.id, ...cartItemData });
-          cartItemData.cartItems.forEach((item) => {
+  
+          // Filter only the cart items that belong to the current user
+          const userCartItems = cartItemData.cartItems.filter(
+            (item) => item.authorID === user.uid
+          );
+  
+          // Only calculate ratings for the current user's items
+          userCartItems.forEach((item) => {
+            fetchedReviews.push({ id: doc.id, ...cartItemData });
             totalRating += item.rating || 0;
             numRatings++;
           });
         });
-
+  
         if (numRatings > 0) {
           setAvgRating(totalRating / numRatings);
         } else {
           setAvgRating(0);
         }
-
-        console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
+  
+        console.log("Fetched reviews for current user:", fetchedReviews); // Log fetched reviews for debugging
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("Error fetching reviews: ", error);
       }
     };
-
-    const checkShop = async () => {
-
-      const shopRef = collection(db, "shop");
-      const q = query(shopRef, where("authorID", "==", userId));
-      const docSnap = await getDocs(q);
-      if (docSnap.docs.length === 0) {
-        console.log("doesn't exist" + userId);
-        setHasShop(false);
-      } else {
-        setHasShop(true);
-      }
-    };
-    checkShop();
+  
     fetchReviews();
-  }, []);
+  }, [user.uid]);
 
 
   useEffect(() => {
@@ -505,28 +554,15 @@ function ProfilePage() {
                     w="250px"
                     // borderWidth="2px" borderColor="red"
                   >
-                    {hasShop ? (
-                      <StarRating rating={avgRating} avgRating={avgRating} />
-                    ) : (
-                      ""
-                    )}
-                    <Text ml="2" fontWeight="bold">
-                      {hasShop
-                        ? `${avgRating.toFixed(1)} / 5 (${
-                            reviews.length
-                          } ratings)`
-                        : ""}
-                    </Text>
 
-                    {/* <StarRating rating={avgRating} avgRating={avgRating} />
+                    <StarRating rating={avgRating} avgRating={avgRating} />
 
-                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text> */}
+                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
 
                   </Box>
                 </Box>
 
                 <Flex mx="100px" flexDirection="column">
-                  {/* <Button onClick={handleGetId}>Function</Button> */}
                   <Box>
                     <Heading>{userData.name}</Heading>
                     <Text fontSize="sm">
@@ -540,21 +576,25 @@ function ProfilePage() {
                   </Box>
 
                   <br />
-
-                  <Box>
-                    <Text>
-                      <strong>Location: </strong>
-                      {userData.location}
-                    </Text>
-                    <Text>
-                      <strong>Email: </strong>
-                      {userData.email}
-                    </Text>
-                    <Text>
-                      <strong>Phone Number: </strong>
-                      {userData.phoneNumber}
-                    </Text>
-                  </Box>
+                  <Flex>
+                  <FollowButton userId={userId} currentUserId={user?.uid} />
+                  <MessageButton userId={userData?.userID} />
+                  </Flex>
+                  <Flex mt="4">
+            <Box mr="4">
+              <Text fontSize="lg" fontWeight="bold">{followersCount}</Text>
+              <Text>Followers</Text>
+            </Box>
+            <Box mr="4">
+              <Text fontSize="lg" fontWeight="bold">{followingCount}</Text>
+              <Text>Following</Text>
+            </Box>
+            <Box>
+              <Text fontSize="lg" fontWeight="bold">{friendsCount}</Text>
+              <Text>Friends</Text>
+            </Box>
+          </Flex>
+ 
                 </Flex>
                 <Box display={userData.userID !== user.uid ? "none" : ""}>
                   {/* <Button
@@ -723,6 +763,7 @@ function ProfilePage() {
                   >
                     <TabList mb="1em">
                       <Tab w="8%">Posts</Tab>
+                      <Tab w="8%">Reposts</Tab>
                       <Tab w="8%">Shop</Tab>
                       <Tab w="8%">About</Tab>
                     </TabList>
@@ -792,7 +833,7 @@ function ProfilePage() {
                                     </Text>
                                   </Box>
 
-                                  <Box mr="24px">
+                                  {/* <Box mr="24px">
                                     {!post.price ? (
                                       <Text>₱ 0.00</Text>
                                     ) : (
@@ -801,7 +842,7 @@ function ProfilePage() {
                                         {post.price}
                                       </>
                                     )}
-                                  </Box>
+                                  </Box> */}
                                 </Flex>
                                 <Flex w="100%" align="center" justify="center">
                                   {post.postImage && (
@@ -846,6 +887,92 @@ function ProfilePage() {
                           )))}
                         </Flex>
                       </TabPanel>
+
+                      <TabPanel>
+      {/* New Panel for Reposts */}
+      <Flex
+        flexDirection="column"
+        w="100%"
+        align="center"
+        justify="center"
+      >
+        {reposts.length === 0 ? (
+          <Flex justify="center" align="center" p="10" mb="20">
+            <Text color="#7f7f7f">No reposts to show...</Text>
+          </Flex>
+        ) : (
+          reposts.map((post) => (
+            <Card
+              key={post.id}
+              w="50%"
+              p="24px 24px"
+              my="16px"
+              border="1px solid #e1e1e1"
+            >
+              <Flex flexDirection="column">
+                <Box>
+                  <Profile name={post.name} authorId={post.authorId} />
+                </Box>
+                <PostOptions postId={post.id} authorId={post.authorId} />
+                <Text as="kbd" fontSize="10px" color="gray.500">
+                  {formatDistanceToNow(post.createdAt)} ago
+                </Text>
+                <Button variant="link" color="#333333">
+                  {post.authorName}
+                </Button>
+                <Flex pl="32px" py="32px" justify="space-between">
+                  <Box>
+                    <Link to={`/AddToCart/${post.id}`}>
+                      <Heading size="md">{post.postTitle}</Heading>
+                    </Link>
+                    <br />
+                    <Text className="truncate" fontSize="16px" textAlign="justify">
+                      {post.postContent}
+                    </Text>
+                  </Box>
+                  <Box mr="24px">
+                    {!post.price ? (
+                      <Text>₱ 0.00</Text>
+                    ) : (
+                      <>
+                        <strong>₱ </strong>
+                        {post.price}
+                      </>
+                    )}
+                  </Box>
+                </Flex>
+                <Flex w="100%" align="center" justify="center">
+                  {post.postImage && (
+                    <Image
+                      src={post.postImage}
+                      w="40em"
+                      alt="post image"
+                      onError={(e) => (e.target.style.display = "none")}
+                    />
+                  )}
+                  {post.postVideo && (
+                    <video
+                      muted={true}
+                      controls
+                      style={{ width: "100%", height: "350px", objectFit: "cover" }}
+                      onMouseEnter={(e) => e.target.play()}
+                      onMouseLeave={(e) => e.target.pause()}
+                    >
+                      <source src={post.postVideo} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
+                </Flex>
+                <Box w="100%">
+                  <Comment postID={post.id} authorId={post.authorId} />
+                </Box>
+              </Flex>
+            </Card>
+          ))
+        )}
+      </Flex>
+    </TabPanel>
+                      
                       <TabPanel>
                         {/* <Flex
 
@@ -1012,6 +1139,7 @@ function ProfilePage() {
                           {/* </Flex> */}
                         </Grid>
                       </TabPanel>
+                      
                       <TabPanel>
                         <Flex
                           flexDirection="column"

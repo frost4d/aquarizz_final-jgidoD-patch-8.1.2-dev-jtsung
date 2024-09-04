@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "./context/AuthContext";
 import { doc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { db, storage } from "../firebase/firebaseConfig";
+import { db, storage, auth } from "../firebase/firebaseConfig";
 import { useEffect, useState } from "react";
 import {
   ref,
@@ -26,11 +26,14 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { updateProfile, onAuthStateChanged } from "firebase/auth";
+import { updateProfile, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 const Register = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { createUser, user } = UserAuth();
+  const [phoneNumber, setPhoneNumber] = useState();
+  const [verification, setVerification] = useState();
+  const [otp, setOtp] = useState();
   const [userData, setUserData] = useState();
   const [loading, setLoading] = useState(false);
   const [userPhoto, setUserPhoto] = useState();
@@ -107,35 +110,34 @@ const Register = () => {
       }
     }
 
-    // .then( (userCredentials) => {
-
-    //   toast({
-    //     title: "Account Created.",
-    //     description: "Welcome to Aquarizz!",
-    //     status: "success",
-    //     duration: 4000,
-    //     position: "top"
-    //   });
-
-    // }).catch((error) => {
-    //   switch (error.code) {
-    //     case "auth/email-already-in-use":
-    //       toast({
-    //         position: "top",
-    //         title: "Can't create account.",
-    //         description: "Sorry, email is already in use.",
-    //         status: "error",
-    //         duration: 4000,
-    //         position: "top"
-
-    //       });
-    //       break;
-    //   }
-    // });
-
     reset();
   };
 
+
+  const sendOTP = async () => {
+    try {
+      const recaptcha = new RecaptchaVerifier(auth, "recaptcha", {});
+      // recaptcha.render()
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        `+63${phoneNumber}`,
+        recaptcha
+      );
+      setVerification(confirmation);
+      console.log(confirmation);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const verifyOTP = async () => {
+    try {
+      const data = await verification.confirm(otp);
+      console.log(data);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
   return (
     <>
       <Box h="100vh" w="100vw">
@@ -237,6 +239,25 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
+              {/* <Flex gap="1">
+                <Input
+                  onChange={(e) => {
+                    setOtp(e.target.value);
+                  }}
+                  {...register("otp", {
+                    required: true,
+                    maxLength: 6,
+                    minLength: "6",
+                  })}
+                />
+
+                <Button onClick={verifyOTP}>Verify</Button>
+                {errors.otp?.type === "required" && (
+                  <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                    OTP is required
+                  </p>
+                )}
+              </Flex> */}
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input
@@ -290,6 +311,8 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
+              {/* RECAPTCHA CONTAINER */}
+                {/* <Box id="recaptcha" textAlign="center"></Box> */}
               <label className="label" for="photo-upload">
                 <Text fontSize="sm">Add Profile Picture </Text>
               </label>

@@ -46,6 +46,7 @@ const AddDiscover = (props) => {
     formState: { errors },
   } = useForm();
   // const [userProfile, setUserProfile] = useState();
+  const [isLoading, setIsLoading] = useState()
   const [file, setFile] = useState();
   const [imageUrl, setImageUrl] = useState();
   const [videoFile, setVideoFile] = useState();
@@ -101,6 +102,7 @@ const AddDiscover = (props) => {
 
     };
     try {
+      setIsLoading(true)
       await addDoc(collection(db, "discover"), obj);
       // await createPost(obj);
       toast({
@@ -112,6 +114,12 @@ const AddDiscover = (props) => {
       });
     } catch (error) {
       console.error("Error adding document: ", error);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      window.location.reload()
+
+      }, 1500); // 3000ms = 3 seconds
     }
     console.log(obj);
     setFile("");
@@ -146,7 +154,7 @@ const AddDiscover = (props) => {
                 <Box>
                   <Textarea
                     placeholder="Text"
-                    {...register("text", { required: true })}
+                    {...register("text", { required: false })}
                     aria-invalid={errors.text ? "true" : "false"}
                   />
                   {errors.text?.type === "required" && (
@@ -195,6 +203,7 @@ const AddDiscover = (props) => {
                   type="submit"
                   bg={primaryColor}
                   onClick={props.fetchData}
+                  isLoading={isLoading}
                 >
                   Publish
                 </Button>

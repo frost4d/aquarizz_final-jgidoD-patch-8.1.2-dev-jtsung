@@ -69,7 +69,7 @@ const ContactUs = () => {
                 DETAILS
               </Heading>
               <Text mb={3}>Gordon College, Olongapo City</Text>
-              <Text mb={3}>Phone: (+63) 999-999999</Text>
+              <Text mb={3}>Phone: (+63) 9054251897</Text>
               <Text mb={3}>Email: aquarizzcustomersupprt@gmail.com</Text>
             </Box>
             <Box flex="1">

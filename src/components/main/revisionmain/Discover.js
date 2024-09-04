@@ -19,7 +19,9 @@ import {
   GridItem,
   Grid,
   Avatar,
-  Divider
+  Divider,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
@@ -42,10 +44,11 @@ const Discover = () => {
   const [discoverPosts, setDiscoverPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const [post, setPost] = useState();
   const { postId, userId } = useParams();
   const [cartItemCount, setCartItemCount] = useState(0);
-
+  const [users, setUsers] = useState([]);
   // const letter = userProfile.name.charAt(0);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -70,13 +73,77 @@ const Discover = () => {
   }, [userProfile]);
   console.log("userProfile:", userProfile);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const usersCollection = collection(db, "users1");
+        const querySnapshot = await getDocs(usersCollection);
+        const usersList = [];
+        querySnapshot.forEach((doc) => {
+          usersList.push({ id: doc.id, ...doc.data() });
+        });
+        setUsers(usersList);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+  
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const searchTermLower = searchTerm.toLowerCase();
+
+      // Filter users and posts separately
+      const filteredUsers = users.filter((user) =>
+        user.name?.toLowerCase().startsWith(searchTermLower)
+      );
+
+      const filteredPosts = discoverPosts.filter((post) =>
+        // post.authorName?.toLowerCase().startsWith(searchTermLower) ||
+        post.tag?.toLowerCase().startsWith(searchTermLower) ||
+        post.postTitle?.toLowerCase().startsWith(searchTermLower) ||
+        post.postContent?.toLowerCase().startsWith(searchTermLower)
+      );
+
+      // Combine and show top 5 suggestions with separation
+      setSuggestions([
+        ...filteredUsers.slice(0, 5).map(user => ({ ...user, type: 'user' })),
+        ...filteredPosts.slice(0, 5).map(post => ({ ...post, type: 'post' }))
+      ]);
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchTerm, discoverPosts, users]);
+
   const handleSearchDiscover = (e) => {
     e.preventDefault();
-    const filtered = discoverPosts.filter((post) =>
-      post.tag.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    
+    const searchTermLower = searchTerm.toLowerCase();
+    const filtered = discoverPosts.filter((post) => {
+      return (
+        // post.authorName?.toLowerCase().includes(searchTermLower) ||
+        post.tag?.toLowerCase().includes(searchTermLower) ||
+        post.postTitle?.toLowerCase().includes(searchTermLower) ||
+        post.postContent?.toLowerCase().includes(searchTermLower)
+      );
+    });
+    
     setFilteredPosts(filtered);
+  };  
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'user') {
+      navigate(`/profile/${suggestion.id}`);
+    } else {
+      setSearchTerm(suggestion.postContent || suggestion.tag);
+    }
+    setSuggestions([]);
+    setFilteredPosts([suggestion]);
   };
+  
+  
 
   const handleAddDiscover = async (formData) => {
     try {
@@ -144,8 +211,8 @@ const Discover = () => {
      
             <Flex justify="space-between" p="0 86px 0px 64px">
               <Heading>Discover</Heading>
-              <Flex display={user ? "flex" : "none"} justify="space-between">
-                <Button
+              {/* <Flex display={user ? "flex" : "none"} justify="space-between">
+              <Button
                   mr="12px"
                   variant="ghost"
                   leftIcon={<Plus size={16} />}
@@ -154,19 +221,67 @@ const Discover = () => {
                   <AddDiscoverModal
                     isOpen={addDiscover.isOpen}
                     onClose={addDiscover.onClose}
-
                   />
-                  <Button
-                    p="12px 24px"
-                    ml="12px"
-                    type="submit"
-                    borderRadius="24px"
-                  >
-                    Search
-                  </Button>
-                </Flex>
-              </form>
+                  Create
+                </Button>
+                <Button variant="link" color="#333333">
+                  My Shop
+                </Button>
+              </Flex> */}
             </Flex>
+
+            <Box mb="12"
+            // p="24px"
+            //  borderWidth="2px" borderColor="blue"
+             >
+              <Flex
+                gap="24px 24px"
+                flexWrap="wrap"
+                justify="space-evenly"
+                align="center"
+                mt="32px"
+              >
+                <Flex w="100%" justify="center" p="12px 24px">
+                  <form onSubmit={handleSearchDiscover}>
+                    <Flex w="100%" justify="space-between">
+                      <Input
+                        borderRadius="24px"
+                        placeholder="Search"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    
+
+                      <Button p="12px 24px" type="submit" borderRadius="24px">
+                        Search
+                      </Button>
+                    </Flex>
+                    {suggestions.length > 0 && (
+                    <List
+                      bg="white"
+                      borderRadius="8px"
+                      boxShadow="lg"
+                      mt="2"
+                      w="100%"
+                      maxW="600px"
+                      position="absolute"
+                      zIndex="1000"
+                    >
+                      {suggestions.map((suggestion) => (
+                        <ListItem
+                          key={suggestion.id}
+                          p="8px"
+                          borderBottom="1px solid #e1e1e1"
+                          cursor="pointer"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          { suggestion.name || suggestion.postContent || suggestion.tag }
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                  </form>
+                </Flex>
 
             <Flex
               w="100%"
@@ -180,15 +295,8 @@ const Discover = () => {
                 flex="1"
                 // border="1px solid #e1e1e1" borderColor="green"
                 className="bodyWrapper__profile"
-
+                ml="24px"
               >
-                <Box p="24px">
-                  <Flex
-                    className="userprofile__wrapper__discover"
-                    flexDirection="column"
-                    justify="center"
-                    align="center"
-                  >
 
                     <Box p="24px">
                       <Flex
@@ -258,11 +366,11 @@ const Discover = () => {
                     </Box>
                   </Box>
                   {/* )} */}
-                  <Flex
-
+                  
+                <Flex
                 justify="center"
                 align="center"
-                flex="2"
+                flex="16"
                 // borderWidth="2px" borderColor="red"
                 m="24px 24px"
                 className="bodyWrapper__contents"
@@ -276,7 +384,7 @@ const Discover = () => {
                       rowGap={12}
                     >
 
-                      {filteredPosts.map((post) => (
+                    {filteredPosts.map((post) => (
                         <GridItem
                           key={post.id}
                           // border="1px solid #e1e1e1"
@@ -284,16 +392,17 @@ const Discover = () => {
                           colSpan={1}
                           rowSpan={1}
                           onClick={() => openPostModal(post)}
+                          maxW="250px"
                       cursor="pointer"
                         >
-                          <Flex>
-                            <Box w="100%">
+                          <Flex justify='center' align="center"  >
+                            <Flex justify='center' align="center"  >
                               {post.postImage && (
                                 <Image
                                 borderRadius="8"
                                   objectFit="cover"
-                                  maxWidth="300px"
-                                  // w="100%"
+                                  // maxWidth="300px"
+                                  w="300px"
                                   h="370px"
                                   src={post.postImage}
                                   alt="Post Image"
@@ -308,8 +417,8 @@ const Discover = () => {
                                   }}
                                   style={{
                                     borderRadius: "8px",
-                                  maxWidth:"300px",
-                                    width: "100%",
+                                  // maxWidth:"500px",
+                                    width: "300px",
                                     height: "370px",
                                     objectFit: "cover",
                                   }}
@@ -331,55 +440,35 @@ const Discover = () => {
                                   Your browser does not support the video tag.
                                 </video>
                               )}
-                            </Box>
+                            </Flex>
                           </Flex>
-                          <Box mt="12px">
-                            <Text className="truncate" textAlign="justify" fontSize="16px" fontWeight="620" mr="3" 
+                         
+                          <Flex justify="space-between" mt="10px">
+                            <Button fontSize="18px" variant="link" color="#333333"> 
+                              {post.authorName}
+                            </Button>
+                            <Text fontSize="xs" color="#6e6e6e" as="i">
+                              {formatDistanceToNow(post.createdAt)} ago
+                            </Text>
+                          </Flex>
+                          <Box className="postContent" >
+                            <Text as="i" className="truncate" textAlign="justify" fontSize="13px" mr="3" 
                             // color="#6e6e6e"
-
                             >
-                              <source src={post.postVideo} type="video/mp4" />
-                              Your browser does not support the video tag.
-                            </video>
-                          )}
-                        </Box>
-                      </Flex>
-                      <Box mt="12px">
-                        <Text
-                          className="truncate"
-                          textAlign="justify"
-                          fontSize="16px"
-                          fontWeight="620"
-                          mr="3"
-                          // color="#6e6e6e"
-                        >
-                          {post.postContent}
-                        </Text>
-                      </Box>
-                      <Flex justify="space-between" mt="10px">
-                        <Button fontSize="18px" variant="link" color="#333333">
-                          {post.authorName}
-                        </Button>
-                        <Text fontSize="xs" color="#6e6e6e" as="i">
-                          {formatDistanceToNow(post.createdAt)} ago
-                        </Text>
-                      </Flex>
-                      {/* <Box mt="12px">
+                              {post.postContent}
+                            </Text>
+                          </Box>
+                          {/* <Box mt="12px">
                             <Text className="truncate" textAlign="justify" fontSize="sm" color="#6e6e6e">
                               {post.postContent}
                             </Text>
                           </Box> */}
-
                         </GridItem>
                       ))}
                     </Grid>
                   </Flex>
                   <Box flex="1"></Box>
                 </Flex>
-
-              </Flex>
-              {/* <Box flex="1"></Box> */}
-            </Flex>
           </Flex>
         </Box>
         <Footer />

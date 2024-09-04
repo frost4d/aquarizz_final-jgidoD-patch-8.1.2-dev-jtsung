@@ -21,7 +21,7 @@ import {
 import Navigation from "./Navigation";
 import { useLocation } from "react-router-dom";
 import { db } from "../../../firebase/firebaseConfig";
-import { collection, getDocs, where, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, where, query, orderBy } from "firebase/firestore";
 const statuses = [
   "All Order",
   "To Ship",
@@ -135,32 +135,60 @@ const ItemStatusPage = () => {
   const checkedOutItems = location.state?.checkedOutItems || [];
   const [cartItemCount, setCartItemCount] = useState(0);
 
-
   useEffect(() => {
     if (user) {
-      const fetchOrders = async () => {
-        try {
-          const ordersRef = collection(db, "payments");
-          // const querySnapshot = await getDocs(ordersRef);
-          const querySnapshot = await getDocs(query(ordersRef, orderBy("createdAt", "desc")));
+      const fetchOrders = () => {
+        const ordersRef = collection(db, "payments");
+        const q = query(ordersRef, orderBy("createdAt", "desc"));
+        
+        // Listen to real-time updates
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
           const fetchedOrders = [];
           querySnapshot.forEach((doc) => {
             const orderData = doc.data();
             orderData.cartItems.forEach((item) => {
-            if (item.userId === user.uid) {
-              fetchedOrders.push({ id: doc.id, ...orderData });
-            }
+              if (item.userId === user.uid) {
+                fetchedOrders.push({ id: doc.id, ...orderData });
+              }
+            });
           });
-        });
           setOrders(fetchedOrders);
-        } catch (error) {
+        }, (error) => {
           console.error("Error fetching orders: ", error);
-        }
+        });
+
+        // Cleanup the subscription when component unmounts
+        return () => unsubscribe();
       };
 
       fetchOrders();
     }
   }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     const fetchOrders = async () => {
+  //       try {
+  //         const ordersRef = collection(db, "payments");
+  //         // const querySnapshot = await getDocs(ordersRef);
+  //         const querySnapshot = await getDocs(query(ordersRef, orderBy("createdAt", "desc")));
+  //         const fetchedOrders = [];
+  //         querySnapshot.forEach((doc) => {
+  //           const orderData = doc.data();
+  //           orderData.cartItems.forEach((item) => {
+  //           if (item.userId === user.uid) {
+  //             fetchedOrders.push({ id: doc.id, ...orderData });
+  //           }
+  //         });
+  //       });
+  //         setOrders(fetchedOrders);
+  //       } catch (error) {
+  //         console.error("Error fetching orders: ", error);
+  //       }
+  //     };
+
+  //     fetchOrders();
+  //   }
+  // }, [user]);
 
   const getStatusContent = (status) => {
     switch (status) {
@@ -216,7 +244,7 @@ const ItemStatusPage = () => {
                 <TabPanel key={index}>
                   <VStack align="stretch" spacing="2">
                     <Text fontSize="2xl" fontWeight="bold" textAlign="center">
-                      Item Status: {status}
+                      Order Status: {status}
                     </Text>
                     <Divider />
                   </VStack>
