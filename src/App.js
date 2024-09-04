@@ -34,7 +34,7 @@ import ContactUs from "./components/main/revisionmain/ContactUs.js";
 import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
 import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
 import ChatMessage from "./components/main/revisionmain/ChatMessage.js";
-
+import Marketplace from "./components/main/revisionmain/Marketplace.js";
 
 function App() {
   return (
@@ -47,6 +47,7 @@ function App() {
               path="/category/:categoryName"
               element={<FilteredItemsPage />}
             />
+            <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
             <Route path="/discover" element={<Discover />} />

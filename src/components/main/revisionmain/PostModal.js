@@ -136,6 +136,15 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
 
     await addDoc(commentsRef, newComment);
 
+    if (post.authorID && post.authorID !== user.uid) {
+      const notificationRef = collection(db, "users1", post.authorID, "notifications");
+      await addDoc(notificationRef, {
+        message: `${userName} commented on your post.`,
+        timestamp: new Date(),
+        read: false,
+      });
+    }
+
     // Update the comments state immediately with the new comment
     setComments([...comments, { id: new Date().getTime(), ...newComment }]);
     setComment("");
@@ -436,6 +445,9 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
                 color="black"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
+                onKeyPress={(e) => {
+    if (e.key === "Enter") handleAddComment();
+  }}
               />
               <IconButton
                 ml="2"

@@ -60,11 +60,49 @@ const ChatMessage = () => {
   const remoteVideoRef = useRef(null);
 
   // Fetch user list from Firestore
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     if (!currentUserId) return;
+
+  //     // Create a query to get messages sent or received by the current user
+  //     const q = query(
+  //       collection(db, 'messages'),
+  //       where('senderId', '==', currentUserId)
+  //     );
+  //     const querySnapshot = await getDocs(q);
+  //     const userIds = new Set(
+  //       querySnapshot.docs.map(doc => doc.data().receiverId)
+  //     );
+
+  //     const q2 = query(
+  //       collection(db, 'messages'),
+  //       where('receiverId', '==', currentUserId)
+  //     );
+  //     const querySnapshot2 = await getDocs(q2);
+  //     querySnapshot2.docs.forEach(doc => userIds.add(doc.data().senderId));
+
+  //     // Fetch user details for these userIds
+  //     const usersSnapshot = await getDocs(collection(db, 'users1'));
+  //     const userList = usersSnapshot.docs
+  //       .map(doc => ({ ...doc.data(), id: doc.id }))
+  //       .filter(user => userIds.has(user.id));
+      
+  //     setUsers(userList);
+  //     setActiveUser(userList[0]);
+  //   };
+  //   fetchUsers();
+  // }, [currentUserId]);
+  useEffect(() => {
+    console.log('Users:', users);
+    console.log('Active User:', activeUser);
+  }, [users, activeUser]);
+  
+
   useEffect(() => {
     const fetchUsers = async () => {
       if (!currentUserId) return;
 
-      // Create a query to get messages sent or received by the current user
+      // Create a query to get users the current user has chatted with
       const q = query(
         collection(db, 'messages'),
         where('senderId', '==', currentUserId)
@@ -82,16 +120,29 @@ const ChatMessage = () => {
       querySnapshot2.docs.forEach(doc => userIds.add(doc.data().senderId));
 
       // Fetch user details for these userIds
-      const usersSnapshot = await getDocs(collection(db, 'users1'));
-      const userList = usersSnapshot.docs
-        .map(doc => ({ ...doc.data(), id: doc.id }))
-        .filter(user => userIds.has(user.id));
-      
+      const userList = await Promise.all(Array.from(userIds).map(async id => {
+        const userDoc = await getDoc(doc(db, 'users1', id));
+        return { ...userDoc.data(), id: userDoc.id };
+      }));
+
       setUsers(userList);
       setActiveUser(userList[0]);
     };
+
     fetchUsers();
   }, [currentUserId]);
+
+  useEffect(() => {
+    const fetchUserToChatWith = async () => {
+      if (userId) {
+        const userDoc = await getDoc(doc(db, 'users1', userId));
+        if (userDoc.exists()) {
+          setActiveUser({ ...userDoc.data(), id: userDoc.id });
+        }
+      }
+    };
+    fetchUserToChatWith();
+  }, [userId]);
 
   // Fetch current user's data
   useEffect(() => {

@@ -59,7 +59,8 @@ import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
 import AddDiscoverModal from "./AddDiscoverModal";
-
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 
 const Navigation = ({ cartItemCount, setCartItemCount }) => {
 
@@ -74,8 +75,24 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
   const addDiscover = useDisclosure();
+  const [notificationItems, setNotificationItems] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
 
-  const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
+  // const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
+  useEffect(() => {
+    if (user && user.uid) {
+      const notificationsRef = collection(db, "users1", user.uid, "notifications");
+      const q = query(notificationsRef, where("read", "==", false));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setNotificationItems(items);
+        setNotificationCount(items.length);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [user]);
+
 
   useEffect(() => {
     // Get cart items from local storage
@@ -132,7 +149,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
               className={({ isActive }) =>
                 isActive ? "navlink_isActive" : "navlink_inactive"
               }
-              to="/shop"
+              to="/marketplace"
             >
               <Button
                 borderRadius="0"
@@ -142,7 +159,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 // _hover={{ bg: "rgba(249,249,249,1)" }}
                 // onClick={() => navigate("/shop")}
               >
-                Shop
+                Marketplace
               </Button>
             </NavLink>
             <NavLink
@@ -173,7 +190,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 <>
                   <BellIcon size={16} />
                   <Badge colorScheme="red" borderRadius="full" px="2">
-                    3 {/* Replace with dynamic notification count */}
+                    {notificationCount}
                   </Badge>
                 </>
               }>
@@ -181,7 +198,8 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
               <MenuList>
                 {notificationItems.length ? (
                   notificationItems.map((item, index) => (
-                    <MenuItem key={index}>{item}</MenuItem>
+                    // <MenuItem key={index}>{item}</MenuItem>
+                    <MenuItem key={item.id}>{item.message}</MenuItem>
                   ))
                 ) : (
                   <MenuItem>No new notifications</MenuItem>
