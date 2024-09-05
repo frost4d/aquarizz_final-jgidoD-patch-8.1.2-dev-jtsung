@@ -109,6 +109,15 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
         likes: arrayUnion(user.uid),
       });
       setLikes(likes + 1);
+
+      if (post.authorID && post.authorID !== user.uid) {
+        const notificationRef = collection(db, "users1", post.authorID, "notifications");
+        await addDoc(notificationRef, {
+          message: `${user.displayName || "Someone"} liked your post.`,
+          timestamp: new Date(),
+          read: false,
+        });
+      }
     } else {
       await updateDoc(postRef, {
         likes: arrayRemove(user.uid),
@@ -170,7 +179,7 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
 
   const handleRepost = async () => {
     if (!user || !post || !post.id) return;
-
+  
     // Repost by creating a new post under the user's profile with a reference to the original post
     const newPost = {
       ...post,
@@ -179,17 +188,27 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
       authorName: user.displayName || "Unknown",
       repostedAt: new Date(),
     };
-
+  
     await addDoc(collection(db, "users1", user.uid, "reposts"), newPost);
-
+  
     // Increment share count only when reposting
     const postRef = doc(db, "discover", post.id);
-    await updateDoc(doc(db, "discover", post.id), {
+    await updateDoc(postRef, {
       shares: arrayUnion(user.uid),
     });
-
+  
     setShares((prevShares) => prevShares + 1);
-
+  
+    // Send repost notification to the original post author, if they are not the one reposting
+    if (post.authorID && post.authorID !== user.uid) {
+      const notificationRef = collection(db, "users1", post.authorID, "notifications");
+      await addDoc(notificationRef, {
+        message: `${user.displayName || "Someone"} reposted your post.`,
+        timestamp: new Date(),
+        read: false,
+      });
+    }
+  
     toast({
       title: "Post Reposted!",
       description: "The post has been successfully reposted.",
@@ -197,7 +216,38 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
       duration: 3000,
       isClosable: true,
     });
-  };
+  };  
+
+  // const handleRepost = async () => {
+  //   if (!user || !post || !post.id) return;
+
+  //   // Repost by creating a new post under the user's profile with a reference to the original post
+  //   const newPost = {
+  //     ...post,
+  //     originalPostId: post.id,
+  //     authorId: user.uid,
+  //     authorName: user.displayName || "Unknown",
+  //     repostedAt: new Date(),
+  //   };
+
+  //   await addDoc(collection(db, "users1", user.uid, "reposts"), newPost);
+
+  //   // Increment share count only when reposting
+  //   const postRef = doc(db, "discover", post.id);
+  //   await updateDoc(doc(db, "discover", post.id), {
+  //     shares: arrayUnion(user.uid),
+  //   });
+
+  //   setShares((prevShares) => prevShares + 1);
+
+  //   toast({
+  //     title: "Post Reposted!",
+  //     description: "The post has been successfully reposted.",
+  //     status: "success",
+  //     duration: 3000,
+  //     isClosable: true,
+  //   });
+  // };
 
   const handleCopyLink = () => {
     const postUrl = `${window.location.origin}/discover/${post.id}`;
