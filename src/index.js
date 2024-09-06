@@ -3,6 +3,14 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
+import process from "process";
+
+window.process = process;
+// window.process = {
+//   env: {
+//     NODE_ENV: 'development', // or 'production' depending on your environment
+//   },
+// };
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
