@@ -27,6 +27,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
 import AddMarketplace from "./AddMarketplaceModal";
 import LoginModal from "./LoginModal";
+import Sidebar from "./Sidebar1";
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -151,6 +152,9 @@ const Marketplace = () => {
   return (
     <>
       <Navigation />
+      <Flex>
+      <Sidebar/>
+      <Box flex="1" pl="2px">
       <Box p="0 86px 0px 64px">
         <Heading>Marketplace</Heading>
       </Box>
@@ -212,7 +216,7 @@ const Marketplace = () => {
 
             <Flex w="100%" justify="center" flexWrap="wrap">
               {/* user side */}
-              <Flex justify="center" textAlign="center" flex="1">
+              {/* <Flex justify="center" textAlign="center" flex="1">
                 {!userProfile ? (
                   <Button
                     p="16px 32px"
@@ -240,18 +244,6 @@ const Marketplace = () => {
                       name={userProfile.name}
                       scr={userProfile.profileImage || "/path/to/avatar.jpg"}
                     />
-                    {/* <Heading size="md">
-                      {!user ? "" : userProfile && userProfile.name}
-                    </Heading>
-                    <Text fontSize="xs">
-                      {!userProfile
-                        ? ""
-                        : userProfile &&
-                          ` User since: ${format(
-                            userProfile.dateCreated,
-                            "yyyy-MM-HH"
-                          )}`}
-                    </Text> */}
                     <Heading size="md">
                       {userProfile && userProfile.name}
                     </Heading>
@@ -265,7 +257,6 @@ const Marketplace = () => {
                         variant="outline"
                         w="100%"
                         mr="12px"
-                        // variant="ghost"
                         rightIcon={<Edit size={16} />}
                         onClick={addMarketplace.onOpen}
                       >
@@ -278,7 +269,7 @@ const Marketplace = () => {
                     </Box>
                   </Flex>
                 )}
-              </Flex>
+              </Flex> */}
 
               <Flex
                 justify="center"
@@ -388,6 +379,8 @@ const Marketplace = () => {
         )}
       </Box>
       <Footer />
+      </Box>
+      </Flex>
     </>
   );
 };
