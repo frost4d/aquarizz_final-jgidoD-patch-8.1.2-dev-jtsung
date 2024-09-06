@@ -23,7 +23,6 @@
     "create-react-app": "^5.0.1",
     "date-fns": "^3.3.1",
     "emailjs-com": "^3.2.0",
-    "emoji-picker-react": "^4.11.1",
     "firebase": "^10.7.1",
     "framer-motion": "^10.18.0",
     "qrcode.react": "^3.1.0",
@@ -37,9 +36,7 @@
     "react-scripts": "5.0.1",
     "react-share": "^5.0.3",
     "react-slick": "^0.30.2",
-    "simple-peer": "^9.11.1",
     "slick-carousel": "^1.8.1",
-    "socket.io-client": "^4.7.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

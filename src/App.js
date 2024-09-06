@@ -33,7 +33,6 @@ import TermsOfService from "./components/main/revisionmain/TermsOfService.js";
 import ContactUs from "./components/main/revisionmain/ContactUs.js"; 
 import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
 import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
-import ChatMessage from "./components/main/revisionmain/ChatMessage.js";
 
 
 function App() {
@@ -68,7 +67,6 @@ function App() {
             <Route path="/transaction" element={<TransactionPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/about" element={<About />} />
-            <Route path="/chatMessage/:userId" element={<ChatMessage />} />
 
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}

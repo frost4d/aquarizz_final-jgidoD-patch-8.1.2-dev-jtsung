@@ -130,6 +130,8 @@ const AddDiscover = (props) => {
     props.onClose();
   };
 
+
+
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose}>

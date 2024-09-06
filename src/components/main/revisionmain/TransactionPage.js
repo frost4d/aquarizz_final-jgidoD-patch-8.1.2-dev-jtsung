@@ -64,6 +64,7 @@ const TransactionPage = () => {
     fetchTransactions();
   }, [user.uid]);
 
+
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -73,86 +74,44 @@ const TransactionPage = () => {
         const fetchedReviews = [];
         let totalRating = 0;
         let numRatings = 0;
-  
+
         querySnapshot.forEach((doc) => {
           const cartItemData = doc.data();
-  
-          // Filter only the cart items that belong to the current user
-          const userCartItems = cartItemData.cartItems.filter(
-            (item) => item.authorID === user.uid
-          );
-  
-          // Only calculate ratings for the current user's items
-          userCartItems.forEach((item) => {
-            fetchedReviews.push({ id: doc.id, ...cartItemData });
+          fetchedReviews.push({ id: doc.id, ...cartItemData });
+          cartItemData.cartItems.forEach((item) => {
             totalRating += item.rating || 0;
             numRatings++;
           });
         });
-  
+
         if (numRatings > 0) {
           setAvgRating(totalRating / numRatings);
         } else {
           setAvgRating(0);
         }
-  
-        console.log("Fetched reviews for current user:", fetchedReviews); // Log fetched reviews for debugging
+
+        console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("Error fetching reviews: ", error);
       }
     };
-  
+
+    // const checkShop = async () => {
+
+    //   const shopRef = collection(db, "shop");
+    //   const q = query(shopRef, where("authorID", "==", userId));
+    //   const docSnap = await getDocs(q);
+    //   if (docSnap.docs.length === 0) {
+    //     console.log("doesn't exist" + userId);
+    //     setHasShop(false);
+    //   } else {
+    //     setHasShop(true);
+    //   }
+    // };
+    // checkShop();
     fetchReviews();
-  }, [user.uid]);
-  
-  // useEffect(() => {
-  //   const fetchReviews = async () => {
-  //     try {
-  //       const cartItemsRef = collection(db, "payments");
-  //       const q = query(cartItemsRef, where("status", "==", "Completed"));
-  //       const querySnapshot = await getDocs(q);
-  //       const fetchedReviews = [];
-  //       let totalRating = 0;
-  //       let numRatings = 0;
-
-  //       querySnapshot.forEach((doc) => {
-  //         const cartItemData = doc.data();
-  //         fetchedReviews.push({ id: doc.id, ...cartItemData });
-  //         cartItemData.cartItems.forEach((item) => {
-  //           totalRating += item.rating || 0;
-  //           numRatings++;
-  //         });
-  //       });
-
-  //       if (numRatings > 0) {
-  //         setAvgRating(totalRating / numRatings);
-  //       } else {
-  //         setAvgRating(0);
-  //       }
-
-  //       console.log("Fetched reviews:", fetchedReviews); // Log fetched reviews for debugging
-  //       setReviews(fetchedReviews);
-  //     } catch (error) {
-  //       console.error("Error fetching reviews: ", error);
-  //     }
-  //   };
-
-  //   // const checkShop = async () => {
-
-  //   //   const shopRef = collection(db, "shop");
-  //   //   const q = query(shopRef, where("authorID", "==", userId));
-  //   //   const docSnap = await getDocs(q);
-  //   //   if (docSnap.docs.length === 0) {
-  //   //     console.log("doesn't exist" + userId);
-  //   //     setHasShop(false);
-  //   //   } else {
-  //   //     setHasShop(true);
-  //   //   }
-  //   // };
-  //   // checkShop();
-  //   fetchReviews();
-  // }, []);
+  }, []);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
