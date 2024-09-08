@@ -33,12 +33,9 @@ import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
 import PostModal from "./PostModal";
-<<<<<<< Updated upstream
-=======
 import LoginModal from "./LoginModal";
 import { ChatIcon } from "@chakra-ui/icons";
 import { FaPlay } from "react-icons/fa";
->>>>>>> Stashed changes
 
 const Discover = () => {
   const navigate = useNavigate();
@@ -289,98 +286,6 @@ const Discover = () => {
   return (
     <>
       <Box h="100vh" overflowY="auto">
-<<<<<<< Updated upstream
-
-      <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
-     
-            <Flex justify="space-between" p="0 86px 0px 64px">
-              <Heading>Discover</Heading>
-              {/* <Flex display={user ? "flex" : "none"} justify="space-between">
-              <Button
-                  mr="12px"
-                  variant="ghost"
-                  leftIcon={<Plus size={16} />}
-                  onClick={addDiscover.onOpen}
-                >
-                  <AddDiscoverModal
-                    isOpen={addDiscover.isOpen}
-                    onClose={addDiscover.onClose}
-                  />
-                  Create
-                </Button>
-                <Button variant="link" color="#333333">
-                  My Shop
-                </Button>
-              </Flex> */}
-            </Flex>
-
-            <Box mb="12"
-            // p="24px"
-            //  borderWidth="2px" borderColor="blue"
-             >
-              <Flex
-                gap="24px 24px"
-                flexWrap="wrap"
-                justify="space-evenly"
-                align="center"
-                mt="32px"
-              >
-                <Flex w="100%" justify="center" p="12px 24px">
-                  <form onSubmit={handleSearchDiscover}>
-                    <Flex w="100%" justify="space-between">
-                      <Input
-                        borderRadius="24px"
-                        placeholder="Search"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    
-
-                      <Button p="12px 24px" type="submit" borderRadius="24px">
-                        Search
-                      </Button>
-                    </Flex>
-                    {suggestions.length > 0 && (
-                    <List
-                      bg="white"
-                      borderRadius="8px"
-                      boxShadow="lg"
-                      mt="2"
-                      w="100%"
-                      maxW="600px"
-                      position="absolute"
-                      zIndex="1000"
-                    >
-                      {suggestions.map((suggestion) => (
-                        <ListItem
-                          key={suggestion.id}
-                          p="8px"
-                          borderBottom="1px solid #e1e1e1"
-                          cursor="pointer"
-                          onClick={() => handleSuggestionClick(suggestion)}
-                        >
-                          { suggestion.name || suggestion.postContent || suggestion.tag }
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                  </form>
-                </Flex>
-
-            <Flex
-              w="100%"
-              gap="24px 12px"
-              justify="center"
-              align="start"
-              flexWrap="wrap"
-            >
-              {/* {userProfile && ( */}
-              <Box
-                flex="1"
-                // border="1px solid #e1e1e1" borderColor="green"
-                className="bodyWrapper__profile"
-                ml="24px"
-=======
         <Navigation
           cartItemCount={cartItemCount}
           setCartItemCount={setCartItemCount}
@@ -404,7 +309,6 @@ const Discover = () => {
                 justify="center"
                 align="start"
                 flexWrap="wrap"
->>>>>>> Stashed changes
               >
                 {/* {userProfile && ( */}
                 <Box
@@ -486,17 +390,7 @@ const Discover = () => {
                 </Box>
                 {/* )} */}
 
-<<<<<<< Updated upstream
-                    </Box>
-                      </Flex>
-                    </Box>
-                  </Box>
-                  {/* )} */}
-                  
-                <Flex
-=======
                 {/* <Flex
->>>>>>> Stashed changes
                 justify="center"
                 align="center"
                 flex="16"
@@ -566,10 +460,6 @@ const Discover = () => {
                 <Flex w="100%" h="100vh" align="center" justify="center">
                   <span className="loader"></span>
                 </Flex>
-<<<<<<< Updated upstream
-          </Flex>
-        </Box>
-=======
               ) : (
                 <Flex flexWrap="wrap" justify="space-evenly" align="center">
                   <Flex w="100%" justify="center" p="12px 24px">
@@ -774,7 +664,6 @@ const Discover = () => {
           </Box>
         </Flex>
 
->>>>>>> Stashed changes
         <Footer />
       </Box>
       <PostModal isOpen={isOpen} onClose={onClose} post={selectedPost} />
