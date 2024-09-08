@@ -26,7 +26,12 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { updateProfile, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import {
+  updateProfile,
+  onAuthStateChanged,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+} from "firebase/auth";
 
 const Register = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,8 +45,6 @@ const Register = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [photoUrl, setPhotoUrl] = useState(null);
-  
-
 
   const {
     register,
@@ -50,12 +53,11 @@ const Register = () => {
     watch,
     formState: { errors },
   } = useForm();
-  
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     setUserPhoto(file);
-  
+
     try {
       const storageRef = ref(storage, `profileImages/${file.name}`);
       await uploadBytes(storageRef, file);
@@ -64,9 +66,7 @@ const Register = () => {
     } catch (error) {
       console.error("Error uploading image: ", error);
     }
-  };  
-  
-  
+  };
 
   const handleRegister = async (data) => {
     try {
@@ -80,9 +80,9 @@ const Register = () => {
       });
 
       let photoURL = null;
-    if (photoUrl) {
-      photoURL = photoUrl;
-    }
+      if (photoUrl) {
+        photoURL = photoUrl;
+      }
       await setDoc(doc(db, "users1", user.uid), {
         email: data.email,
         name: data.name,
@@ -92,7 +92,7 @@ const Register = () => {
         createdAt: serverTimestamp(),
         location: data.location,
         phoneNumber: data.phoneNumber,
-        profileImage: photoURL, 
+        profileImage: photoURL,
       });
       // user.updateProfile({ displayName: data.name });
 
@@ -113,16 +113,20 @@ const Register = () => {
     reset();
   };
 
-
   const sendOTP = async () => {
     try {
       const recaptcha = new RecaptchaVerifier(auth, "recaptcha", {});
+      console.log(phoneNumber);
       // recaptcha.render()
       const confirmation = await signInWithPhoneNumber(
         auth,
         `+63${phoneNumber}`,
         recaptcha
       );
+      if (!/^\+63\d{10}$/.test(phoneNumber)) {
+        console.log("Invalid phone number format. Please check the number.");
+        return;
+      }
       setVerification(confirmation);
       console.log(confirmation);
     } catch (err) {
@@ -222,10 +226,12 @@ const Register = () => {
                           if (e.target.value.length > 10) {
                             e.target.value = e.target.value.slice(0, 10);
                           }
+                          setPhoneNumber(e.target.value);
                         },
                       })}
                       aria-invalid={errors.phoneNumber ? "true" : "false"}
                     />
+                    <Button onClick={sendOTP}>Send OTP</Button>
                   </InputGroup>
                 </Stack>
                 {errors.phoneNumber?.type === "required" && (
@@ -239,7 +245,7 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
-              {/* <Flex gap="1">
+              <Flex gap="1">
                 <Input
                   onChange={(e) => {
                     setOtp(e.target.value);
@@ -257,7 +263,7 @@ const Register = () => {
                     OTP is required
                   </p>
                 )}
-              </Flex> */}
+              </Flex>
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input
@@ -312,7 +318,7 @@ const Register = () => {
                 )}
               </FormControl>
               {/* RECAPTCHA CONTAINER */}
-                {/* <Box id="recaptcha" textAlign="center"></Box> */}
+              <Box id="recaptcha" textAlign="center"></Box>
               <label className="label" for="photo-upload">
                 <Text fontSize="sm">Add Profile Picture </Text>
               </label>
@@ -328,7 +334,13 @@ const Register = () => {
                 //   },
                 // })}
               />
-              {photoUrl && <img src={photoUrl} alt="Profile" style={{ maxWidth: "100px" }} />}
+              {photoUrl && (
+                <img
+                  src={photoUrl}
+                  alt="Profile"
+                  style={{ maxWidth: "100px" }}
+                />
+              )}
               <Button bg="#ffc947" w="100%" type="submit">
                 Register
               </Button>

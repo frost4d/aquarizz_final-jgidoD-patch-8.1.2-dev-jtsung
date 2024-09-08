@@ -53,16 +53,18 @@ import LoginModal from "./LoginModal";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import logo from "../../../assets/logo2.png";
-import { BellIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
 import AddDiscoverModal from "./AddDiscoverModal";
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 const Navigation = ({ cartItemCount, setCartItemCount }) => {
-
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -74,8 +76,11 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
   const addDiscover = useDisclosure();
+<<<<<<< Updated upstream
 
   const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
+=======
+>>>>>>> Stashed changes
 
   useEffect(() => {
     // Get cart items from local storage
@@ -85,7 +90,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
       setCartItemCount(existingItems.length);
     }
   }, [setCartItemCount]);
-  
 
   const handleLogout = async () => {
     if (user) {
@@ -164,10 +168,11 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 Discover
               </Button>
             </NavLink>
-
-            {!userProfile ? (
+            {/* //removed cartpage */}
+            {/* {!userProfile ? (
               ""
             ) : (
+<<<<<<< Updated upstream
               <Menu>
               <MenuButton as={Button} variant="ghost" rightIcon={
                 <>
@@ -190,6 +195,28 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             </Menu>
             )}
 
+=======
+              <NavLink
+                className={({ isActive }) =>
+                  isActive ? "navlink_isActive" : "navlink_inactive"
+                }
+                to="/CartPage"
+              >
+                <Button
+                  borderRadius="0"
+                  variant="ghost"
+                  color="#000"
+                  rightIcon={
+                    <Badge colorScheme="red" borderRadius="full" px="2">
+                      {cartItemCount}
+                    </Badge>
+                  }
+                >
+                  <ShoppingCart size={16} />
+                </Button>
+              </NavLink>
+            )} */}
+>>>>>>> Stashed changes
             {userProfile ? (
               <>
                 {userProfile && (
@@ -284,9 +311,10 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             ) : (
               <Button
                 variant="ghost"
+                bg={primaryColor}
                 color="#000"
                 rightIcon={<User size={16} />}
-                _hover={{ bg: "rgba(255,255,255,.3)" }}
+                _hover={{ bg: "#ffd97e" }}
                 onClick={loginModal.onOpen}
               >
                 <LoginModal
@@ -296,7 +324,8 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 Login
               </Button>
             )}
-            <Button
+            {/* removed create listing navbar */}
+            {/* <Button
               bg={primaryColor}
               color="#000"
               rightIcon={<Edit size={16} />}
@@ -317,7 +346,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             >
               Create listing
             </Button>
-            <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} />
+            <Create isOpen={modalShop.isOpen} onClose={modalShop.onClose} /> */}
           </Flex>
 
           <Flex>
@@ -490,7 +519,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                               {loginModal.onOpen()}
                               <LoginModal
                                 isOpen={loginModal.isOpen}
-                                onClose={loginModal.onClose}
+                                onClose={loginModal.onClose}  
                               />
                             </>
                           );

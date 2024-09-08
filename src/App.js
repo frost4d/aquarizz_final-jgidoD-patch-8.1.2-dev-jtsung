@@ -1,5 +1,5 @@
 import "./App.css";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, Modal } from "@chakra-ui/react";
 import LandingPage from "./components/LandingPage";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./components/main/Dashboard";
@@ -29,12 +29,18 @@ import ReportPage from "./components/main/revisionmain/ReportPage.js";
 import Faqs from "./components/main/revisionmain/Faqs.js";
 import ReturnsExchanges from "./components/main/revisionmain/ReturnsExchanges.js";
 import PrivacyPolicy from "./components/main/revisionmain/PrivacyPolicy.js";
-import TermsOfService from "./components/main/revisionmain/TermsOfService.js"; 
-import ContactUs from "./components/main/revisionmain/ContactUs.js"; 
+import TermsOfService from "./components/main/revisionmain/TermsOfService.js";
+import ContactUs from "./components/main/revisionmain/ContactUs.js";
 import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
 import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
 import ChatMessage from "./components/main/revisionmain/ChatMessage.js";
+<<<<<<< Updated upstream
 
+=======
+import Marketplace from "./components/main/revisionmain/Marketplace.js";
+import MarketItem from "./components/main/revisionmain/MarketItem.js";
+import ItemModal from "./components/main/revisionmain/ItemModal.js";
+>>>>>>> Stashed changes
 
 function App() {
   return (
@@ -60,7 +66,7 @@ function App() {
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/reports" element={<ReportPage />} />
-            <Route path="/faqs" element={<Faqs />} /> 
+            <Route path="/faqs" element={<Faqs />} />
             <Route path="/return&exchange" element={<ReturnsExchanges />} />
             <Route path="/Privacypolicy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
@@ -69,7 +75,7 @@ function App() {
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/about" element={<About />} />
             <Route path="/chatMessage/:userId" element={<ChatMessage />} />
-
+            <Route path="/marketplace/item/:postId" element={<ItemModal />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
             <Route path="/register" element={<Register />} />

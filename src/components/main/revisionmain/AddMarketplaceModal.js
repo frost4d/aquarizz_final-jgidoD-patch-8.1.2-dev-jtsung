@@ -34,8 +34,10 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import { useParams } from "react-router-dom";
 
-const AddDiscover = (props) => {
+const AddMarketplace = (props) => {
+  const postId = useParams();
   const primaryColor = "#FFC947";
   const { createPost, user, userProfile } = UserAuth();
   const toast = useToast();
@@ -71,7 +73,6 @@ const AddDiscover = (props) => {
       }
       setImageUrl(url);
     });
-    console.log(file);
   };
 
   const handleVideoChange = async (e) => {
@@ -93,28 +94,35 @@ const AddDiscover = (props) => {
       authorID: user?.uid,
       postTitle: data.title,
       postContent: data.text,
-      postImage: file ? imageUrl : "", // Optional chaining to avoid null value
-      postVideo: videoFile ? videoUrl : "",
-      tag: data.tag,
-      createdAt: data.createdAt || Date.now(),
+      postImage: imageUrl ? imageUrl : "", // Optional chaining to avoid null value
+      createdAt: data.createdAt || new Date().toISOString(),
+      price: data.price,
     };
     try {
       setIsLoading(true);
-      await addDoc(collection(db, "discover"), obj);
-      // await createPost(obj);
-      toast({
-        title: "Post Created.",
-        description: "Post successfully published.",
-        status: "success",
-        duration: 5000,
-        position: "top",
+      const docRef = await addDoc(collection(db, "marketplace"), {
+        authorName: userProfile.name,
+        authorID: user?.uid,
+        price: data.price,
+        createdAt: data.createdAt || new Date().toISOString(),
+        postContent: data.text,
+        postImage: file ? imageUrl : "", // Optional chaining to avoid null value
+        postTitle: data.title,
       });
+
+      console.log(docRef);
     } catch (error) {
       console.error("Error adding document: ", error);
     } finally {
       setTimeout(() => {
+        toast({
+          title: "Post Created.",
+          description: "Post successfully published.",
+          status: "success",
+          duration: 5000,
+          position: "top",
+        });
         setIsLoading(false);
-        window.location.reload();
       }, 1500); // 3000ms = 3 seconds
     }
     console.log(obj);
@@ -148,8 +156,24 @@ const AddDiscover = (props) => {
                 </Box>
 
                 <Box>
+                  <FormLabel>Price</FormLabel>
+                  <Input
+                    type="number"
+                    // placeholder="Unit Price"
+                    {...register("price", { required: true })}
+                    aria-invalid={errors.tag ? "true" : "false"}
+                  />
+                  {errors.tag?.type === "required" && (
+                    <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                      price is required
+                    </p>
+                  )}
+                </Box>
+
+                <FormLabel>Description</FormLabel>
+                <Box>
                   <Textarea
-                    placeholder="Text"
+                    // placeholder="Text"
                     {...register("text", { required: false })}
                     aria-invalid={errors.text ? "true" : "false"}
                   />
@@ -172,28 +196,6 @@ const AddDiscover = (props) => {
                     onChange={handleImageChange}
                   />
                 </Box>
-                <Box p="12px 0">
-                  <Text>Upload Video</Text>
-                  <Input
-                    className="inputFileDiscover"
-                    type="file"
-                    accept=".mp4, .mov, .avi"
-                    multiple={false}
-                    onChange={handleVideoChange}
-                  />
-                </Box>
-                <Box>
-                  <Input
-                    placeholder="e.g. #tag"
-                    {...register("tag", { required: true })}
-                    aria-invalid={errors.tag ? "true" : "false"}
-                  />
-                  {errors.tag?.type === "required" && (
-                    <p style={{ color: "#d9534f", fontSize: "12px" }}>
-                      Tag is required
-                    </p>
-                  )}
-                </Box>
 
                 <Button
                   type="submit"
@@ -212,4 +214,4 @@ const AddDiscover = (props) => {
     </>
   );
 };
-export default AddDiscover;
+export default AddMarketplace;
