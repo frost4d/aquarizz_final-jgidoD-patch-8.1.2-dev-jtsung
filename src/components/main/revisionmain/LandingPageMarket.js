@@ -207,7 +207,7 @@ const LandingPageMarket = () => {
             align="center"
             mr="24px"
           >
-            <NavLink to="/shop">
+            <NavLink to="/marketplace">
               <Button
                 variant="none"
                 color="#000"
@@ -217,7 +217,7 @@ const LandingPageMarket = () => {
                 //   navigate("/shop");
                 // }}
               >
-                Shop
+                Marketplace
               </Button>
             </NavLink>
 
@@ -257,23 +257,41 @@ const LandingPageMarket = () => {
                       </MenuGroup>
                       <MenuDivider />
                       <MenuGroup title="Support">
-                        <MenuItem onClick={() => setIsContactModalOpen(true)}>Contact Us</MenuItem>
+                        <MenuItem onClick={() => setIsContactModalOpen(true)}>
+                          Contact Us
+                        </MenuItem>
                         <Contact
                           isOpen={isContactModalOpen}
                           onClose={() => setIsContactModalOpen(false)}
                         />
-                        <MenuItem onClick={() => {
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/faqs`);
-                          }}>FAQs</MenuItem>
-                        <MenuItem onClick={() => {
+                          }}
+                        >
+                          FAQs
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/return&exchange`);
-                          }}>Return & Exchanges</MenuItem>
-                        <MenuItem onClick={() => {
+                          }}
+                        >
+                          Return & Exchanges
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/Privacypolicy`);
-                          }}>Privacy Policy</MenuItem>
-                        <MenuItem onClick={() => {
+                          }}
+                        >
+                          Privacy Policy
+                        </MenuItem>
+                        <MenuItem
+                          onClick={() => {
                             navigate(`/terms-of-service`);
-                          }}>Terms of Service</MenuItem>
+                          }}
+                        >
+                          Terms of Service
+                        </MenuItem>
                       </MenuGroup>
                       <MenuDivider />
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
@@ -284,7 +302,7 @@ const LandingPageMarket = () => {
             ) : (
               <Button
                 variant="none"
-                color="#000"
+                bg={primaryColor}
                 rightIcon={<User size={16} />}
                 _hover={{ bg: "rgba(255,255,255,.3)" }}
                 onClick={loginModal.onOpen}
@@ -296,28 +314,6 @@ const LandingPageMarket = () => {
                 Login
               </Button>
             )}
-
-            <Button
-              bg={primaryColor}
-              color="#000"
-              rightIcon={<Edit size={16} />}
-              _hover={{ bg: "#ffd36b" }}
-              onClick={() => {
-                user ? (
-                  navigate("/shop")
-                ) : (
-                  <>
-                    {loginModal.onOpen()}
-                    <LoginModal
-                      isOpen={loginModal.isOpen}
-                      onClose={loginModal.onClose}
-                    />
-                  </>
-                );
-              }}
-            >
-              Create listing
-            </Button>
           </Flex>
           <Box className="navbarMobiles" mr="42px">
             <Button color="#000" onClick={onOpen} variant="ghost">
@@ -436,7 +432,7 @@ const LandingPageMarket = () => {
             </Drawer>
           </Box>
         </Flex>
-        <Box className="contentWrapper">
+        <Box className="contentWrapper" p="32px 0">
           <Box className="titleText" textAlign="center" p="56px 12px" w="100%">
             <Heading fontFamily={primaryFont} fontWeight="600">
               Connecting for the love of having a healthy fish.
@@ -453,7 +449,7 @@ const LandingPageMarket = () => {
 
           <Flex
             bg="rgba(255,255,255,.2)"
-            m="0 auto"
+            m="0 auto 32px"
             borderRadius="32px"
             p="81px 64px"
             w="60%"
@@ -469,18 +465,17 @@ const LandingPageMarket = () => {
                 A modern social media community that enables people to shop,
                 discover, and sell for your fishkeeping!
               </Text>
-              <Button mt="81px" bg={primaryColor} color="#333333" p="20px 40px">
+              <Button
+                onClick={() => loginModal.onOpen()}
+                mt="81px"
+                bg={primaryColor}
+                color="#333333"
+                p="20px 40px"
+              >
                 Become a part now!
               </Button>
             </Box>
-            <Box w="100%" className="info">
-              {/* <Box>
-                <Image
-                  h="560px"
-                  src={require("../../../assets/contentInfo.png")}
-                />
-              </Box> */}
-            </Box>
+            <Box w="100%" className="info"></Box>
           </Flex>
 
           {/* <Box className="cardWrapper__mobile" overflow="none">
@@ -489,12 +484,12 @@ const LandingPageMarket = () => {
               discover, and sell for your fishkeeping!
             </Heading>
           </Box> */}
-          <Box className="searchbarWrapper">
-            <SearchInput handleSearch={handleSearchShop} />
-            {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
-          </Box>
+          {/* <Box className="searchbarWrapper">
+            <SearchInput handleSearch={handleSearchShop} /> */}
+          {/* <SearchInput handleSearch={handleSearchShop} setSearchTerm={setSearchTerm} searchTerm={searchTerm} userLocation={location} setLocation={setLocation} /> */}
+          {/* </Box> */}
 
-          <Box className="searchBoxes" my="32px" w="100%" textAlign="center">
+          {/* <Box className="searchBoxes" my="32px" w="100%" textAlign="center">
             <Box my="56px">
               <Heading size="md" fontFamily={primaryFont}>
                 Explore the shop now!
@@ -602,7 +597,7 @@ const LandingPageMarket = () => {
                 </Flex>
               </Box>
             </Flex>
-          </Box>
+          </Box> */}
         </Box>
         <Footer />
       </Box>

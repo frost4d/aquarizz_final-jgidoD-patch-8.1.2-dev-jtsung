@@ -17,7 +17,7 @@ import {
   where,
   updateDoc,
   getDoc,
-  onSnapshot
+  onSnapshot,
 } from "firebase/firestore";
 import {
   Box,
@@ -169,15 +169,14 @@ function ProfilePage() {
     navigate("/");
   };
 
-
   let getUrl = window.location.href;
-  
+
   let splitUrl = getUrl.split("/");
 
   const loadData = async () => {
-    if (!userId) return; 
+    if (!userId) return;
 
-    const docRef = collection(db, "users1"); 
+    const docRef = collection(db, "users1");
     const docSnap = query(docRef, where("userID", "==", userId));
     const userDataVar = await getDocs(docSnap);
     let tempArr = [];
@@ -190,10 +189,13 @@ function ProfilePage() {
   useEffect(() => {
     const fetchReposts = async () => {
       try {
-        const repostsCollection = collection(db, 'users1', userId, 'reposts');
+        const repostsCollection = collection(db, "users1", userId, "reposts");
         const q = query(repostsCollection);
         const querySnapshot = await getDocs(q);
-        const repostsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const repostsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setReposts(repostsData);
       } catch (error) {
         console.error("Error fetching reposts: ", error);
@@ -208,27 +210,27 @@ function ProfilePage() {
       if (!userId) return;
 
       // Fetch user data
-      const userRef = collection(db, 'users1');
-      const q = query(userRef, where('userID', '==', userId));
+      const userRef = collection(db, "users1");
+      const q = query(userRef, where("userID", "==", userId));
       const userSnap = await getDocs(q);
       const userDoc = userSnap.docs[0]?.data();
       setUserData(userDoc);
 
       // Fetch followers count
-      const followersRef = collection(db, 'followers');
-      const followersQuery = query(followersRef, where('userId', '==', userId));
+      const followersRef = collection(db, "followers");
+      const followersQuery = query(followersRef, where("userId", "==", userId));
       const followersSnap = await getDocs(followersQuery);
       setFollowersCount(followersSnap.size);
 
       // Fetch following count
-      const followingRef = collection(db, 'following');
-      const followingQuery = query(followingRef, where('userId', '==', userId));
+      const followingRef = collection(db, "following");
+      const followingQuery = query(followingRef, where("userId", "==", userId));
       const followingSnap = await getDocs(followingQuery);
       setFollowingCount(followingSnap.size);
 
       // Fetch friends count
-      const friendsRef = collection(db, 'friends');
-      const friendsQuery = query(friendsRef, where('userId', '==', userId));
+      const friendsRef = collection(db, "friends");
+      const friendsQuery = query(friendsRef, where("userId", "==", userId));
       const friendsSnap = await getDocs(friendsQuery);
       setFriendsCount(friendsSnap.size);
     };
@@ -245,15 +247,15 @@ function ProfilePage() {
         const fetchedReviews = [];
         let totalRating = 0;
         let numRatings = 0;
-  
+
         querySnapshot.forEach((doc) => {
           const cartItemData = doc.data();
-  
+
           // Filter only the cart items that belong to the current user
           const userCartItems = cartItemData.cartItems.filter(
             (item) => item.authorID === user.uid
           );
-  
+
           // Only calculate ratings for the current user's items
           userCartItems.forEach((item) => {
             fetchedReviews.push({ id: doc.id, ...cartItemData });
@@ -261,23 +263,22 @@ function ProfilePage() {
             numRatings++;
           });
         });
-  
+
         if (numRatings > 0) {
           setAvgRating(totalRating / numRatings);
         } else {
           setAvgRating(0);
         }
-  
+
         console.log("Fetched reviews for current user:", fetchedReviews); // Log fetched reviews for debugging
         setReviews(fetchedReviews);
       } catch (error) {
         console.error("Error fetching reviews: ", error);
       }
     };
-  
+
     fetchReviews();
   }, [user.uid]);
-
 
   useEffect(() => {
     loadData();
@@ -391,7 +392,6 @@ function ProfilePage() {
   const handleCancelUpload = () => {};
   return (
     <>
-
       <Box h="auto">
         <Navigation
           cartItemCount={cartItemCount}
@@ -554,11 +554,11 @@ function ProfilePage() {
                     w="250px"
                     // borderWidth="2px" borderColor="red"
                   >
-
                     <StarRating rating={avgRating} avgRating={avgRating} />
 
-                  <Text ml="2" fontWeight="bold">{avgRating.toFixed(1)} / 5 ({reviews.length} ratings)</Text>
-
+                    <Text ml="2" fontWeight="bold">
+                      {avgRating.toFixed(1)} / 5 ({reviews.length} ratings)
+                    </Text>
                   </Box>
                 </Box>
 
@@ -577,24 +577,29 @@ function ProfilePage() {
 
                   <br />
                   <Flex>
-                  <FollowButton userId={userId} currentUserId={user?.uid} />
-                  <MessageButton userId={userData?.userID} />
+                    <FollowButton userId={userId} currentUserId={user?.uid} />
+                    <MessageButton userId={userData?.userID} />
                   </Flex>
                   <Flex mt="4">
-            <Box mr="4">
-              <Text fontSize="lg" fontWeight="bold">{followersCount}</Text>
-              <Text>Followers</Text>
-            </Box>
-            <Box mr="4">
-              <Text fontSize="lg" fontWeight="bold">{followingCount}</Text>
-              <Text>Following</Text>
-            </Box>
-            <Box>
-              <Text fontSize="lg" fontWeight="bold">{friendsCount}</Text>
-              <Text>Friends</Text>
-            </Box>
-          </Flex>
- 
+                    <Box mr="4">
+                      <Text fontSize="lg" fontWeight="bold">
+                        {followersCount}
+                      </Text>
+                      <Text>Followers</Text>
+                    </Box>
+                    <Box mr="4">
+                      <Text fontSize="lg" fontWeight="bold">
+                        {followingCount}
+                      </Text>
+                      <Text>Following</Text>
+                    </Box>
+                    <Box>
+                      <Text fontSize="lg" fontWeight="bold">
+                        {friendsCount}
+                      </Text>
+                      <Text>Friends</Text>
+                    </Box>
+                  </Flex>
                 </Flex>
                 <Box display={userData.userID !== user.uid ? "none" : ""}>
                   {/* <Button
@@ -751,7 +756,6 @@ function ProfilePage() {
                 pt="24px"
                 // borderWidth="2px" borderColor="blue"
               >
-
                 <>
                   <Tabs
                     // borderWidth="2px" borderColor="red"
@@ -776,64 +780,72 @@ function ProfilePage() {
                           justify="center"
                         >
                           {discoverPosts.length === 0 ? (
-
-                  <Flex justify="center" align="center" p="10" mb="20">
-
-                    <Text color="#7f7f7f">It feels so lonely here...</Text>
-                  </Flex>
-                ) : (
-
-                  discoverPosts.map((post) => (
-                            <Card
-                              key={post.id}
-                              w="50%"
-                              p="24px 24px"
-                              my="16px"
-                              border="1px solid #e1e1e1"
-                              //  borderWidth="2px"
-                              // borderColor="red"
+                            <Flex
+                              justify="center"
+                              align="center"
+                              p="10"
+                              mb="20"
                             >
-                              <Flex flexDirection="column">
-                                <Box>
-                                  <Profile
-                                    name={post.name}
+                              <Text color="#7f7f7f">
+                                It feels so lonely here...
+                              </Text>
+                            </Flex>
+                          ) : (
+                            discoverPosts.map((post) => (
+                              <Card
+                                key={post.id}
+                                w="50%"
+                                p="24px 24px"
+                                my="16px"
+                                border="1px solid #e1e1e1"
+                                //  borderWidth="2px"
+                                // borderColor="red"
+                              >
+                                <Flex flexDirection="column">
+                                  <Box>
+                                    <Profile
+                                      name={post.name}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box>
+                                  <PostOptions
+                                    postId={post.id}
                                     authorId={post.authorId}
                                   />
-                                </Box>
-                                <PostOptions
-                                  postId={post.id}
-                                  authorId={post.authorId}
-                                />
-                                <Text as="kbd" fontSize="10px" color="gray.500">
-                                  {formatDistanceToNow(post.createdAt)} ago
-                                </Text>
-                                <Button variant="link" color="#333333">
-                                  {post.authorName}
-                                </Button>
+                                  <Text
+                                    as="kbd"
+                                    fontSize="10px"
+                                    color="gray.500"
+                                  >
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                  <Button variant="link" color="#333333">
+                                    {post.authorName}
+                                  </Button>
 
-                                <Flex
-                                  pl="32px"
-                                  py="32px"
-                                  justify="space-between"
-                                >
-                                  <Box>
-                                    <Link to={"/AddToCart/" + post.id}>
-                                      <Heading size="md">
-                                        {post.postTitle}
-                                      </Heading>
-                                    </Link>
-                                    <br />
+                                  <Flex
+                                    pl="32px"
+                                    py="32px"
+                                    justify="space-between"
+                                  >
+                                    <Box>
+                                      <Link to={"/AddToCart/" + post.id}>
+                                        <Heading size="md">
+                                          {post.postTitle}
+                                        </Heading>
+                                      </Link>
+                                      <br />
 
-                                    <Text
-                                      className="truncate"
-                                      fontSize="16px"
-                                      textAlign="justify"
-                                    >
-                                      {post.postContent}
-                                    </Text>
-                                  </Box>
+                                      <Text
+                                        className="truncate"
+                                        fontSize="16px"
+                                        textAlign="justify"
+                                      >
+                                        {post.postContent}
+                                      </Text>
+                                    </Box>
 
-                                  {/* <Box mr="24px">
+                                    {/* <Box mr="24px">
                                     {!post.price ? (
                                       <Text>₱ 0.00</Text>
                                     ) : (
@@ -843,136 +855,183 @@ function ProfilePage() {
                                       </>
                                     )}
                                   </Box> */}
-                                </Flex>
-                                <Flex w="100%" align="center" justify="center">
-                                  {post.postImage && (
-                                    <Image
-                                      src={post.postImage}
-                                      w="40em"
-                                      alt="post image"
-                                      onError={(e) =>
-                                        (e.target.style.display = "none")
-                                      }
-                                    />
-                                  )}
-                                  {post.postVideo && (
-                                    <video
-                                      muted={true}
-                                      controls
-                                      style={{
-                                        width: "100%",
-                                        height: "350px",
-                                        objectFit: "cover",
-                                      }}
-                                      onMouseEnter={(e) => e.target.play()}
-                                      onMouseLeave={(e) => e.target.pause()}
-                                    >
-                                      <source
-                                        src={post.postVideo}
-                                        type="video/mp4"
+                                  </Flex>
+                                  <Flex
+                                    w="100%"
+                                    align="center"
+                                    justify="center"
+                                  >
+                                    {post.postImage && (
+                                      <Image
+                                        src={post.postImage}
+                                        w="40em"
+                                        alt="post image"
+                                        onError={(e) =>
+                                          (e.target.style.display = "none")
+                                        }
                                       />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                  )}
+                                    )}
+                                    {post.postVideo && (
+                                      <video
+                                        muted={true}
+                                        controls
+                                        style={{
+                                          width: "100%",
+                                          height: "350px",
+                                          objectFit: "cover",
+                                        }}
+                                        onMouseEnter={(e) => e.target.play()}
+                                        onMouseLeave={(e) => e.target.pause()}
+                                      >
+                                        <source
+                                          src={post.postVideo}
+                                          type="video/mp4"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
+                                      </video>
+                                    )}
+                                  </Flex>
+                                  <Box w="100%">
+                                    <Comment
+                                      postID={post.id}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box>
                                 </Flex>
-                                <Box w="100%">
-                                  <Comment
-                                    postID={post.id}
-                                    authorId={post.authorId}
-                                  />
-                                </Box>
-                              </Flex>
-                            </Card>
-                          )))}
+                              </Card>
+                            ))
+                          )}
                         </Flex>
                       </TabPanel>
 
                       <TabPanel>
-      {/* New Panel for Reposts */}
-      <Flex
-        flexDirection="column"
-        w="100%"
-        align="center"
-        justify="center"
-      >
-        {reposts.length === 0 ? (
-          <Flex justify="center" align="center" p="10" mb="20">
-            <Text color="#7f7f7f">No reposts to show...</Text>
-          </Flex>
-        ) : (
-          reposts.map((post) => (
-            <Card
-              key={post.id}
-              w="50%"
-              p="24px 24px"
-              my="16px"
-              border="1px solid #e1e1e1"
-            >
-              <Flex flexDirection="column">
-                <Box>
-                  <Profile name={post.name} authorId={post.authorId} />
-                </Box>
-                <PostOptions postId={post.id} authorId={post.authorId} />
-                <Text as="kbd" fontSize="10px" color="gray.500">
-                  {formatDistanceToNow(post.createdAt)} ago
-                </Text>
-                <Button variant="link" color="#333333">
-                  {post.authorName}
-                </Button>
-                <Flex pl="32px" py="32px" justify="space-between">
-                  <Box>
-                    <Link to={`/AddToCart/${post.id}`}>
-                      <Heading size="md">{post.postTitle}</Heading>
-                    </Link>
-                    <br />
-                    <Text className="truncate" fontSize="16px" textAlign="justify">
-                      {post.postContent}
-                    </Text>
-                  </Box>
-                  <Box mr="24px">
-                    {!post.price ? (
-                      <Text>₱ 0.00</Text>
-                    ) : (
-                      <>
-                        <strong>₱ </strong>
-                        {post.price}
-                      </>
-                    )}
-                  </Box>
-                </Flex>
-                <Flex w="100%" align="center" justify="center">
-                  {post.postImage && (
-                    <Image
-                      src={post.postImage}
-                      w="40em"
-                      alt="post image"
-                      onError={(e) => (e.target.style.display = "none")}
-                    />
-                  )}
-                  {post.postVideo && (
-                    <video
-                      muted={true}
-                      controls
-                      style={{ width: "100%", height: "350px", objectFit: "cover" }}
-                      onMouseEnter={(e) => e.target.play()}
-                      onMouseLeave={(e) => e.target.pause()}
-                    >
-                      <source src={post.postVideo} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  )}
-                </Flex>
-                <Box w="100%">
-                  <Comment postID={post.id} authorId={post.authorId} />
-                </Box>
-              </Flex>
-            </Card>
-          ))
-        )}
-      </Flex>
-    </TabPanel>
-                      
+                        {/* New Panel for Reposts */}
+                        <Flex
+                          flexDirection="column"
+                          w="100%"
+                          align="center"
+                          justify="center"
+                        >
+                          {reposts.length === 0 ? (
+                            <Flex
+                              justify="center"
+                              align="center"
+                              p="10"
+                              mb="20"
+                            >
+                              <Text color="#7f7f7f">No reposts to show...</Text>
+                            </Flex>
+                          ) : (
+                            reposts.map((post) => (
+                              <Card
+                                key={post.id}
+                                w="50%"
+                                p="24px 24px"
+                                my="16px"
+                                border="1px solid #e1e1e1"
+                              >
+                                <Flex flexDirection="column">
+                                  <Box>
+                                    <Profile
+                                      name={post.name}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box>
+                                  <PostOptions
+                                    postId={post.id}
+                                    authorId={post.authorId}
+                                  />
+                                  <Text
+                                    as="kbd"
+                                    fontSize="10px"
+                                    color="gray.500"
+                                  >
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                  <Button variant="link" color="#333333">
+                                    {post.authorName}
+                                  </Button>
+                                  <Flex
+                                    pl="32px"
+                                    py="32px"
+                                    justify="space-between"
+                                  >
+                                    <Box>
+                                      <Link to={`/AddToCart/${post.id}`}>
+                                        <Heading size="md">
+                                          {post.postTitle}
+                                        </Heading>
+                                      </Link>
+                                      <br />
+                                      <Text
+                                        className="truncate"
+                                        fontSize="16px"
+                                        textAlign="justify"
+                                      >
+                                        {post.postContent}
+                                      </Text>
+                                    </Box>
+                                    <Box mr="24px">
+                                      {!post.price ? (
+                                        <Text>₱ 0.00</Text>
+                                      ) : (
+                                        <>
+                                          <strong>₱ </strong>
+                                          {post.price}
+                                        </>
+                                      )}
+                                    </Box>
+                                  </Flex>
+                                  <Flex
+                                    w="100%"
+                                    align="center"
+                                    justify="center"
+                                  >
+                                    {post.postImage && (
+                                      <Image
+                                        src={post.postImage}
+                                        w="40em"
+                                        alt="post image"
+                                        onError={(e) =>
+                                          (e.target.style.display = "none")
+                                        }
+                                      />
+                                    )}
+                                    {post.postVideo && (
+                                      <video
+                                        muted={true}
+                                        controls
+                                        style={{
+                                          width: "100%",
+                                          height: "350px",
+                                          objectFit: "cover",
+                                        }}
+                                        onMouseEnter={(e) => e.target.play()}
+                                        onMouseLeave={(e) => e.target.pause()}
+                                      >
+                                        <source
+                                          src={post.postVideo}
+                                          type="video/mp4"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
+                                      </video>
+                                    )}
+                                  </Flex>
+                                  <Box w="100%">
+                                    <Comment
+                                      postID={post.id}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box>
+                                </Flex>
+                              </Card>
+                            ))
+                          )}
+                        </Flex>
+                      </TabPanel>
+
                       <TabPanel>
                         {/* <Flex
 
@@ -988,7 +1047,6 @@ function ProfilePage() {
                             justify="center"
                           > */}
 
-
                         <Grid
                           className="gridItem__holder"
                           templateColumns={`repeat(5, 1fr)`}
@@ -998,20 +1056,19 @@ function ProfilePage() {
                         >
                           {shopPosts.length === 0 ? (
                             <Center>
-                            <Flex
-                              justify="center"
-                              align="center"
-                              p="10"
-                              mb="20"
-                            >
-                              <Text color="#7f7f7f">
-                                It feels so lonely here...
-                              </Text>
-                            </Flex>
+                              <Flex
+                                justify="center"
+                                align="center"
+                                p="10"
+                                mb="20"
+                              >
+                                <Text color="#7f7f7f">
+                                  It feels so lonely here...
+                                </Text>
+                              </Flex>
                             </Center>
                           ) : (
                             shopPosts.map((post) => (
-
                               // <Card
                               //   key={post.id}
                               //   w={{ base: "100%", md: "45%", lg: "30%" }}
@@ -1139,7 +1196,7 @@ function ProfilePage() {
                           {/* </Flex> */}
                         </Grid>
                       </TabPanel>
-                      
+
                       <TabPanel>
                         <Flex
                           flexDirection="column"
