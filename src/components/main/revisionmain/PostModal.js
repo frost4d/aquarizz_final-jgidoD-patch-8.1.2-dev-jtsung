@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { deleteDoc } from "firebase/firestore";
+import { FaEllipsisV, FaTrash } from "react-icons/fa"; // Import trash icon for delete button
 import {
   Modal,
   ModalOverlay,
@@ -48,6 +50,7 @@ import { useNavigate } from "react-router-dom";
 const PostModal = ({ isOpen, onClose, post, userProfile }) => {
   // const [likes, setLikes] = useState(post?.likes || 0);
   // const [isLiked, setIsLiked] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(""); // Add this state
   const { user } = UserAuth();
   const toast = useToast();
   const navigate = useNavigate();
@@ -59,6 +62,21 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
   );
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const userRef = doc(db, "users1", user.uid);
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserAvatar(userData.avatar || "default-avatar-url"); // Set avatar URL
+        }
+      }
+    };
+  
+    fetchUserData();
+  }, [user]);
 
   useEffect(() => {
     if (post && post.id) {
@@ -109,6 +127,15 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
         likes: arrayUnion(user.uid),
       });
       setLikes(likes + 1);
+
+      if (post.authorID && post.authorID !== user.uid) {
+        const notificationRef = collection(db, "users1", post.authorID, "notifications");
+        await addDoc(notificationRef, {
+          message: `${user.displayName || "Someone"} liked your post.`,
+          timestamp: new Date(),
+          read: false,
+        });
+      }
     } else {
       await updateDoc(postRef, {
         likes: arrayRemove(user.uid),
@@ -117,30 +144,41 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
     }
     setIsLiked(!isLiked);
   };
-
   const handleAddComment = async () => {
     if (!user || !post || !post.id) return;
     const commentsRef = collection(db, "discover", post.id, "comments");
-
+  
     // Fetch user data from 'users1' collection
     const userRef = doc(db, "users1", user.uid);
     const userDoc = await getDoc(userRef);
     const userName = userDoc.exists() ? userDoc.data().name : "Unknown";
-
+  
     const newComment = {
       userId: user.uid,
       userName: userName,
       comment: comment,
       createdAt: new Date(),
     };
-
-    await addDoc(commentsRef, newComment);
-
-    // Update the comments state immediately with the new comment
-    setComments([...comments, { id: new Date().getTime(), ...newComment }]);
+  
+    // Add the comment to Firestore and get the actual document reference
+    const commentDocRef = await addDoc(commentsRef, newComment);
+  
+    // Update the local state with the actual ID from Firestore
+    setComments([...comments, { id: commentDocRef.id, ...newComment }]);
+  
     setComment("");
+  
+    // Notification for the post author
+    if (post.authorID && post.authorID !== user.uid) {
+      const notificationRef = collection(db, "users1", post.authorID, "notifications");
+      await addDoc(notificationRef, {
+        message: `${userName} commented on your post.`,
+        timestamp: new Date(),
+        read: false,
+      });
+    }
   };
-
+  
   // const handleAddShare = async () => {
   //   if (!user || !post || !post.id) return;
 
@@ -161,7 +199,7 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
 
   const handleRepost = async () => {
     if (!user || !post || !post.id) return;
-
+  
     // Repost by creating a new post under the user's profile with a reference to the original post
     const newPost = {
       ...post,
@@ -170,17 +208,27 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
       authorName: user.displayName || "Unknown",
       repostedAt: new Date(),
     };
-
+  
     await addDoc(collection(db, "users1", user.uid, "reposts"), newPost);
-
+  
     // Increment share count only when reposting
     const postRef = doc(db, "discover", post.id);
-    await updateDoc(doc(db, "discover", post.id), {
+    await updateDoc(postRef, {
       shares: arrayUnion(user.uid),
     });
-
+  
     setShares((prevShares) => prevShares + 1);
-
+  
+    // Send repost notification to the original post author, if they are not the one reposting
+    if (post.authorID && post.authorID !== user.uid) {
+      const notificationRef = collection(db, "users1", post.authorID, "notifications");
+      await addDoc(notificationRef, {
+        message: `${user.displayName || "Someone"} reposted your post.`,
+        timestamp: new Date(),
+        read: false,
+      });
+    }
+  
     toast({
       title: "Post Reposted!",
       description: "The post has been successfully reposted.",
@@ -188,7 +236,38 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
       duration: 3000,
       isClosable: true,
     });
-  };
+  };  
+
+  // const handleRepost = async () => {
+  //   if (!user || !post || !post.id) return;
+
+  //   // Repost by creating a new post under the user's profile with a reference to the original post
+  //   const newPost = {
+  //     ...post,
+  //     originalPostId: post.id,
+  //     authorId: user.uid,
+  //     authorName: user.displayName || "Unknown",
+  //     repostedAt: new Date(),
+  //   };
+
+  //   await addDoc(collection(db, "users1", user.uid, "reposts"), newPost);
+
+  //   // Increment share count only when reposting
+  //   const postRef = doc(db, "discover", post.id);
+  //   await updateDoc(doc(db, "discover", post.id), {
+  //     shares: arrayUnion(user.uid),
+  //   });
+
+  //   setShares((prevShares) => prevShares + 1);
+
+  //   toast({
+  //     title: "Post Reposted!",
+  //     description: "The post has been successfully reposted.",
+  //     status: "success",
+  //     duration: 3000,
+  //     isClosable: true,
+  //   });
+  // };
 
   const handleCopyLink = () => {
     const postUrl = `${window.location.origin}/discover/${post.id}`;
@@ -223,6 +302,36 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
       navigate(`/profile/${post.authorID}`);
     }
   };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!user || !post || !post.id || !commentId) return;
+    
+    try {
+      const commentRef = doc(db, "discover", post.id, "comments", commentId);
+      await deleteDoc(commentRef);
+  
+      // Update the comments state by filtering out the deleted comment
+      setComments(comments.filter((comment) => comment.id !== commentId));
+  
+      toast({
+        title: "Comment Deleted",
+        description: "Your comment has been successfully deleted.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Error deleting comment: ", error);
+      toast({
+        title: "Failed to Delete Comment",
+        description: "There was an error deleting your comment. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+  
 
   console.log("postVideo URL:", post.postVideo);
   return (
@@ -387,63 +496,124 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
               </Flex>
             </Flex>
             <Flex
-              flexDirection="column"
-              bg="black"
+  flexDirection="column"
+  bg="black"
+  color="white"
+  p="4"
+  mb="2"
+  borderWidth="1px"
+  borderColor="white"
+  overflowY="auto"
+  h ="400px" // This will limit the max height of the whole comments section
+>
+  {comments.map((comment, index) => (
+    <Flex
+      key={comment.id}
+      alignItems="flex-start"
+      mb="4"
+      borderWidth="1px"
+      borderColor="gray.600"
+      borderRadius="md"
+      bg="gray.800"
+      ml="8"
+      p="3"
+      position="relative"
+      width="fit-content" // Makes the width dynamic based on the content
+      minH="auto" // Ensures the height adapts based on content length
+      maxH="auto" // Ensures the height is flexible
+      _before={{
+        content: '""',
+        position: "absolute",
+        top: "12px",
+        left: "-8px",
+        width: "8px",
+        height: "8px",
+        backgroundColor: "gray.800",
+        transform: "rotate(45deg)",
+        zIndex: "-1",
+      }}
+    >
+{/* Avatar, positioned outside the border */}
+ <Box position="relative">
+    <Avatar
+      size="sm"
+      name={comment.userName}
+      src={comment.userAvatar || userAvatar} // Use fetched user avatar
+      mr="4"
+      position="absolute"
+      left="-50px"
+      top="-8px"    // Adjust vertical alignment with the comment box
+    />
+  </Box>
+  <Flex flexDirection="column" ml="2" flex="1">
+        {/* Username and Comment Text */}
+    <Text fontWeight="bold" fontSize="sm" color="white">
+      {comment.userName}
+    </Text>
+    <Text fontSize="md" color="white">
+      {comment.comment}
+    </Text>
+
+        {/* Timestamp */}
+        <Text fontSize="xs" color="gray.500" mt="1">
+  {comment.createdAt && comment.createdAt.seconds
+    ? new Date(comment.createdAt.seconds * 1000).toLocaleString()
+    : comment.createdAt instanceof Date
+    ? comment.createdAt.toLocaleString()
+    : "Invalid Date"}
+</Text>
+      </Flex>
+
+      {/* Menu for each comment, only show delete if user is the author */}
+      {comment.userId === user.uid && (
+        <Menu>
+          <MenuButton as={IconButton} icon={<FaEllipsisV />} variant="ghost" />
+          <MenuList bg="#232323" borderColor="gray.700">
+            {/* Delete option */}
+            <MenuItem
+              icon={<FaTrash />}
               color="white"
-              p="4"
-              h="400px"
-              mb="2"
-              borderWidth="1px"
-              borderColor="white"
-              overflowY="auto"
+              bg="#232323"
+              _hover={{ bg: "gray.700" }}
+              onClick={() => handleDeleteComment(comment.id)}
             >
-              {comments.map((comment) => (
-                <Flex
-                  key={comment.id}
-                  alignItems="center"
-                  // mt="2"
-                  mb="4"
-                  h="auto"
-                >
-                  <Avatar size="sm" mb="6" name={comment.userName} />
-                  <Flex flexDirection="column">
-                    <Text
-                      py="4"
-                      color="white"
-                      ml="2"
-                      fontWeight="bold"
-                      fontSize="sm"
-                    >
-                      {post.authorName}
-                    </Text>
-                    <Text ml="2" fontSize="md" color="white">
-                      {comment.comment}
-                    </Text>
-                  </Flex>
-                </Flex>
-              ))}
-            </Flex>
+              Delete
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      )}
+    </Flex>
+  ))}
+</Flex>
+
             <Flex mt="4" align="center">
               <Avatar
                 size="sm"
                 name="Current User"
                 src="current-user-avatar-url"
               />
-              <Input
-                ml="2"
-                placeholder="Add a comment..."
-                bg="white"
-                color="black"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-              />
-              <IconButton
-                ml="2"
-                icon={<FaComment />}
-                aria-label="Comment"
-                color="white"
-                bg="none"
-                onClick={handleAddComment}
+           <Input
+  id="comment-input"  // Add this line
+  ml="2"
+  placeholder="Add a comment..."
+  bg="white"
+  color="black"
+  value={comment}
+  onChange={(e) => setComment(e.target.value)}
+  onKeyPress={(e) => {
+    if (e.key === "Enter" && comment.trim()) {  // Only submit if there's a valid comment
+      handleAddComment();
+    }  }}
+/>
+  <IconButton
+  ml="2"
+  icon={<FaComment />}
+  aria-label="Submit Comment"
+  color="white"
+  bg="none"
+  onClick={handleAddComment}
+  isDisabled={!comment.trim()}  // Disable if comment is empty or only whitespace
+
               />
             </Flex>
           </Box>

@@ -31,6 +31,7 @@ import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
 import PostModal from "./PostModal";
+import Sidebar from "./Sidebar1";
 
 const Discover = () => {
   const navigate = useNavigate();
@@ -206,9 +207,10 @@ const Discover = () => {
   return (
     <>
       <Box h="100vh" overflowY="auto">
-
       <Navigation cartItemCount={cartItemCount} setCartItemCount={setCartItemCount}/>
-     
+     <Flex>
+      <Sidebar/>
+      <Box flex="1" pl="2px">
             <Flex justify="space-between" p="0 86px 0px 64px">
               <Heading>Discover</Heading>
               {/* <Flex display={user ? "flex" : "none"} justify="space-between">
@@ -291,7 +293,7 @@ const Discover = () => {
               flexWrap="wrap"
             >
               {/* {userProfile && ( */}
-              <Box
+              {/* <Box
                 flex="1"
                 // border="1px solid #e1e1e1" borderColor="green"
                 className="bodyWrapper__profile"
@@ -364,7 +366,7 @@ const Discover = () => {
                     </Box>
                       </Flex>
                     </Box>
-                  </Box>
+                  </Box> */}
                   {/* )} */}
                   
                 <Flex
@@ -472,6 +474,8 @@ const Discover = () => {
           </Flex>
         </Box>
         <Footer />
+        </Box>
+        </Flex>
       </Box>
       <PostModal isOpen={isOpen} onClose={onClose} post={selectedPost} />
     </>
