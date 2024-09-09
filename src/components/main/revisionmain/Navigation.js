@@ -35,6 +35,7 @@ import {
   DrawerBody,
   DrawerHeader,
   Avatar,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   User,
@@ -59,12 +60,8 @@ import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
 import AddDiscoverModal from "./AddDiscoverModal";
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
-
-const Navigation = ({ cartItemCount, setCartItemCount }) => {
+const Navigation = ({ cartItemCount, setCartItemCount }, props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
@@ -76,11 +73,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
   const addDiscover = useDisclosure();
-<<<<<<< Updated upstream
-
-  const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
-=======
->>>>>>> Stashed changes
 
   useEffect(() => {
     // Get cart items from local storage
@@ -98,7 +90,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
       } catch (err) {
         console.log(err.message);
       } finally {
-        window.location.reload();
+        navigate("/");
       }
     }
   };
@@ -136,7 +128,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
               className={({ isActive }) =>
                 isActive ? "navlink_isActive" : "navlink_inactive"
               }
-              to="/shop"
+              to="/marketplace"
             >
               <Button
                 borderRadius="0"
@@ -146,7 +138,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 // _hover={{ bg: "rgba(249,249,249,1)" }}
                 // onClick={() => navigate("/shop")}
               >
-                Shop
+                Marketplace
               </Button>
             </NavLink>
             <NavLink
@@ -172,30 +164,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             {/* {!userProfile ? (
               ""
             ) : (
-<<<<<<< Updated upstream
-              <Menu>
-              <MenuButton as={Button} variant="ghost" rightIcon={
-                <>
-                  <BellIcon size={16} />
-                  <Badge colorScheme="red" borderRadius="full" px="2">
-                    3 {/* Replace with dynamic notification count */}
-                  </Badge>
-                </>
-              }>
-              </MenuButton>
-              <MenuList>
-                {notificationItems.length ? (
-                  notificationItems.map((item, index) => (
-                    <MenuItem key={index}>{item}</MenuItem>
-                  ))
-                ) : (
-                  <MenuItem>No new notifications</MenuItem>
-                )}
-              </MenuList>
-            </Menu>
-            )}
-
-=======
               <NavLink
                 className={({ isActive }) =>
                   isActive ? "navlink_isActive" : "navlink_inactive"
@@ -216,8 +184,10 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 </Button>
               </NavLink>
             )} */}
->>>>>>> Stashed changes
-            {userProfile ? (
+
+            {props.isLoading ? (
+              <Spinner />
+            ) : userProfile ? (
               <>
                 {userProfile && (
                   <Menu>
@@ -519,7 +489,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                               {loginModal.onOpen()}
                               <LoginModal
                                 isOpen={loginModal.isOpen}
-                                onClose={loginModal.onClose}  
+                                onClose={loginModal.onClose}
                               />
                             </>
                           );
