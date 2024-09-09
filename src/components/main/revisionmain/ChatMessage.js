@@ -58,41 +58,104 @@ const ChatMessage = () => {
   const currentUserId = auth.currentUser?.uid;
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  
+  // Fetch users who have messaged you and those you have messaged
+  useEffect(() => {
+    if (currentUserId) {
+      const receivedMessagesQuery = query(
+        collection(db, `users1/${currentUserId}/messages`),
+        orderBy('createdAt', 'desc')
+      );
+
+      const sentMessagesQuery = query(
+        collection(db, `users1/${currentUserId}/messages`),
+        orderBy('createdAt', 'desc')
+      );
+
+      const unsubscribeReceived = onSnapshot(receivedMessagesQuery, snapshot => {
+        const receivedUserIds = snapshot.docs.map(doc => doc.data().senderId);
+        const sentUserIds = snapshot.docs.map(doc => doc.data().receiverId);
+        const allUserIds = new Set([...receivedUserIds, ...sentUserIds]);
+
+        const fetchUsers = async () => {
+          const userPromises = Array.from(allUserIds).map(id => getDoc(doc(db, 'users1', id)));
+          const userDocs = await Promise.all(userPromises);
+          const userList = userDocs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setUsers(userList);
+        };
+
+        fetchUsers();
+      });
+
+      const unsubscribeSent = onSnapshot(sentMessagesQuery, snapshot => {
+        // Optionally handle updates from sent messages
+      });
+
+      return () => {
+        unsubscribeReceived();
+        unsubscribeSent();
+      };
+    }
+  }, [currentUserId]);
+
 
   // Fetch user list from Firestore
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (!currentUserId) return;
-
-      // Create a query to get messages sent or received by the current user
+    if (activeUser && currentUserId) {
       const q = query(
-        collection(db, 'messages'),
-        where('senderId', '==', currentUserId)
+        collection(db, `users1/${currentUserId}/messages`),
+        where('receiverId', '==', activeUser.id),
+        orderBy('createdAt')
       );
-      const querySnapshot = await getDocs(q);
-      const userIds = new Set(
-        querySnapshot.docs.map(doc => doc.data().receiverId)
-      );
-
-      const q2 = query(
-        collection(db, 'messages'),
-        where('receiverId', '==', currentUserId)
-      );
-      const querySnapshot2 = await getDocs(q2);
-      querySnapshot2.docs.forEach(doc => userIds.add(doc.data().senderId));
-
-      // Fetch user details for these userIds
-      const usersSnapshot = await getDocs(collection(db, 'users1'));
-      const userList = usersSnapshot.docs
-        .map(doc => ({ ...doc.data(), id: doc.id }))
-        .filter(user => userIds.has(user.id));
       
-      setUsers(userList);
-      setActiveUser(userList[0]);
-    };
-    fetchUsers();
-  }, [currentUserId]);
+      const q2 = query(
+        collection(db, `users1/${activeUser.id}/messages`),
+        where('receiverId', '==', currentUserId),
+        orderBy('createdAt')
+      );
+  
+      const unsubscribeCurrentUser = onSnapshot(q, snapshot => {
+        setMessages(snapshot.docs.map(doc => doc.data()));
+      });
+      
+      const unsubscribeActiveUser = onSnapshot(q2, snapshot => {
+        setMessages(prevMessages => [
+          ...prevMessages,
+          ...snapshot.docs.map(doc => doc.data())
+        ]);
+      });
+  
+      return () => {
+        unsubscribeCurrentUser();
+        unsubscribeActiveUser();
+      };
+    }
+  }, [activeUser, currentUserId]);  
 
+  useEffect(() => {
+    console.log('Fetching user with ID:', userId);
+  
+    if (userId) {
+      const fetchUserToChatWith = async () => {
+        try {
+          const userDoc = await getDoc(doc(db, 'users1', userId));
+          if (userDoc.exists()) {
+            const userData = { ...userDoc.data(), id: userDoc.id };
+            console.log('Fetched User Data:', userData);
+            setActiveUser(userData);
+          } else {
+            console.error('User does not exist');
+            setActiveUser(null); // Ensure activeUser is set to null if user does not exist
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+        }
+      };
+      fetchUserToChatWith();
+    }
+  }, [userId]);
+  
+  
   // Fetch current user's data
   useEffect(() => {
     if (currentUserId) {
@@ -108,7 +171,7 @@ const ChatMessage = () => {
   useEffect(() => {
     if (activeUser && currentUserId) {
       const q = query(
-        collection(db, 'messages'),
+        collection(db, `users1/${currentUserId}/messages`),
         where('senderId', 'in', [currentUserId, activeUser.id]),
         where('receiverId', 'in', [currentUserId, activeUser.id]),
         orderBy('createdAt')
@@ -123,7 +186,7 @@ const ChatMessage = () => {
   // Handle sending messages
   const handleSend = async () => {
     if (inputValue.trim() && activeUser) {
-      await addDoc(collection(db, 'messages'), {
+      await addDoc(collection(db, `users1/${currentUserId}/messages`), {
         text: inputValue,
         senderId: currentUserId,
         senderName: currentUserName,
@@ -239,6 +302,8 @@ const ChatMessage = () => {
         </Card>
 
         <Card flex="1" display="flex" flexDirection="column" ml="4">
+        {activeUser ? (
+          <>
           <HStack justifyContent="space-between" alignItems="center" p={4}>
             <HStack>
               {activeUser && <Avatar src={activeUser.profileImage} size="md" />}
@@ -283,6 +348,10 @@ const ChatMessage = () => {
             />
             <Button onClick={handleSend} colorScheme="blue">Send</Button>
           </HStack>
+          </>
+          ) : (
+            <Text align="center">Select a user to start chatting</Text>
+          )}
         </Card>
       </Flex>
 
