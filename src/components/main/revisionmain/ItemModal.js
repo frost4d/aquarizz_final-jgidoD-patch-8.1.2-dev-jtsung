@@ -63,11 +63,11 @@ const ItemModal = () => {
   const [count, setCount] = useState(0);
   const toast = useToast();
   const { userId, post } = useParams();
+  const { postId } = useParams();
   const { user } = UserAuth();
   const primaryColor = "#FFC947";
   const [isLoading, setIsLoading] = useState();
   const [postData, setPostData] = useState();
-  const { postId } = useParams();
   const modalContainer = useDisclosure();
   const navigate = useNavigate();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -158,7 +158,7 @@ const ItemModal = () => {
   };
 
   const handleCopyLink = () => {
-    const postUrl = `${window.location.origin}/discover/${post.id}`;
+    const postUrl = `${window.location.origin}/marketplace/item/${postId}`;
 
     // Log URL to ensure it's correct
     console.log("Copying URL:", postUrl);
@@ -171,7 +171,7 @@ const ItemModal = () => {
           description: "The post URL has been copied to your clipboard.",
           status: "success",
           duration: 3000,
-          isClosable: true,
+          position: "top",
         });
       })
       .catch((err) => {
@@ -181,7 +181,7 @@ const ItemModal = () => {
           description: "Failed to copy the link. Please try again.",
           status: "error",
           duration: 3000,
-          isClosable: true,
+          position: "top",
         });
       });
   };

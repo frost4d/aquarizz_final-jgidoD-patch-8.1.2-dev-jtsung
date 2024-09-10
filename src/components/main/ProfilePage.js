@@ -154,6 +154,8 @@ function ProfilePage() {
   const [followingCount, setFollowingCount] = useState(0);
   const [friendsCount, setFriendsCount] = useState(0);
   const [reposts, setReposts] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   const {
     register,
@@ -278,7 +280,7 @@ function ProfilePage() {
     };
 
     fetchReviews();
-  }, [user.uid]);
+  }, [userId]);
 
   useEffect(() => {
     loadData();
@@ -351,6 +353,7 @@ function ProfilePage() {
       await uploadBytes(imageRef, e.target.files[0]).then((snapshot) => {
         console.log("Uploaded a blob or file!");
         console.log(snapshot);
+        setIsUploaded(true);
       });
       getDownloadURL(imageRef).then((url) => {
         console.log(url);
@@ -361,9 +364,12 @@ function ProfilePage() {
       });
     } catch (err) {
       console.log(err.message);
+    } finally {
     }
+    setIsUploaded(false);
   };
   const handleSubmitProfilePicture = async (e) => {
+    setIsUploading(true);
     e.preventDefault();
     const userRef = doc(db, "users1", userData.userID);
 
@@ -383,6 +389,8 @@ function ProfilePage() {
       });
     } catch (err) {
       console.log(err.message);
+    } finally {
+      setIsUploading(false);
     }
     window.location.reload();
   };
@@ -510,6 +518,7 @@ function ProfilePage() {
                                     align="center"
                                   >
                                     <Button
+                                      isLoading={isUploading}
                                       colorScheme="telegram"
                                       onClick={handleSubmitProfilePicture}
                                     >
@@ -574,7 +583,6 @@ function ProfilePage() {
                       ago
                     </Text>
                   </Box>
-
                   <br />
                   <Flex>
                     <FollowButton userId={userId} currentUserId={user?.uid} />
@@ -746,6 +754,7 @@ function ProfilePage() {
               </Flex>
 
               <Flex
+                h="50vh"
                 w="100%"
                 justify="center"
                 align="center"
@@ -1217,8 +1226,8 @@ function ProfilePage() {
                                     About {userData.name}
                                   </Heading>
                                   <Text color="#9c9c9c" fontSize="sm" as="i">
-                                    Member since{" "}
-                                    {formatDistanceToNow(userData.dateCreated)}{" "}
+                                    Member since
+                                    {formatDistanceToNow(userData.dateCreated)}
                                     ago
                                   </Text>
                                   <Text fontSize="lg">

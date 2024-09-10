@@ -1,10 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Flex, useToast, Box, Text, HStack } from '@chakra-ui/react';
-import { UserPlus, UserCheck, Edit3 } from 'react-feather';
-import { db } from '../../../firebase/firebaseConfig'; // Adjust path if needed
-import { doc, updateDoc, getDoc, getDocs, collection, setDoc, deleteDoc } from 'firebase/firestore';
-import { arrayUnion, arrayRemove } from 'firebase/firestore';
-import { UserAuth } from '../../context/AuthContext';
+import React, { useState, useEffect } from "react";
+import { Button, Flex, useToast, Box, Text, HStack } from "@chakra-ui/react";
+import { UserPlus, UserCheck, Edit3 } from "react-feather";
+import { db } from "../../../firebase/firebaseConfig"; // Adjust path if needed
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  getDocs,
+  collection,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { arrayUnion, arrayRemove } from "firebase/firestore";
+import { UserAuth } from "../../context/AuthContext";
 
 const FollowButton = ({ userId, currentUserId }) => {
   const [followersCount, setFollowersCount] = useState(0);
@@ -32,15 +40,21 @@ const FollowButton = ({ userId, currentUserId }) => {
 
     const fetchCounts = async () => {
       // Get followers count
-      const followersSnapshot = await getDocs(collection(db, `users1/${userId}/followers`));
+      const followersSnapshot = await getDocs(
+        collection(db, `users1/${userId}/followers`)
+      );
       setFollowersCount(followersSnapshot.size);
 
       // Get following count
-      const followingSnapshot = await getDocs(collection(db, `users1/${userId}/following`));
+      const followingSnapshot = await getDocs(
+        collection(db, `users1/${userId}/following`)
+      );
       setFollowingCount(followingSnapshot.size);
 
       // Get friends count
-      const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+      const friendsSnapshot = await getDocs(
+        collection(db, `users1/${userId}/friends`)
+      );
       setFriendsCount(friendsSnapshot.size);
     };
 
@@ -66,7 +80,7 @@ const FollowButton = ({ userId, currentUserId }) => {
       setIsFollowing(true);
       setFollowersCount((prevCount) => prevCount + 1); // Update followers count in UI
     } catch (error) {
-      console.error('Error following user:', error);
+      console.error("Error following user:", error);
     }
   };
 
@@ -84,14 +98,14 @@ const FollowButton = ({ userId, currentUserId }) => {
       setIsFollowing(false);
       setFollowersCount((prevCount) => prevCount - 1); // Update followers count in UI
     } catch (error) {
-      console.error('Error unfollowing user:', error);
+      console.error("Error unfollowing user:", error);
     }
   };
 
   const isOwnProfile = userId === user?.uid;
 
   return (
-    <Flex direction="column" alignItems="end" border="2px">
+    <Flex direction="column" alignItems="end">
       {isOwnProfile ? (
         <Button
           leftIcon={<Edit3 />}
@@ -113,20 +127,25 @@ const FollowButton = ({ userId, currentUserId }) => {
 
       <HStack spacing={8}>
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold">{followersCount}</Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {followersCount}
+          </Text>
           <Text>Followers</Text>
         </Box>
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold">{followingCount}</Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {followingCount}
+          </Text>
           <Text>Following</Text>
         </Box>
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold">{friendsCount}</Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {friendsCount}
+          </Text>
           <Text>Friends</Text>
         </Box>
       </HStack>
     </Flex>
-
   );
 };
 
