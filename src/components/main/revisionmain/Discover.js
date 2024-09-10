@@ -23,7 +23,8 @@ import {
   List,
   ListItem,
   Link,
-  IconButton
+  IconButton,
+  Spinner,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
@@ -202,34 +203,38 @@ const Discover = () => {
     try {
       const postRef = doc(db, "discover", postId);
       const userViewRef = doc(db, "discover", postId, "userViews", userId);
-  
+
       const postDoc = await getDoc(postRef);
       if (!postDoc.exists()) {
         console.error("Post does not exist");
         return;
       }
-  
+
       const postData = postDoc.data();
-      console.log(`Post author ID: ${postData.authorId}, Current user ID: ${userId}`);
-  
+      console.log(
+        `Post author ID: ${postData.authorId}, Current user ID: ${userId}`
+      );
+
       // Convert both to strings to ensure proper comparison
       if (String(postData.authorId) === String(userId)) {
         console.log("Author views are not counted");
         return;
       }
-  
+
       const userViewDoc = await getDoc(userViewRef);
       if (!userViewDoc.exists()) {
-        console.log("User has not viewed the post yet. Incrementing view count.");
-        
+        console.log(
+          "User has not viewed the post yet. Incrementing view count."
+        );
+
         await updateDoc(postRef, {
           views: increment(1),
         });
-  
+
         await setDoc(userViewRef, {
           viewedAt: new Date(),
         });
-  
+
         console.log("View count incremented and user view logged.");
       } else {
         console.log("User has already viewed the post.");
@@ -244,18 +249,18 @@ const Discover = () => {
       console.warn("Post or user data is not fully available.");
       return;
     }
-  
+
     // Ensure this function only counts views for video posts
     if (!post.postVideo) {
       console.log("This post is an image, views are not counted.");
       return;
     }
-  
+
     if (String(post.authorId) === String(user.uid)) {
       console.log("Author views are not counted");
       return; // Do not increment view count if the author is viewing
     }
-  
+
     // Check if the view count has already been incremented for this post
     if (!viewedPosts[post.id]) {
       // Set a timer to count the view after 0 seconds
@@ -263,7 +268,7 @@ const Discover = () => {
         incrementViewCount(post.id, user.uid); // Increment the view count in Firestore
         setViewedPosts((prev) => ({ ...prev, [post.id]: true })); // Mark the post as viewed
       }, 0); // 0 seconds
-  
+
       // Return the timer to be used for cleanup
       return timer;
     }
@@ -416,7 +421,9 @@ const Discover = () => {
                       justify="center"
                       align="center"
                     >
-                      {!userProfile ? (
+                      {loading ? (
+                        <Spinner />
+                      ) : !userProfile ? (
                         <Button
                           p="16px 32px"
                           variant="link"
@@ -466,6 +473,8 @@ const Discover = () => {
                                 // variant="ghost"
                                 rightIcon={<Edit size={16} />}
                                 onClick={addDiscover.onOpen}
+                                bg={primaryColor}
+                                _hover={{ bg: "#ffd97e" }}
                               >
                                 <AddDiscoverModal
                                   isOpen={addDiscover.isOpen}
@@ -633,7 +642,7 @@ const Discover = () => {
                             rowSpan={1}
                             onClick={() =>
                               user
-                                ? openPostModal(post)
+                                ? window.open(`/discover/post/${post.id}`)
                                 : toast({
                                     title: "Oops!",
                                     description: "Please login first.",
@@ -661,60 +670,65 @@ const Discover = () => {
 
                                 {post.postVideo && (
                                   <Box position="relative">
-                                  <video
-                                    controls
-                                    onLoadedMetadata={(e) => {
-                                      e.target.volume = 0.85;
-                                    }}
-                                    style={{
-                                      borderRadius: "8px",
-                                      // maxWidth:"500px",
-                                      width: "300px",
-                                      height: "370px",
-                                      objectFit: "cover",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      if (e.target.paused) {
-                                        e.target.play();
-                                      }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.target.pause();
-                                    }}
-                                    // onMouseEnter={(e) => e.target.play()}
-                                    // onMouseLeave={(e) => e.target.pause()}
-                                  >
-                                    <source
-                                      src={post.postVideo}
-                                      type="video/mp4"
-                                    />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                  {post.views !== undefined && (
-                                    <Flex
-                                      align="center"
-                                      justify="center"
-                                      position="absolute"
-                                      top="1px" // Adjust as needed
-                                      right="8px" // Adjust as needed
-                                      background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
-                                      borderRadius="12px"
-                                      p="2px 8px"
+                                    <video
+                                      controls
+                                      onLoadedMetadata={(e) => {
+                                        e.target.volume = 0.85;
+                                      }}
+                                      style={{
+                                        borderRadius: "8px",
+                                        // maxWidth:"500px",
+                                        width: "300px",
+                                        height: "370px",
+                                        objectFit: "cover",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        if (e.target.paused) {
+                                          e.target.play();
+                                        }
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.target.pause();
+                                      }}
+                                      // onMouseEnter={(e) => e.target.play()}
+                                      // onMouseLeave={(e) => e.target.pause()}
                                     >
-                                      <IconButton
-                                        icon={<FaPlay />}
-                                        aria-label="Views"
-                                        variant="ghost"
-                                        colorScheme="white"
-                                        fontSize="sm"
-                                        isDisabled
-                                        background="transparent"
+                                      <source
+                                        src={post.postVideo}
+                                        type="video/mp4"
                                       />
-                                      <Text fontSize="sm" color="white" ml="-2">
-                                        {post.views}
-                                      </Text>
-                                    </Flex>
-                                  )}
+                                      Your browser does not support the video
+                                      tag.
+                                    </video>
+                                    {post.views !== undefined && (
+                                      <Flex
+                                        align="center"
+                                        justify="center"
+                                        position="absolute"
+                                        top="1px" // Adjust as needed
+                                        right="8px" // Adjust as needed
+                                        background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
+                                        borderRadius="12px"
+                                        p="2px 8px"
+                                      >
+                                        <IconButton
+                                          icon={<FaPlay />}
+                                          aria-label="Views"
+                                          variant="ghost"
+                                          colorScheme="white"
+                                          fontSize="sm"
+                                          isDisabled
+                                          background="transparent"
+                                        />
+                                        <Text
+                                          fontSize="sm"
+                                          color="white"
+                                          ml="-2"
+                                        >
+                                          {post.views}
+                                        </Text>
+                                      </Flex>
+                                    )}
                                   </Box>
                                 )}
                               </Flex>

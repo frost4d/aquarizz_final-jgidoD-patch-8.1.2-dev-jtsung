@@ -41,15 +41,21 @@ const FollowButton = ({ userId, currentUserId }) => {
 
     const fetchCounts = async () => {
       // Get followers count
-      const followersSnapshot = await getDocs(collection(db, `users1/${userId}/followers`));
+      const followersSnapshot = await getDocs(
+        collection(db, `users1/${userId}/followers`)
+      );
       setFollowersCount(followersSnapshot.size);
 
       // Get following count
-      const followingSnapshot = await getDocs(collection(db, `users1/${userId}/following`));
+      const followingSnapshot = await getDocs(
+        collection(db, `users1/${userId}/following`)
+      );
       setFollowingCount(followingSnapshot.size);
 
       // Get friends count
-      const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+      const friendsSnapshot = await getDocs(
+        collection(db, `users1/${userId}/friends`)
+      );
       setFriendsCount(friendsSnapshot.size);
     };
 
@@ -90,7 +96,7 @@ const FollowButton = ({ userId, currentUserId }) => {
       setIsFollowing(true);
       setFollowersCount((prevCount) => prevCount + 1); // Update followers count in UI
     } catch (error) {
-      console.error('Error following user:', error);
+      console.error("Error following user:", error);
     }
   };
 
@@ -116,7 +122,7 @@ const FollowButton = ({ userId, currentUserId }) => {
       setIsFollowing(false);
       setFollowersCount((prevCount) => prevCount - 1); // Update followers count in UI
     } catch (error) {
-      console.error('Error unfollowing user:', error);
+      console.error("Error unfollowing user:", error);
     }
   };
 
@@ -184,7 +190,7 @@ const FollowButton = ({ userId, currentUserId }) => {
   const isOwnProfile = userId === user?.uid;
 
   return (
-    <Flex direction="column" alignItems="end" border="2px">
+    <Flex direction="column" alignItems="end">
       {isOwnProfile ? (
         <>
         <Button colorScheme="teal" onClick={profileModal.onOpen} leftIcon={<Edit3 />}>
@@ -266,20 +272,25 @@ const FollowButton = ({ userId, currentUserId }) => {
 
       <HStack spacing={8}>
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold">{followersCount}</Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {followersCount}
+          </Text>
           <Text>Followers</Text>
         </Box>
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold">{followingCount}</Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {followingCount}
+          </Text>
           <Text>Following</Text>
         </Box>
         <Box textAlign="center">
-          <Text fontSize="lg" fontWeight="bold">{friendsCount}</Text>
+          <Text fontSize="lg" fontWeight="bold">
+            {friendsCount}
+          </Text>
           <Text>Friends</Text>
         </Box>
       </HStack>
     </Flex>
-
   );
 };
 

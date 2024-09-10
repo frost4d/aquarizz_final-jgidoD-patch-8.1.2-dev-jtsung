@@ -22,6 +22,8 @@ import { auth } from "../../../firebase/firebaseConfig";
 import {
   fetchSignInMethodsForEmail,
   sendPasswordResetEmail,
+  sendEmailVerification,
+  signOut,
 } from "firebase/auth";
 import { UserAuth } from "../../context/AuthContext";
 import WelcomeModal from "./components/WelcomeModal";
@@ -33,7 +35,8 @@ const slideVariants = {
   exit: { y: "-5vh" }, // Slide offscreen (left)
 };
 
-const LoginModal = (props, { onNext }) => {
+const LoginModal = (props) => {
+  const [isVerified, setIsVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, user, userProfile } = UserAuth();
   const toast = useToast();
@@ -59,8 +62,22 @@ const LoginModal = (props, { onNext }) => {
     setIsLoading(true);
     console.log(data);
     try {
-      await signIn(data.email, data.password);
+      const userCred = await signIn(data.email, data.password);
+
+      const userVerify = userCred.user;
       // handleSessionStorage();
+      // if (!userVerify.emailVerified) {
+      //   toast({
+      //     title: "Email verification was sent!",
+      //     description: "Please verify your email.",
+      //     status: "error",
+      //     duration: 4000,
+      //     position: "top",
+      //   });
+      // } else {
+      //   console.log("what??????");
+      // }
+
       setTimeout(() => {
         toast({
           description: "Welcome back!!!",
@@ -82,6 +99,7 @@ const LoginModal = (props, { onNext }) => {
       }
     } finally {
       setIsLoading(false);
+
       navigate(window.location.pathname);
     }
     resetLogin();
@@ -157,6 +175,7 @@ const LoginModal = (props, { onNext }) => {
                       w="100%"
                       type="submit"
                       bg={primaryColor}
+                      isDisabled={isVerified}
                     >
                       Login
                     </Button>
