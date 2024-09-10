@@ -37,6 +37,8 @@ import ChatMessage from "./components/main/revisionmain/ChatMessage.js";
 import Marketplace from "./components/main/revisionmain/Marketplace.js";
 import MarketItem from "./components/main/revisionmain/MarketItem.js";
 import ItemModal from "./components/main/revisionmain/ItemModal.js";
+import PostModal from "./components/main/revisionmain/PostModal.js";
+import DiscoverModal from "./components/main/revisionmain/DiscoverModal.js";
 
 function App() {
   return (
@@ -53,6 +55,10 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
             <Route path="/discover" element={<Discover />} />
+            <Route
+              path="/discover/post/:discoverId"
+              element={<DiscoverModal />}
+            />
             <Route path="/shop" element={<Shop />} />
             <Route path="/AddToCart/:id" element={<AddToCartPage />} />
             <Route path="/CartItem/:id" element={<CartItem />} />

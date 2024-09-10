@@ -417,7 +417,11 @@ const Marketplace = () => {
                             rowSpan={1}
                             onClick={() => {
                               user
-                                ? navigate(`/marketplace/item/${post.id}`)
+                                ? window.open(
+                                    `/marketplace/item/${post.id}`,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                  )
                                 : toast({
                                     title: "Oops!",
                                     description: "Please login first.",

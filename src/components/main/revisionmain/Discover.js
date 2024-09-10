@@ -559,7 +559,7 @@ const Discover = () => {
                             rowSpan={1}
                             onClick={() =>
                               user
-                                ? openPostModal(post)
+                                ? window.open(`/discover/post/${post.id}`)
                                 : toast({
                                     title: "Oops!",
                                     description: "Please login first.",

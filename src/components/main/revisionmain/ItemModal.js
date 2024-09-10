@@ -257,7 +257,6 @@ const ItemModal = () => {
       try {
         const docRef = doc(db, "marketplace", postId);
         const docSnap = await getDoc(docRef);
-
         // Check if the document exists and get the data
         if (docSnap.exists()) {
           const itemData = docSnap.data();
@@ -274,6 +273,7 @@ const ItemModal = () => {
     fetchItem();
   }, [postId]);
 
+  console.log(postData);
   useEffect(() => {
     if (postData && postData.postImage) {
       setCount(postData.postImage.length);
@@ -328,7 +328,6 @@ const ItemModal = () => {
         onClose={handleCloseModal}
       >
         <ModalContent>
-          <ModalCloseButton />
           <ModalBody>
             {isLoading ? (
               <span className="loader"></span>
