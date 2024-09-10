@@ -220,10 +220,10 @@ const Marketplace = () => {
                         >
                           <Avatar
                             size="xl"
-                            name={userProfile.name}
-                            scr={
-                              userProfile.profileImage || "/path/to/avatar.jpg"
-                            }
+                            name={userProfile?.name} 
+                            src={userProfile?.profileImage || "/default-avatar.jpg"} // Use profileImage from userProfile or a default image
+                            borderWidth="2px"
+                            borderColor="gray.200"
                           />
 
                           <Text fontSize="xs">

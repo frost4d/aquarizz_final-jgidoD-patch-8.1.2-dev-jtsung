@@ -45,10 +45,10 @@ import { db } from "../../../firebase/firebaseConfig";
 import { UserAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const PostModal = ({ isOpen, onClose, post, userProfile }) => {
+const PostModal = ({ isOpen, onClose, post }) => {
   // const [likes, setLikes] = useState(post?.likes || 0);
   // const [isLiked, setIsLiked] = useState(false);
-  const { user } = UserAuth();
+  const { user, userProfile } = UserAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const [likes, setLikes] = useState(post?.likes?.length || 0);
@@ -59,24 +59,48 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
   );
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [authorProfile, setAuthorProfile] = useState(null);
 
   useEffect(() => {
     if (post && post.id) {
       const fetchComments = async () => {
-        const commentsRef = collection(db, "discover", post.id, "comments");
-        const querySnapshot = await getDocs(commentsRef);
-        const fetchedComments = [];
-        querySnapshot.forEach((doc) => {
-          const commentData = doc.data();
-          fetchedComments.push({
-            id: doc.id,
-            ...commentData,
-          });
-        });
-        setComments(fetchedComments);
+        try {
+          const commentsRef = collection(db, "discover", post.id, "comments");
+          const querySnapshot = await getDocs(commentsRef);
+          const fetchedComments = [];
+      
+          for (const docSnapshot of querySnapshot.docs) {
+            const commentData = docSnapshot.data();
+            const userRef = doc(db, "users1", commentData.userId); // Adjust collection name if needed
+            const userDoc = await getDoc(userRef);
+            const userProfile = userDoc.exists() ? userDoc.data() : {};
+      
+            fetchedComments.push({
+              id: docSnapshot.id,
+              ...commentData,
+              userProfileImage: userProfile.profileImage || "/path/to/default-avatar.jpg",
+              userName: userProfile.name || "Unknown",
+            });
+          }
+      
+          setComments(fetchedComments);
+        } catch (error) {
+          console.error("Error fetching comments:", error);
+        }
       };
-
+      
       fetchComments();
+
+          // Fetch author profile
+          const fetchAuthorProfile = async () => {
+            const authorRef = doc(db, "users1", post.authorID); // Adjust collection name if needed
+            const authorDoc = await getDoc(authorRef);
+            if (authorDoc.exists()) {
+              setAuthorProfile(authorDoc.data());
+            }
+          };
+    
+          fetchAuthorProfile();
     }
   }, [post]);
 
@@ -295,15 +319,17 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
             <Flex align="center">
               <Avatar
                 size="md"
-                name={post.authorName}
-                src={post.authorAvatar}
+                name={authorProfile?.name || "Unknown"}
+                src={authorProfile?.profileImage || "/path/to/avatar.jpg"}
+                borderWidth="2px"
+                borderColor="gray.200"
                 cursor="pointer"
                 onClick={handleAuthorClick} //
               />
               <Text color="white" ml="2" fontWeight="bold" fontSize="xl" cursor="pointer"
                 onClick={handleAuthorClick}>
-                {post.authorName}
-              </Text>
+                {authorProfile?.name || "Unknown"}
+                </Text>
             </Flex>
             <Flex w="100%" h="auto">
               <Text fontSize="lg">{post.postContent}</Text>
@@ -405,7 +431,11 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
                   mb="4"
                   h="auto"
                 >
-                  <Avatar size="sm" mb="6" name={comment.userName} />
+                  <Avatar size="sm" mb="6" name={comment.userName} 
+                    src={comment.userProfileImage || "/path/to/default-avatar.jpg"}
+                    borderWidth="2px"
+                    borderColor="gray.200"
+                                 />
                   <Flex flexDirection="column">
                     <Text
                       py="4"
@@ -414,8 +444,8 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
                       fontWeight="bold"
                       fontSize="sm"
                     >
-                      {post.authorName}
-                    </Text>
+                      {comment.userName}
+                      </Text>
                     <Text ml="2" fontSize="md" color="white">
                       {comment.comment}
                     </Text>
@@ -426,8 +456,12 @@ const PostModal = ({ isOpen, onClose, post, userProfile }) => {
             <Flex mt="4" align="center">
               <Avatar
                 size="sm"
-                name="Current User"
-                src="current-user-avatar-url"
+                name={userProfile.name}
+                src={
+                  userProfile.profileImage || "/path/to/avatar.jpg"
+                }
+                     borderWidth="2px"
+                     borderColor="gray.200"
               />
               <Input
                 ml="2"

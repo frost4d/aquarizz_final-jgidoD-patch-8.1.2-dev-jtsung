@@ -89,7 +89,7 @@ const Sidebar = () => {
               ) : (
                 userProfile && (
                   <Flex
-                    justify="center"
+                    justify="center"z
                     flexDirection="column"
                     align="center"
                     p="24px"

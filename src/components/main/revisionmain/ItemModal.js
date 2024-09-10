@@ -70,6 +70,7 @@ const ItemModal = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [likes, setLikes] = useState(post?.likes?.length || 0);
   const [shares, setShares] = useState(post?.shares?.length || 0);
+  const [authorProfile, setAuthorProfile] = useState(null);
   const [isLiked, setIsLiked] = useState(
     post?.likes?.includes(user?.uid) || false
   );
@@ -257,11 +258,19 @@ const ItemModal = () => {
         if (docSnap.exists()) {
           const itemData = docSnap.data();
           setPostData(itemData);
+
+          // Fetch the author's profile information
+          const authorRef = doc(db, "users1", itemData.authorID);
+          const authorSnap = await getDoc(authorRef);
+
+          if (authorSnap.exists()) {
+            setAuthorProfile(authorSnap.data());
+          }
         }
       } catch (err) {
         console.log(err.message);
       } finally {
-        // do something
+        setIsLoading(false);
       }
     };
 
@@ -410,9 +419,14 @@ const ItemModal = () => {
                         <Heading size="md" mt="8px">Seller Information</Heading>
                         <Flex m="4px 0" mt="8px" align="center" minW="410px">
                           <Avatar
-                            size="md"
-                            mr="4px"
-                            name={postData.authorName}
+                              size="md"
+                              src={
+                                authorProfile?.profileImage || "/path/to/default/avatar.jpg"
+                              }
+                              borderWidth="2px"
+                              borderColor="gray.200"
+                              mr="4px"
+                              name={authorProfile?.username}
                           />
                           <Text ml="4px" width="100%" fontWeight="bold">
                             {postData.authorName}

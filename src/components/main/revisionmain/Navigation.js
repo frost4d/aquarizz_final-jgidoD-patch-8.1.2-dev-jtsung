@@ -59,10 +59,6 @@ import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
 import AddDiscoverModal from "./AddDiscoverModal";
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -76,11 +72,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
   const addDiscover = useDisclosure();
-<<<<<<< Updated upstream
-
-  const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
-=======
->>>>>>> Stashed changes
 
   useEffect(() => {
     // Get cart items from local storage
@@ -136,7 +127,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
               className={({ isActive }) =>
                 isActive ? "navlink_isActive" : "navlink_inactive"
               }
-              to="/shop"
+              to="/marketplace"
             >
               <Button
                 borderRadius="0"
@@ -146,7 +137,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 // _hover={{ bg: "rgba(249,249,249,1)" }}
                 // onClick={() => navigate("/shop")}
               >
-                Shop
+                Marketplace
               </Button>
             </NavLink>
             <NavLink
@@ -172,30 +163,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             {/* {!userProfile ? (
               ""
             ) : (
-<<<<<<< Updated upstream
-              <Menu>
-              <MenuButton as={Button} variant="ghost" rightIcon={
-                <>
-                  <BellIcon size={16} />
-                  <Badge colorScheme="red" borderRadius="full" px="2">
-                    3 {/* Replace with dynamic notification count */}
-                  </Badge>
-                </>
-              }>
-              </MenuButton>
-              <MenuList>
-                {notificationItems.length ? (
-                  notificationItems.map((item, index) => (
-                    <MenuItem key={index}>{item}</MenuItem>
-                  ))
-                ) : (
-                  <MenuItem>No new notifications</MenuItem>
-                )}
-              </MenuList>
-            </Menu>
-            )}
-
-=======
               <NavLink
                 className={({ isActive }) =>
                   isActive ? "navlink_isActive" : "navlink_inactive"
@@ -216,7 +183,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 </Button>
               </NavLink>
             )} */}
->>>>>>> Stashed changes
             {userProfile ? (
               <>
                 {userProfile && (
@@ -227,9 +193,9 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                           colorScheme={`"whiteAlpha" | "blackAlpha" | "gray"  "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink"`}
                           size="sm"
                           name={userProfile.name}
-                          scr={
-                            userProfile.profileImage || "/path/to/avatar.jpg"
-                          }
+                          src={userProfile.profileImage || "/default-avatar.jpg"} // Consistent source
+                           borderWidth="2px"
+                           borderColor="gray.200"
                         />
                         {/* {userProfile.name.charAt(0).toUpperCase()} */}
                       </Flex>
@@ -404,9 +370,11 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                           <Avatar
                             size="xl"
                             name={userProfile.name}
-                            scr={
+                            src={
                               userProfile.profileImage || "/path/to/avatar.jpg"
                             }
+                                 borderWidth="2px"
+                                 borderColor="gray.200"
                           />
                         )}
                         {/* {userProfile.name.charAt(0).toUpperCase()} */}
