@@ -161,6 +161,8 @@ const ItemModal = () => {
     const postUrl = `${window.location.origin}/marketplace/item/${postId}`;
 
     // Log URL to ensure it's correct
+    console.log('Post:', post);
+
     console.log("Copying URL:", postUrl);
 
     navigator.clipboard

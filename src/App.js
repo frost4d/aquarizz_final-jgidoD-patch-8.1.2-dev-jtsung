@@ -39,6 +39,8 @@ import MarketItem from "./components/main/revisionmain/MarketItem.js";
 import ItemModal from "./components/main/revisionmain/ItemModal.js";
 import PostModal from "./components/main/revisionmain/PostModal.js";
 import DiscoverModal from "./components/main/revisionmain/DiscoverModal.js";
+import FriendsPost from "./components/main/revisionmain/FriendsPost.js";
+import FollowingPost from "./components/main/revisionmain/FollowingPost.js";
 
 function App() {
   return (
@@ -54,6 +56,7 @@ function App() {
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
+            <Route path="/discover/:postId" element={<Discover />} />
             <Route path="/discover" element={<Discover />} />
             <Route
               path="/discover/post/:discoverId"
@@ -79,6 +82,8 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/chatMessage/:userId" element={<ChatMessage />} />
             <Route path="/marketplace/item/:postId" element={<ItemModal />} />
+            <Route path="/friendsPost" element={<FriendsPost />} />
+            <Route path="/followingPost" element={<FollowingPost />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
             <Route path="/register" element={<Register />} />

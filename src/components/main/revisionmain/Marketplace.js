@@ -51,6 +51,9 @@ const Marketplace = () => {
   const [suggestions, setSuggestions] = useState([]);
   const { itemModal } = useDisclosure();
   const [selectedPost, setSelectedPost] = useState(null);
+  const [discoverPosts, setDiscoverPosts] = useState([]);
+  const [friends, setFriends] = useState([]);
+
 
   //   get the contents of the posts posted in marketplace db
   useEffect(() => {
@@ -156,6 +159,17 @@ const Marketplace = () => {
     setSelectedPost(post);
   };
 
+  const handleFriendsClick = () => {
+    // Update the filtered posts based on friends list
+    setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
+    navigate("/friendsPost");
+  };
+  const handleFollowingClick = () => {
+    // Update the filtered posts based on friends list
+    setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
+    navigate("/followingPost");
+  };
+
   console.log(marketplacePost);
   console.log(filteredPosts);
   return (
@@ -224,12 +238,12 @@ const Marketplace = () => {
                           <Avatar
                             size="xl"
                             name={userProfile.name}
-                            scr={
+                            src={
                               userProfile.profileImage || "/path/to/avatar.jpg"
                             }
                           />
 
-                          <Text fontSize="xs">
+                          <Text fontSize="xs" mt="4px">
                             {!userProfile
                               ? ""
                               : userProfile &&
@@ -283,7 +297,7 @@ const Marketplace = () => {
                 w="100%"
                 fontWeight="bold"
                 _hover={{ bg: "#f0f0f0", borderRadius: "10px" }}
-                onClick={() => navigate("/following")}
+                onClick={handleFollowingClick}
               >
                 <Flex align="center" ml="12px">
                   <UserPlus size={20} />
@@ -298,7 +312,7 @@ const Marketplace = () => {
                 w="100%"
                 fontWeight="bold"
                 _hover={{ bg: "#f0f0f0", borderRadius: "10px" }}
-                onClick={() => navigate("/friends")}
+                onClick={handleFriendsClick}
               >
                 <Flex align="center" ml="12px">
                   <Users size={20} />

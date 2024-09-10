@@ -1,7 +1,7 @@
 import "./Discover.css";
 import { useEffect, useState } from "react";
 import { db } from "../../../firebase/firebaseConfig";
-import { doc, getDocs, collection, addDoc, getDoc, setDoc, updateDoc, increment, where } from "firebase/firestore";
+import { doc, getDocs, collection, addDoc, getDoc, setDoc, updateDoc, increment, where, query } from "firebase/firestore";
 import {
   Box,
   Button,
@@ -23,8 +23,7 @@ import {
   List,
   ListItem,
   Link,
-  IconButton,
-  Spinner,
+  IconButton
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
@@ -38,125 +37,74 @@ import LoginModal from "./LoginModal";
 import { ChatIcon } from "@chakra-ui/icons";
 import { FaPlay } from "react-icons/fa";
 
-const Discover = () => {
+const FollowingPost = () => {
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
-  console.log("userProfile:", userProfile);
-  const primaryColor = "#FFC947";
-  const primaryFont = '"Poppins", sans-serif';
-  const tertiaryColor = "#6e6e6e";
-  const addDiscover = useDisclosure();
   const toast = useToast();
   const [discoverPosts, setDiscoverPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [post, setPost] = useState();
-  const { postId, userId } = useParams();
-  const [cartItemCount, setCartItemCount] = useState(0);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState();
-  const openLogin = useDisclosure();
-  // const letter = userProfile.name.charAt(0);
-  const [viewedPosts, setViewedPosts] = useState({}); // State to track viewed posts
+  const [viewedPosts, setViewedPosts] = useState({});
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedPost, setSelectedPost] = useState(null);
   const [followedUsers, setFollowedUsers] = useState([]);
   const [friends, setFriends] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const openLogin = useDisclosure();
+  const addDiscover = useDisclosure();
+  const [loading, setLoading] = useState();
+
 
   useEffect(() => {
-    const fetchDiscoverPosts = async () => {
-      setLoading(true);
+    const fetchFollowedUsers = async () => {
+      if (!user || !user.uid) return;
+
       try {
+        // Reference to the "following" subcollection in Firestore
+        const followingCollection = collection(db, "users1", user.uid, "following");
+        const querySnapshot = await getDocs(followingCollection);
+
+        // Get the followedUserId from the subcollection
+        const followedUsersList = querySnapshot.docs.map((doc) => doc.data().followedUserId);
+        setFollowedUsers(followedUsersList);
+      } catch (err) {
+        console.error("Error fetching followed users:", err);
+      }
+    };
+
+    fetchFollowedUsers();
+  }, [user]);
+
+  // Fetch posts from followed users
+  useEffect(() => {
+    const fetchFollowingPosts = async () => {
+      if (followedUsers.length === 0) return;
+
+      try {
+        // Query posts where the authorId is in the list of followed users
         const postsCollection = collection(db, "discover");
-        const querySnapshot = await getDocs(postsCollection);
-        const tempPosts = [];
-        querySnapshot.forEach((doc) => {
-          tempPosts.push({ id: doc.id, ...doc.data() });
-        });
-        setDiscoverPosts(tempPosts);
-        setFilteredPosts(tempPosts);
-        setLoading(false);
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
-    fetchDiscoverPosts();
-  }, [userProfile]);
-  console.log("userProfile:", userProfile);
+        const postsQuery = query(postsCollection, where("authorID", "in", followedUsers));
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const usersCollection = collection(db, "users1");
-        const querySnapshot = await getDocs(usersCollection);
-        const usersList = [];
-        querySnapshot.forEach((doc) => {
-          usersList.push({ id: doc.id, ...doc.data() });
-        });
-        setUsers(usersList);
+        const querySnapshot = await getDocs(postsQuery);
+        const postsList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        setFilteredPosts(postsList);
+        setDiscoverPosts(postsList); // Set the discover posts for search/filter functionality
       } catch (err) {
-        console.log(err.message);
+        console.error("Error fetching following posts:", err);
       }
     };
 
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    if (searchTerm) {
-      const searchTermLower = searchTerm.toLowerCase();
-
-      // Filter users and posts separately
-      const filteredUsers = users.filter((user) =>
-        user.name?.toLowerCase().startsWith(searchTermLower)
-      );
-
-      const filteredPosts = discoverPosts.filter(
-        (post) =>
-          // post.authorName?.toLowerCase().startsWith(searchTermLower) ||
-          post.tag?.toLowerCase().startsWith(searchTermLower) ||
-          post.postTitle?.toLowerCase().startsWith(searchTermLower) ||
-          post.postContent?.toLowerCase().startsWith(searchTermLower)
-      );
-
-      // Combine and show top 5 suggestions with separation
-      setSuggestions([
-        ...filteredUsers.slice(0, 5).map((user) => ({ ...user, type: "user" })),
-        ...filteredPosts.slice(0, 5).map((post) => ({ ...post, type: "post" })),
-      ]);
-    } else {
-      setSuggestions([]);
+    if (followedUsers.length > 0) {
+      fetchFollowingPosts();
     }
-  }, [searchTerm, discoverPosts, users]);
-
-  useEffect(() => {
-    if (postId) {
-      const fetchPost = async () => {
-        try {
-          const postRef = doc(db, "discover", postId);
-          const postDoc = await getDoc(postRef);
-          if (postDoc.exists()) {
-            setSelectedPost({ id: postDoc.id, ...postDoc.data() });
-            onOpen();
-          } else {
-            console.log("No such post!");
-          }
-        } catch (err) {
-          console.log(err.message);
-        }
-      };
-      fetchPost();
-    }
-  }, [postId]);
+  }, [followedUsers]);
 
   const handleSearchDiscover = (e) => {
     e.preventDefault();
-
     const searchTermLower = searchTerm.toLowerCase();
     const filtered = discoverPosts.filter((post) => {
       return (
-        // post.authorName?.toLowerCase().includes(searchTermLower) ||
         post.tag?.toLowerCase().includes(searchTermLower) ||
         post.postTitle?.toLowerCase().includes(searchTermLower) ||
         post.postContent?.toLowerCase().includes(searchTermLower)
@@ -176,24 +124,6 @@ const Discover = () => {
     setFilteredPosts([suggestion]);
   };
 
-  const handleAddDiscover = async (formData) => {
-    try {
-      const docRef = await addDoc(collection(db, "discover"), formData);
-      setDiscoverPosts([...discoverPosts, { id: docRef.id, ...formData }]);
-      setFilteredPosts([...discoverPosts, { id: docRef.id, ...formData }]);
-      addDiscover.onClose();
-      toast({
-        title: "Post Created.",
-        description: "Post successfully published.",
-        status: "success",
-        duration: 5000,
-        position: "top",
-      });
-    } catch (err) {
-      console.error("Error adding document: ", err);
-    }
-  };
-
   const openPostModal = (post) => {
     setSelectedPost(post);
     onOpen();
@@ -211,11 +141,7 @@ const Discover = () => {
       }
 
       const postData = postDoc.data();
-      console.log(
-        `Post author ID: ${postData.authorId}, Current user ID: ${userId}`
-      );
 
-      // Convert both to strings to ensure proper comparison
       if (String(postData.authorId) === String(userId)) {
         console.log("Author views are not counted");
         return;
@@ -223,10 +149,6 @@ const Discover = () => {
 
       const userViewDoc = await getDoc(userViewRef);
       if (!userViewDoc.exists()) {
-        console.log(
-          "User has not viewed the post yet. Incrementing view count."
-        );
-
         await updateDoc(postRef, {
           views: increment(1),
         });
@@ -250,7 +172,6 @@ const Discover = () => {
       return;
     }
 
-    // Ensure this function only counts views for video posts
     if (!post.postVideo) {
       console.log("This post is an image, views are not counted.");
       return;
@@ -258,114 +179,18 @@ const Discover = () => {
 
     if (String(post.authorId) === String(user.uid)) {
       console.log("Author views are not counted");
-      return; // Do not increment view count if the author is viewing
+      return;
     }
 
-    // Check if the view count has already been incremented for this post
     if (!viewedPosts[post.id]) {
-      // Set a timer to count the view after 0 seconds
       const timer = setTimeout(() => {
-        incrementViewCount(post.id, user.uid); // Increment the view count in Firestore
-        setViewedPosts((prev) => ({ ...prev, [post.id]: true })); // Mark the post as viewed
-      }, 0); // 0 seconds
+        incrementViewCount(post.id, user.uid);
+        setViewedPosts((prev) => ({ ...prev, [post.id]: true }));
+      }, 0);
 
-      // Return the timer to be used for cleanup
       return timer;
     }
   };
-  
-  useEffect(() => {
-    const fetchFollowedUsers = async () => {
-      if (!user || !user.uid) return;
-  
-      try {
-        const followingCollection = collection(db, "users1", user.uid, "following");
-        const querySnapshot = await getDocs(followingCollection);
-        const followedUsersList = [];
-  
-        querySnapshot.forEach((doc) => {
-          followedUsersList.push(doc.id); // Assuming doc.id is the userId
-        });
-  
-        setFollowedUsers(followedUsersList);
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
-  
-    fetchFollowedUsers();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchPostsFromFollowedUsers = async () => {
-      if (followedUsers.length === 0) return;
-  
-      try {
-        const postsCollection = collection(db, "discover");
-        const query = query(
-          postsCollection,
-          where("authorId", "in", followedUsers)
-        );
-        const querySnapshot = await getDocs(query);
-        const postsList = [];
-  
-        querySnapshot.forEach((doc) => {
-          postsList.push({ id: doc.id, ...doc.data() });
-        });
-  
-        setFilteredPosts(postsList);
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
-  
-    fetchPostsFromFollowedUsers();
-  }, [followedUsers]);
-
-
-  useEffect(() => {
-    const fetchFriends = async () => {
-      if (!user || !user.uid) return;
-  
-      try {
-        const friendsCollection = collection(db, "users1", user.uid, "friends"); // Adjust path as needed
-        const querySnapshot = await getDocs(friendsCollection);
-        const friendsList = querySnapshot.docs.map(doc => doc.id); // Assuming doc.id is friendId
-  
-        setFriends(friendsList);
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
-  
-    fetchFriends();
-  }, [user]);
-  
-  useEffect(() => {
-    const fetchPostsFromFriends = async () => {
-      if (friends.length === 0) return;
-  
-      try {
-        const postsCollection = collection(db, "discover");
-        const query = query(
-          postsCollection,
-          where("authorId", "in", friends)
-        );
-        const querySnapshot = await getDocs(query);
-        const postsList = [];
-  
-        querySnapshot.forEach((doc) => {
-          postsList.push({ id: doc.id, ...doc.data() });
-        });
-  
-        setFilteredPosts(postsList);
-      } catch (err) {
-        console.log(err.message);
-      }
-    };
-  
-    fetchPostsFromFriends();
-  }, [friends]);
 
   const handleFriendsClick = () => {
     // Update the filtered posts based on friends list
@@ -377,15 +202,11 @@ const Discover = () => {
     setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
     navigate("/followingPost");
   };
-  
-  console.log(discoverPosts);
-  console.log(userProfile);
+
   return (
     <>
       <Box h="100vh" overflowY="auto">
         <Navigation
-          cartItemCount={cartItemCount}
-          setCartItemCount={setCartItemCount}
         />
         <Flex>
           <Box className="sidebar__container__discover">
@@ -421,9 +242,7 @@ const Discover = () => {
                       justify="center"
                       align="center"
                     >
-                      {loading ? (
-                        <Spinner />
-                      ) : !userProfile ? (
+                      {!userProfile ? (
                         <Button
                           p="16px 32px"
                           variant="link"
@@ -455,7 +274,7 @@ const Discover = () => {
                               }
                             />
 
-                            <Text fontSize="xs" mt="8px">
+                            <Text fontSize="xs">
                               {!userProfile
                                 ? ""
                                 : userProfile &&
@@ -473,8 +292,6 @@ const Discover = () => {
                                 // variant="ghost"
                                 rightIcon={<Edit size={16} />}
                                 onClick={addDiscover.onOpen}
-                                bg={primaryColor}
-                                _hover={{ bg: "#ffd97e" }}
                               >
                                 <AddDiscoverModal
                                   isOpen={addDiscover.isOpen}
@@ -553,7 +370,7 @@ const Discover = () => {
           </Box>
           <Box flex="1">
             <Flex justify="space-between" p="0 86px 0px 64px">
-              <Heading>Discover</Heading>
+              <Heading>FollowingPost</Heading>
             </Flex>
 
             <Box mb="12">
@@ -642,7 +459,7 @@ const Discover = () => {
                             rowSpan={1}
                             onClick={() =>
                               user
-                                ? window.open(`/discover/post/${post.id}`)
+                                ? openPostModal(post)
                                 : toast({
                                     title: "Oops!",
                                     description: "Please login first.",
@@ -670,72 +487,67 @@ const Discover = () => {
 
                                 {post.postVideo && (
                                   <Box position="relative">
-                                    <video
-                                      controls
-                                      onLoadedMetadata={(e) => {
-                                        e.target.volume = 0.85;
-                                      }}
-                                      style={{
-                                        borderRadius: "8px",
-                                        // maxWidth:"500px",
-                                        width: "300px",
-                                        height: "370px",
-                                        objectFit: "cover",
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        if (e.target.paused) {
-                                          e.target.play();
-                                        }
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.pause();
-                                      }}
-                                      // onMouseEnter={(e) => e.target.play()}
-                                      // onMouseLeave={(e) => e.target.pause()}
+                                  <video
+                                    controls
+                                    onLoadedMetadata={(e) => {
+                                      e.target.volume = 0.85;
+                                    }}
+                                    style={{
+                                      borderRadius: "8px",
+                                      // maxWidth:"500px",
+                                      width: "300px",
+                                      height: "370px",
+                                      objectFit: "cover",
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (e.target.paused) {
+                                        e.target.play();
+                                      }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.target.pause();
+                                    }}
+                                    // onMouseEnter={(e) => e.target.play()}
+                                    // onMouseLeave={(e) => e.target.pause()}
+                                  >
+                                    <source
+                                      src={post.postVideo}
+                                      type="video/mp4"
+                                    />
+                                    Your browser does not support the video tag.
+                                  </video>
+                                  {post.views !== undefined && (
+                                    <Flex
+                                      align="center"
+                                      justify="center"
+                                      position="absolute"
+                                      top="1px" // Adjust as needed
+                                      right="8px" // Adjust as needed
+                                      background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
+                                      borderRadius="12px"
+                                      p="2px 8px"
                                     >
-                                      <source
-                                        src={post.postVideo}
-                                        type="video/mp4"
+                                      <IconButton
+                                        icon={<FaPlay />}
+                                        aria-label="Views"
+                                        variant="ghost"
+                                        colorScheme="white"
+                                        fontSize="sm"
+                                        isDisabled
+                                        background="transparent"
                                       />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                    {post.views !== undefined && (
-                                      <Flex
-                                        align="center"
-                                        justify="center"
-                                        position="absolute"
-                                        top="1px" // Adjust as needed
-                                        right="8px" // Adjust as needed
-                                        background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
-                                        borderRadius="12px"
-                                        p="2px 8px"
-                                      >
-                                        <IconButton
-                                          icon={<FaPlay />}
-                                          aria-label="Views"
-                                          variant="ghost"
-                                          colorScheme="white"
-                                          fontSize="sm"
-                                          isDisabled
-                                          background="transparent"
-                                        />
-                                        <Text
-                                          fontSize="sm"
-                                          color="white"
-                                          ml="-2"
-                                        >
-                                          {post.views}
-                                        </Text>
-                                      </Flex>
-                                    )}
+                                      <Text fontSize="sm" color="white" ml="-2">
+                                        {post.views}
+                                      </Text>
+                                    </Flex>
+                                  )}
                                   </Box>
                                 )}
                               </Flex>
                             </Flex>
 
                             <Flex justify="space-between" mt="10px">
-                              <Flex>
+                            <Flex>
                             <Avatar
                               size="xs"
                               name={userProfile.name}
@@ -787,4 +599,5 @@ const Discover = () => {
     </>
   );
 };
-export default Discover;
+
+export default FollowingPost;
