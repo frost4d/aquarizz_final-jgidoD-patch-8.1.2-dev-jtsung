@@ -154,9 +154,11 @@ const ItemModal = () => {
   };
 
   const handleCopyLink = () => {
-    const postUrl = `${window.location.origin}/discover/${post.id}`;
+    const postUrl = `${window.location.origin}/marketplace/item/${post.id}`;
 
     // Log URL to ensure it's correct
+    console.log('Post:', post);
+
     console.log("Copying URL:", postUrl);
 
     navigator.clipboard

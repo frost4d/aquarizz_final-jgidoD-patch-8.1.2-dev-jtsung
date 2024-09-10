@@ -278,7 +278,7 @@ function ProfilePage() {
     };
 
     fetchReviews();
-  }, [user.uid]);
+  }, [userId]);
 
   useEffect(() => {
     loadData();

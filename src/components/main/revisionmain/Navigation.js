@@ -234,7 +234,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                           colorScheme={`"whiteAlpha" | "blackAlpha" | "gray"  "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink"`}
                           size="sm"
                           name={userProfile.name}
-                          scr={
+                          src={
                             userProfile.profileImage || "/path/to/avatar.jpg"
                           }
                         />
