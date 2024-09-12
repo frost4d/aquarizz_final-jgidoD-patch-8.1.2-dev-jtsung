@@ -49,12 +49,26 @@ import {
   Mail,
   Twitter,
   ShoppingCart,
+  Phone,
+  Lock,
+  List,
+  Server,
+  Paperclip,
+  Shield,
+  Info,
+  LogOut,
 } from "react-feather";
 import LoginModal from "./LoginModal";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import logo from "../../../assets/logo2.png";
-import { BellIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
+import {
+  BellIcon,
+  ChevronDownIcon,
+  HamburgerIcon,
+  QuestionIcon,
+  QuestionOutlineIcon,
+} from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
@@ -62,6 +76,7 @@ import Create from "./listing/Create";
 import AddDiscoverModal from "./AddDiscoverModal";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase/firebaseConfig";
+import { FaUser } from "react-icons/fa";
 
 const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -260,14 +275,17 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                             navigate(`/profile/${user.uid}`);
                           }}
                         >
-                          My Account
+                          <Flex gap={1.5} align="center" color="gray.700">
+                            <User size={18} />
+                            <Text fontWeight="400">My Account</Text>
+                          </Flex>
                         </MenuItem>
-                        <MenuItem>
+                        {/* <MenuItem>
                           <Link to="/ItemStatusPage">Check Item Status</Link>
-                        </MenuItem>
+                        </MenuItem> */}
                         <MenuDivider />
                       </MenuGroup>
-                      <MenuGroup title="My Shop">
+                      {/* <MenuGroup title="My Shop">
                         <MenuItem
                           onClick={() => {
                             navigate(`/reports`);
@@ -282,11 +300,13 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                         >
                           Transactions
                         </MenuItem>
-                      </MenuGroup>
-                      <MenuDivider />
+                      </MenuGroup> */}
                       <MenuGroup title="Support">
                         <MenuItem onClick={() => setIsContactModalOpen(true)}>
-                          Contact Us
+                          <Flex gap={1.5} align="center" color="gray.700">
+                            <Phone size={16} />
+                            <Text fontWeight="400">Contact Us</Text>
+                          </Flex>
                         </MenuItem>
                         <Contact
                           isOpen={isContactModalOpen}
@@ -297,32 +317,49 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                             navigate(`/faqs`);
                           }}
                         >
-                          FAQs
+                          <Flex gap={1.5} align="center" color="gray.700">
+                            <QuestionOutlineIcon size={14} />
+                            <Text fontWeight="400">FAQs</Text>
+                          </Flex>
                         </MenuItem>
-                        <MenuItem
+                        {/* <MenuItem
                           onClick={() => {
                             navigate(`/return&exchange`);
                           }}
                         >
-                          Return & Exchanges
-                        </MenuItem>
+                          <Flex gap={1.5} align="center" color="gray.700">
+                            <QuestionOutlineIcon size={14} />
+                            <Text fontWeight="400">Return & Exchanges</Text>
+                          </Flex>
+                        </MenuItem> */}
                         <MenuItem
                           onClick={() => {
                             navigate(`/Privacypolicy`);
                           }}
                         >
-                          Privacy Policy
+                          <Flex gap={1.5} align="center" color="gray.700">
+                            <Lock size={14} />
+                            <Text fontWeight="400">Privacy Policy</Text>
+                          </Flex>
                         </MenuItem>
                         <MenuItem
                           onClick={() => {
                             navigate(`/terms-of-service`);
                           }}
                         >
-                          Terms of Service
+                          <Flex gap={1.5} align="center" color="gray.700">
+                            <Info size={14} />
+                            <Text fontWeight="400"> Terms of Service</Text>
+                          </Flex>
                         </MenuItem>
                       </MenuGroup>
                       <MenuDivider />
-                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                      <MenuItem onClick={handleLogout}>
+                        <Flex gap={1.5} align="center" color="gray.700">
+                          <LogOut size={14} />
+                          <Text fontWeight="400">Logout</Text>
+                        </Flex>
+                      </MenuItem>
                     </MenuList>
                   </Menu>
                 )}

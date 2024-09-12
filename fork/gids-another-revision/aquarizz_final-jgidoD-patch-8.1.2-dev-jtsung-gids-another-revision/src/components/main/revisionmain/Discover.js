@@ -53,7 +53,6 @@ import { PiNewspaperClipping } from "react-icons/pi";
 const Discover = () => {
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
-  console.log("userProfile:", userProfile);
   const primaryColor = "#FFC947";
   const primaryFont = '"Poppins", sans-serif';
   const tertiaryColor = "#6e6e6e";
@@ -396,7 +395,6 @@ const Discover = () => {
   };
 
   console.log(discoverPosts);
-  console.log(userProfile);
   return (
     <>
       <Box h="100vh" overflowY="auto">
@@ -465,7 +463,7 @@ const Discover = () => {
                           >
                             <Avatar
                               size="xl"
-                              name={userProfile.name}
+                              name={userProfile?.name}
                               src={
                                 userProfile.profileImage ||
                                 "/path/to/avatar.jpg"
@@ -506,7 +504,6 @@ const Discover = () => {
                     </Flex>
                   </Box>
                 </Box>
-                {/* )} */}
 
                 {/* <Flex
                 justify="center"
@@ -756,9 +753,9 @@ const Discover = () => {
                               <Flex>
                                 <Avatar
                                   size="xs"
-                                  name={userProfile.name}
+                                  name={userProfile?.name}
                                   src={
-                                    userProfile.profileImage ||
+                                    userProfile?.profileImage ||
                                     "/path/to/avatar.jpg"
                                   }
                                 />
