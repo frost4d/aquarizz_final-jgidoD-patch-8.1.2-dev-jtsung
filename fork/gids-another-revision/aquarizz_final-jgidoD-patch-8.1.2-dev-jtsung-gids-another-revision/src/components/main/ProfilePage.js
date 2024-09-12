@@ -396,11 +396,11 @@ function ProfilePage() {
   };
   console.log(postData);
   const handleGetId = () => {};
-
+  console.log(userData);
   const handleCancelUpload = () => {};
   return (
     <>
-      <Box h="auto">
+      <Box>
         <Navigation
           cartItemCount={cartItemCount}
           setCartItemCount={setCartItemCount}
@@ -583,9 +583,12 @@ function ProfilePage() {
                       ago
                     </Text>
                   </Box>
-                  <br />
-                  <Flex>
-                    <FollowButton userId={userId} currentUserId={user?.uid} />
+                  <Flex gap={2}>
+                    <FollowButton
+                      data={userData}
+                      userId={userId}
+                      currentUserId={user?.uid}
+                    />
                     <MessageButton userId={userData?.userID} />
                   </Flex>
                   <Flex mt="4">

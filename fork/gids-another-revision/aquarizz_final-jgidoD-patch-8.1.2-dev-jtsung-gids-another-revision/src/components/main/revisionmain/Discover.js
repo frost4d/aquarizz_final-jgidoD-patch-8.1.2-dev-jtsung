@@ -46,8 +46,9 @@ import Footer from "./Footer";
 import PostModal from "./PostModal";
 import LoginModal from "./LoginModal";
 import { ChatIcon } from "@chakra-ui/icons";
-import { FaPlay } from "react-icons/fa";
+import { FaNewspaper, FaPlay } from "react-icons/fa";
 import SearchInput from "./components/SearchInput";
+import { PiNewspaperClipping } from "react-icons/pi";
 
 const Discover = () => {
   const navigate = useNavigate();

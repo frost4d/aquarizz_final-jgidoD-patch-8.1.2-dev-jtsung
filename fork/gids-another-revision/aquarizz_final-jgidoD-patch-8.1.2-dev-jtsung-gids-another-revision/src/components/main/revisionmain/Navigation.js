@@ -81,10 +81,18 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   // const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
   useEffect(() => {
     if (user && user.uid) {
-      const notificationsRef = collection(db, "users1", user.uid, "notifications");
+      const notificationsRef = collection(
+        db,
+        "users1",
+        user.uid,
+        "notifications"
+      );
       const q = query(notificationsRef, where("read", "==", false));
       const unsubscribe = onSnapshot(q, (snapshot) => {
-        const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const items = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setNotificationItems(items);
         setNotificationCount(items.length);
       });
@@ -105,9 +113,9 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const handleNotificationClick = (notification) => {
     // Mark the notification as read
     // You can add code here to update the notification status in Firestore if needed
-    
+
     console.log("Notification clicked:", notification);
-  
+
     // Navigate to the URL specified in the notification's `link` field
     if (notification.link) {
       navigate(notification.link);
@@ -115,8 +123,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
       console.log("No link specified in the notification.");
     }
   };
-  
-  
 
   const handleLogout = async () => {
     if (user) {
@@ -195,34 +201,39 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 Marketplace
               </Button>
             </NavLink>
-            
+
             {!userProfile ? (
               ""
             ) : (
               <Menu>
-              <MenuButton as={Button} variant="ghost" rightIcon={
-                <>
-                  <BellIcon size={16} />
-                  <Badge colorScheme="red" borderRadius="full" px="2">
-                    {notificationCount}
-                  </Badge>
-                </>
-              }>
-              </MenuButton>
-              <MenuList>
-                {notificationItems.length ? (
-                  notificationItems.map((item, index) => (
-                    // <MenuItem key={index}>{item}</MenuItem>
-                    <MenuItem 
-                    key={item.id}
-                    onClick={() => handleNotificationClick(item)}
-                    >{item.message}</MenuItem>
-                  ))
-                ) : (
-                  <MenuItem>No new notifications</MenuItem>
-                )}
-              </MenuList>
-            </Menu>
+                <MenuButton
+                  as={Button}
+                  variant="ghost"
+                  rightIcon={
+                    <>
+                      <BellIcon size={16} />
+                      <Badge colorScheme="red" borderRadius="full" px="2">
+                        {notificationCount}
+                      </Badge>
+                    </>
+                  }
+                ></MenuButton>
+                <MenuList>
+                  {notificationItems.length ? (
+                    notificationItems.map((item, index) => (
+                      // <MenuItem key={index}>{item}</MenuItem>
+                      <MenuItem
+                        key={item.id}
+                        onClick={() => handleNotificationClick(item)}
+                      >
+                        {item.message}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <MenuItem>No new notifications</MenuItem>
+                  )}
+                </MenuList>
+              </Menu>
             )}
 
             {userProfile ? (
