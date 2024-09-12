@@ -228,15 +228,20 @@ const SearchInput = (props) => {
                                     </Box>
 
                                     <Box overflow="hidden">
-                                      <Image
-                                        className="item__image"
-                                        objectFit="cover"
-                                        // maxWidth="300px"
-                                        w="60px"
-                                        h="60px"
-                                        src={data.postImage}
-                                        alt="Post Image"
-                                      />
+                                      {!data.postImage ? (
+                                        ""
+                                      ) : (
+                                        <Image
+                                          className="item__image"
+                                          objectFit="cover"
+                                          // maxWidth="300px"
+                                          w="60px"
+                                          h="60px"
+                                          src={
+                                            data.postImage ? data.postImage : ""
+                                          }
+                                        />
+                                      )}
                                     </Box>
                                   </Flex>
                                 </CardBody>
@@ -282,15 +287,20 @@ const SearchInput = (props) => {
                                     </Box>
 
                                     <Box overflow="hidden">
-                                      <Image
-                                        className="item__image"
-                                        objectFit="cover"
-                                        // maxWidth="300px"
-                                        w="60px"
-                                        h="60px"
-                                        src={data.postImage}
-                                        alt="Post Image"
-                                      />
+                                      {!data.postImage ? (
+                                        ""
+                                      ) : (
+                                        <Image
+                                          className="item__image"
+                                          objectFit="cover"
+                                          // maxWidth="300px"
+                                          w="60px"
+                                          h="60px"
+                                          src={
+                                            data.postImage ? data.postImage : ""
+                                          }
+                                        />
+                                      )}
                                     </Box>
                                   </Flex>
                                 </CardBody>
