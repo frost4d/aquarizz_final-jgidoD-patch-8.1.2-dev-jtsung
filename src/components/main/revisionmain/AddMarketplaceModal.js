@@ -16,6 +16,8 @@ import {
   FormLabel,
   Text,
   Heading,
+  useDisclosure,
+  Progress,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 // import { UserAuth } from "../context/AuthContext";
@@ -35,8 +37,10 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { useParams } from "react-router-dom";
+import { Image, PlusSquare } from "react-feather";
 
 const AddMarketplace = (props) => {
+  const multipleUploadModal = useDisclosure();
   const postId = useParams();
   const primaryColor = "#FFC947";
   const { createPost, user, userProfile } = UserAuth();
@@ -53,7 +57,64 @@ const AddMarketplace = (props) => {
   const [imageUrl, setImageUrl] = useState();
   const [videoFile, setVideoFile] = useState();
   const [videoUrl, setVideoUrl] = useState();
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState();
+  const [mediaURLs, setMediaURLs] = useState();
+  const [progress, setProgress] = useState();
+  const mediaRef = useRef();
+  const handleMediaChangeMultiple = (e) => {
+    try {
+      const selectedFiles = [...e.target.files];
+      setFiles(selectedFiles);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+  const handleClickMedia = () => {
+    mediaRef.current.click();
+  };
+  const handleUploadMediaMultiple = async () => {
+    setUploading(true);
+    const uploadPromises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        const storageRef = ref(
+          storage,
+          `marketMedia/${file.name}%%${userProfile.name}`
+        );
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setProgress(progress);
+          },
+          (error) => {
+            console.error("Upload failed:", error);
+            reject(error);
+          },
+          async () => {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+            console.log(downloadURL);
+            setMediaURLs(...downloadURL);
+          }
+        );
+      });
+    });
+
+    try {
+      const urls = await Promise.all(uploadPromises);
+      setMediaURLs(urls);
+      setUploading(false);
+      multipleUploadModal.onClose();
+    } catch (error) {
+      console.error("Error uploading media:", error);
+    }
+  };
+  console.log(mediaURLs);
   const handleImageChange = async (e) => {
     setFile(e.target.files[0]);
 
@@ -94,7 +155,7 @@ const AddMarketplace = (props) => {
       authorID: user?.uid,
       postTitle: data.title,
       postContent: data.text,
-      postImage: imageUrl ? imageUrl : "", // Optional chaining to avoid null value
+      postImage: mediaURLs ? [...mediaURLs] : [],
       createdAt: data.createdAt || new Date().toISOString(),
       price: data.price,
     };
@@ -106,8 +167,12 @@ const AddMarketplace = (props) => {
         price: data.price,
         createdAt: data.createdAt || new Date().toISOString(),
         postContent: data.text,
-        postImage: file ? imageUrl : "", // Optional chaining to avoid null value
+        postImage: mediaURLs ? [...mediaURLs] : [], // Optional chaining to avoid null value
         postTitle: data.title,
+        unit: data.unit,
+        street: data.street,
+        barangay: data.barangay,
+        city: data.city,
       });
 
       console.log(docRef);
@@ -170,8 +235,8 @@ const AddMarketplace = (props) => {
                   )}
                 </Box>
 
-                <FormLabel>Description</FormLabel>
                 <Box>
+                  <FormLabel>Description</FormLabel>
                   <Textarea
                     // placeholder="Text"
                     {...register("text", { required: false })}
@@ -183,7 +248,56 @@ const AddMarketplace = (props) => {
                     </p>
                   )}
                 </Box>
-                <Box p="12px 0">
+                <Box>
+                  <FormLabel>Location</FormLabel>
+                  <Flex gap={2}>
+                    <Input
+                      placeholder="Floor/Unit No."
+                      {...register("unit", { required: false })}
+                      aria-invalid={errors.unit ? "true" : "false"}
+                    />
+                    {errors.unit?.type === "required" && (
+                      <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                        Text is required
+                      </p>
+                    )}
+                    <Input
+                      placeholder="Street"
+                      {...register("street", { required: false })}
+                      aria-invalid={errors.street ? "true" : "false"}
+                    />
+                    {errors.street?.type === "required" && (
+                      <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                        Text is required
+                      </p>
+                    )}
+                  </Flex>
+                  <Flex mt="12px" gap={2}>
+                    <Input
+                      placeholder="Barangay"
+                      {...register("barangay", { required: false })}
+                      aria-invalid={errors.barangay ? "true" : "false"}
+                    />
+
+                    {errors.barangay?.type === "required" && (
+                      <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                        Text is required
+                      </p>
+                    )}
+                    <Input
+                      placeholder="Municipality/City"
+                      {...register("city", { required: false })}
+                      aria-invalid={errors.city ? "true" : "false"}
+                    />
+
+                    {errors.city?.type === "required" && (
+                      <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                        Text is required
+                      </p>
+                    )}
+                  </Flex>
+                </Box>
+                {/* <Box p="12px 0">
                   <Text>Upload Image</Text>
                   <Input
                     className="inputFileDiscover"
@@ -195,13 +309,80 @@ const AddMarketplace = (props) => {
                     multiple
                     onChange={handleImageChange}
                   />
-                </Box>
+                </Box> */}
+                {/* <Input
+                  ref={mediaRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={handleMediaChangeMultiple}
+                  style={{ display: "none" }}
+                /> */}
+                <Flex align="center" gap={4}>
+                  <Button
+                    colorScheme="teal"
+                    variant="outline"
+                    onClick={multipleUploadModal.onOpen}
+                    isLoading={uploading}
+                  >
+                    <Image size={16} />
+                  </Button>
+                  <Progress value={progress} />
+                  <Text fontWeight="500">
+                    {!mediaURLs ? "Please upload a media." : "Media ready!"}
+                  </Text>
+                </Flex>
+
+                <Modal
+                  isOpen={multipleUploadModal.isOpen}
+                  onClose={multipleUploadModal.onClose}
+                >
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalBody>
+                      <Box textAlign="center">
+                        <Input
+                          style={{ display: "none" }}
+                          ref={mediaRef}
+                          type="file"
+                          multiple
+                          accept="image/*,video/*"
+                          onChange={handleMediaChangeMultiple}
+                        />
+                        <Button
+                          onClick={handleClickMedia}
+                          rightIcon={<PlusSquare size={16} />}
+                        >
+                          Add Media
+                        </Button>
+                        <Text fontWeight="500">
+                          {!files ? "0" : files.length} files are ready for
+                          upload.
+                        </Text>
+                        {!uploading ? (
+                          " "
+                        ) : (
+                          <Progress colorScheme="green" value={progress} />
+                        )}
+                        <Flex justify="end">
+                          <Button
+                            onClick={handleUploadMediaMultiple}
+                            isLoading={uploading}
+                          >
+                            Add
+                          </Button>
+                        </Flex>
+                      </Box>
+                    </ModalBody>
+                  </ModalContent>
+                </Modal>
 
                 <Button
                   type="submit"
                   bg={primaryColor}
                   onClick={props.fetchData}
                   isLoading={isLoading}
+                  isDisabled={!mediaURLs ? true : false}
                 >
                   Publish
                 </Button>

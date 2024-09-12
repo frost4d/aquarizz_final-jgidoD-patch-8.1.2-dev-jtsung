@@ -18,6 +18,7 @@ import {
   ModalBody,
   Link,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import "./Marketplace.css";
 import { Edit, Plus, Users, UserPlus } from "react-feather";
@@ -36,6 +37,7 @@ import MarketItem from "./MarketItem";
 import { ChatIcon } from "@chakra-ui/icons";
 
 const Marketplace = () => {
+  const primaryColor = "#FFC947";
   const toast = useToast();
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
@@ -170,10 +172,9 @@ const Marketplace = () => {
 
   console.log(marketplacePost);
   console.log(filteredPosts);
-
   return (
     <>
-      <Navigation />
+      <Navigation isLoading={loading} />
       <Flex>
         {/* <Sidebar /> */}
         <Box>
@@ -209,7 +210,9 @@ const Marketplace = () => {
                     justify="center"
                     align="center"
                   >
-                    {!userProfile ? (
+                    {loading ? (
+                      <Spinner />
+                    ) : !userProfile ? (
                       <Button
                         p="16px 32px"
                         variant="link"
@@ -258,6 +261,8 @@ const Marketplace = () => {
                               // variant="ghost"
                               rightIcon={<Edit size={16} />}
                               onClick={addMarketplace.onOpen}
+                              bg={primaryColor}
+                              _hover={{ bg: "#ffd97e" }}
                             >
                               <AddMarketplaceModal
                                 isOpen={addMarketplace.isOpen}
@@ -417,12 +422,20 @@ const Marketplace = () => {
                       {filteredPosts && filteredPosts.length > 0 ? (
                         filteredPosts.map((post) => (
                           <GridItem
+                            className="item__wrapper"
+                            overflow="hidden"
+                            border="1px solid #E9EFEC"
+                            borderRadius="12px"
                             key={post.id}
                             colSpan={1}
                             rowSpan={1}
                             onClick={() => {
                               user
-                                ? navigate(`/marketplace/item/${post.id}`)
+                                ? window.open(
+                                    `/marketplace/item/${post.id}`,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                  )
                                 : toast({
                                     title: "Oops!",
                                     description: "Please login first.",
@@ -435,10 +448,10 @@ const Marketplace = () => {
                             cursor="pointer"
                           >
                             <Flex justify="center" align="center">
-                              <Flex justify="center" align="center">
-                                {post.postImage && (
+                              {post.postImage && (
+                                <Box overflow="hidden">
                                   <Image
-                                    borderRadius="8"
+                                    className="item__image"
                                     objectFit="cover"
                                     // maxWidth="300px"
                                     w="300px"
@@ -446,71 +459,74 @@ const Marketplace = () => {
                                     src={post.postImage}
                                     alt="Post Image"
                                   />
-                                )}
+                                </Box>
+                              )}
 
-                                {post.postVideo && (
-                                  <video
-                                    controls
-                                    onLoadedMetadata={(e) => {
-                                      e.target.volume = 0.75;
-                                    }}
-                                    style={{
-                                      borderRadius: "8px",
-                                      // maxWidth:"500px",
-                                      width: "300px",
-                                      height: "370px",
-                                      objectFit: "cover",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      if (e.target.paused) {
-                                        e.target.play();
-                                      }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.target.pause();
-                                    }}
-                                    // onMouseEnter={(e) => e.target.play()}
-                                    // onMouseLeave={(e) => e.target.pause()}
-                                  >
-                                    <source
-                                      src={post.postVideo}
-                                      type="video/mp4"
-                                    />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                )}
-                              </Flex>
+                              {post.postVideo && (
+                                <video
+                                  controls
+                                  onLoadedMetadata={(e) => {
+                                    e.target.volume = 0.75;
+                                  }}
+                                  style={{
+                                    borderRadius: "8px",
+                                    // maxWidth:"500px",
+                                    width: "300px",
+                                    height: "370px",
+                                    objectFit: "cover",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (e.target.paused) {
+                                      e.target.play();
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.pause();
+                                  }}
+                                  // onMouseEnter={(e) => e.target.play()}
+                                  // onMouseLeave={(e) => e.target.pause()}
+                                >
+                                  <source
+                                    src={post.postVideo}
+                                    type="video/mp4"
+                                  />
+                                  Your browser does not support the video tag.
+                                </video>
+                              )}
                             </Flex>
-                            <Flex justify="space-between">
-                              <Heading color="#333333" size="sm">
-                                &#8369;{post.price}
-                              </Heading>
+                            <Flex p="8px 16px 0 " justify="space-between">
+                              <Text
+                                fontWeight="600"
+                                color="#333333"
+                                fontSize="lg"
+                              >
+                                {post.postTitle}
+                              </Text>
                               <Text fontSize="xs" color="#6e6e6e" as="i">
                                 {formatDistanceToNow(new Date(post.createdAt))}
                                 ago
                               </Text>
                             </Flex>
-
-                            <Flex justify="space-between" mt="10px">
-                              <Button
-                                fontSize="18px"
-                                variant="link"
-                                color="#333333"
-                              >
-                                {post.authorName}
-                              </Button>
-                            </Flex>
-                            <Box className="postContent">
+                            <Box p="0 16px 0" className="postContent">
                               <Text
                                 className="truncate"
                                 textAlign="justify"
-                                fontSize="13px"
+                                fontSize="xs"
                                 mr="3"
                                 color="#6e6e6e"
                               >
                                 {post.postContent}
                               </Text>
                             </Box>
+                            <Flex p="0 16px 12px" justify="space-between">
+                              <Text
+                                fontSize="md"
+                                fontWeight="600"
+                                color="#333333"
+                              >
+                                &#8369;{post.price}
+                              </Text>
+                            </Flex>
                           </GridItem>
                         ))
                       ) : (

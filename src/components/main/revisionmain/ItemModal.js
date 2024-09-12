@@ -38,6 +38,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { db, auth, storage } from "./../../../firebase/firebaseConfig";
 import { useLocation } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
+import { motion, useAnimation } from "framer-motion";
 
 import {
   collection,
@@ -54,17 +55,19 @@ import {
   arrayUnion,
   arrayRemove,
 } from "firebase/firestore";
-import { Mail } from "react-feather";
+import { ArrowLeft, ArrowRight, Mail, MapPin } from "react-feather";
 import { UserAuth } from "../../context/AuthContext";
 import { UserPlus, UserCheck, Edit3 } from "react-feather";
 const ItemModal = () => {
+  const controls = useAnimation();
+  const [count, setCount] = useState(0);
   const toast = useToast();
   const { userId, post } = useParams();
+  const { postId } = useParams();
   const { user } = UserAuth();
   const primaryColor = "#FFC947";
   const [isLoading, setIsLoading] = useState();
   const [postData, setPostData] = useState();
-  const { postId } = useParams();
   const modalContainer = useDisclosure();
   const navigate = useNavigate();
   const [isFollowing, setIsFollowing] = useState(false);
@@ -73,6 +76,7 @@ const ItemModal = () => {
   const [isLiked, setIsLiked] = useState(
     post?.likes?.includes(user?.uid) || false
   );
+
   //   const location = useLocation();
   //   let history = useHistory();
   const handleLike = async () => {
@@ -154,7 +158,7 @@ const ItemModal = () => {
   };
 
   const handleCopyLink = () => {
-    const postUrl = `${window.location.origin}/marketplace/item/${post.id}`;
+    const postUrl = `${window.location.origin}/marketplace/item/${postId}`;
 
     // Log URL to ensure it's correct
     console.log('Post:', post);
@@ -169,7 +173,7 @@ const ItemModal = () => {
           description: "The post URL has been copied to your clipboard.",
           status: "success",
           duration: 3000,
-          isClosable: true,
+          position: "top",
         });
       })
       .catch((err) => {
@@ -179,7 +183,7 @@ const ItemModal = () => {
           description: "Failed to copy the link. Please try again.",
           status: "error",
           duration: 3000,
-          isClosable: true,
+          position: "top",
         });
       });
   };
@@ -248,17 +252,18 @@ const ItemModal = () => {
     modalContainer.onClose();
     navigate(-1);
   };
-
+  // index checker
+  const [currentIndex, setCurrentIndex] = useState(0);
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const docRef = doc(db, "marketplace", postId);
         const docSnap = await getDoc(docRef);
-
         // Check if the document exists and get the data
         if (docSnap.exists()) {
           const itemData = docSnap.data();
           setPostData(itemData);
+          // setCount(postData.postImage?.length || 0);
         }
       } catch (err) {
         console.log(err.message);
@@ -270,14 +275,53 @@ const ItemModal = () => {
     fetchItem();
   }, [postId]);
 
+  console.log(postData);
+  useEffect(() => {
+    if (postData && postData.postImage) {
+      setCount(postData.postImage.length);
+    }
+  }, [postData]);
   const handleAuthorClick = () => {
     if (postData.authorID) {
       navigate(`/profile/${postData.authorID}`);
     }
   };
-
   console.log(postId);
   console.log(postData);
+
+  const slideVariants = {
+    hidden: (direction) => ({
+      x: direction > 0 ? 1000 : -1000, // Slide in from right or left
+      opacity: 0,
+    }),
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+      },
+    },
+    exit: (direction) => ({
+      x: direction < 0 ? 1000 : -1000, // Slide out to right or left
+      opacity: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+      },
+    }),
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % count);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + count) % count);
+  };
+  console.log(count);
+  console.log(currentIndex);
+
   return (
     <>
       <Modal
@@ -285,9 +329,7 @@ const ItemModal = () => {
         isOpen={modalContainer.isOpen}
         onClose={handleCloseModal}
       >
-        <ModalOverlay />
         <ModalContent>
-          <ModalCloseButton />
           <ModalBody>
             {isLoading ? (
               <span className="loader"></span>
@@ -295,22 +337,128 @@ const ItemModal = () => {
               postData && (
                 <Flex h="100vh" justify="space-between">
                   <Flex
-                    bg="#28282B"
                     flex="1"
                     justify="center"
                     className="imageWrapper__market"
+                    position="relative"
+                    overflow="hidden"
+                    // bg="rgba(0,0,0,.1)"
                   >
-                    <Box className="image__market__bg" textAlign="center">
-                      <Image
+                    <Image
+                      position="absolute"
+                      transform="translateY(-550px)"
+                      h="200%"
+                      objectFit="cover"
+                      src={postData.postImage[currentIndex]}
+                      alt={postData.title}
+                      filter="blur(24px)" // Apply blur effect
+                      zIndex="-2" // Send the blurred image to the back
+                      bgRepeat="no-repeat"
+                    />
+                    <Flex
+                      position="absolute"
+                      zIndex="4"
+                      w="100%"
+                      h="100%"
+                      align="center"
+                      justify="space-between"
+                    >
+                      <Button
+                        _hover={{ bg: "rgba(0, 0, 0, 0.1)" }}
+                        variant="ghost"
                         h="100%"
-                        objectFit="cover"
-                        src={postData.postImage}
-                        alt={postData.title}
-                      />
-                    </Box>
-                    <Box className="image__market__bg"></Box>
+                        onClick={handlePrev}
+                      >
+                        <ArrowLeft />
+                      </Button>
+                      <Button
+                        _hover={{ bg: "rgba(0, 0, 0, 0.1)" }}
+                        variant="ghost"
+                        h="100%"
+                        onClick={handleNext}
+                      >
+                        <ArrowRight />
+                      </Button>
+                    </Flex>
+                    {/* {postData && (
+                      <motion.div
+                        key={postData.postImage[count]}
+                        variants={slideVariants}
+                        // custom={direction}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        position="absolute"
+                        top="0"
+                        left="0"
+                        w="full"
+                        h="full"
+                      >
+                        <Flex
+                          justify="center"
+                          w="100%"
+                          className="image__market__bg"
+                        >
+                          <Image
+                            position="absolute"
+                            h="120%"
+                            objectFit="cover"
+                            src={postData.postImage[0]}
+                            alt={postData.title}
+                            filter="blur(8px)" // Apply blur effect
+                            zIndex="-2" // Send the blurred image to the back
+                            bgRepeat="no-repeat"
+                          />
+                          <Image
+                            objectFit="contain"
+                            src={postData.postImage[0]}
+                            alt={postData.title}
+                          />
+                        </Flex>
+                      </motion.div>
+                    )} */}
+
+                    {postData && !Array.isArray(postData.postImage) ? (
+                      <>
+                        <Flex
+                          justify="center"
+                          w="100%"
+                          className="image__market__bg"
+                        >
+                          <Image
+                            position="absolute"
+                            h="120%"
+                            objectFit="cover"
+                            src={postData.postImage}
+                            alt={postData.title}
+                            filter="blur(8px)" // Apply blur effect
+                            zIndex="-2" // Send the blurred image to the back
+                            bgRepeat="no-repeat"
+                          />
+                          <Image
+                            objectFit="contain"
+                            src={postData.postImage}
+                            alt={postData.title}
+                          />
+                        </Flex>
+                      </>
+                    ) : (
+                      <Flex h="100%" key={postData.postImage[currentIndex]}>
+                        <Image
+                          h="100%"
+                          objectFit="contain"
+                          src={postData.postImage[currentIndex]}
+                        />
+                      </Flex>
+                    )}
                   </Flex>
-                  <Box w="100%" color="#000401" flex=".4" p="16px 8px">
+                  <Box
+                    w="100%"
+                    color="#000401"
+                    flex=".4"
+                    p="16px 8px"
+                    m="0 16px 0"
+                  >
                     <Flex
                       align="start"
                       w="100%"
@@ -328,88 +476,102 @@ const ItemModal = () => {
                         ago
                       </Text>
                       <Flex minW="410px">
-                      <Button
-                        m="8px 0"
-                        textAlign="center"
-                        bg={primaryColor}
-                        w="100%"
-                        rightIcon={<Mail size={18} />}
-                        onClick={() => navigate("/chatMessage/:userId")}
-                      >
-                        Message
-                      </Button>
-                      <Flex
-                        // mb="2"
-                        flexDirection="row"
-                        alignItems="center"
-                        w="35%"
-                        justifyContent="end"
-                        // borderTopWidth="2px"
-                        borderColor="black"
-                      >
-                        <Flex alignItems="center" flexDirection="column">
-                          <IconButton
-                            mx="1"
-                            icon={<FaHeart />}
-                            aria-label="Like"
-                            color={isLiked ? "red.500" : "Black"}
-                            bg="#adb5bd"
-                            onClick={handleLike}
-                            _hover={{ bg: "none" }}
-                          />
-                          {/* <Text color="Black" fontSize="lg">
+                        <Button
+                          m="8px 0"
+                          textAlign="center"
+                          bg={primaryColor}
+                          w="100%"
+                          rightIcon={<Mail size={18} />}
+                          onClick={() => navigate("/chatMessage/:userId")}
+                        >
+                          Message
+                        </Button>
+
+                        <Flex
+                          // mb="2"
+                          flexDirection="row"
+                          alignItems="center"
+                          w="35%"
+                          justifyContent="end"
+                          // borderTopWidth="2px"
+                          borderColor="black"
+                        >
+                          <Flex alignItems="center" flexDirection="column">
+                            <IconButton
+                              mx="1"
+                              icon={<FaHeart />}
+                              aria-label="Like"
+                              color={isLiked ? "red.500" : "Black"}
+                              bg="#adb5bd"
+                              onClick={handleLike}
+                              _hover={{ bg: "none" }}
+                            />
+                            {/* <Text color="Black" fontSize="lg">
                             {likes}
                           </Text> */}
-                        </Flex>
-                        <Flex alignItems="center" flexDirection="column">
-                          <Menu>
-                            <MenuButton
-                              as={IconButton}
-                              mx="1"
-                              icon={<FaShare />}
-                              aria-label="Share"
-                              color="Black"
-                              bg="#adb5bd"
-                              _hover={{ bg: "none" }}
-                              // onClick={handleAddShare}
-                            />
-                            <MenuList bg="#232323" borderColor="gray.700">
-                              <MenuItem
-                                icon={<FaLink />}
-                                color="white"
-                                bg="#232323"
-                                _hover={{ bg: "gray.700" }}
-                                onClick={handleCopyLink}
-                              >
-                                Copy Link
-                              </MenuItem>
-                              <MenuItem
-                                icon={<FaRetweet />}
-                                color="white"
-                                bg="#232323"
-                                _hover={{ bg: "gray.700" }}
-                                onClick={handleRepost}
-                              >
-                                Repost
-                              </MenuItem>
-                            </MenuList>
-                          </Menu>
-                          {/* <Text color="Black" fontSize="lg">
+                          </Flex>
+                          <Flex alignItems="center" flexDirection="column">
+                            <Menu>
+                              <MenuButton
+                                as={IconButton}
+                                mx="1"
+                                icon={<FaShare />}
+                                aria-label="Share"
+                                color="Black"
+                                bg="#adb5bd"
+                                _hover={{ bg: "none" }}
+                                // onClick={handleAddShare}
+                              />
+                              <MenuList bg="#232323" borderColor="gray.700">
+                                <MenuItem
+                                  icon={<FaLink />}
+                                  color="white"
+                                  bg="#232323"
+                                  _hover={{ bg: "gray.700" }}
+                                  onClick={handleCopyLink}
+                                >
+                                  Copy Link
+                                </MenuItem>
+                                <MenuItem
+                                  icon={<FaRetweet />}
+                                  color="white"
+                                  bg="#232323"
+                                  _hover={{ bg: "gray.700" }}
+                                  onClick={handleRepost}
+                                >
+                                  Repost
+                                </MenuItem>
+                              </MenuList>
+                            </Menu>
+                            {/* <Text color="Black" fontSize="lg">
                             {shares}
                           </Text> */}
+                          </Flex>
                         </Flex>
                       </Flex>
-                      </Flex>
                       <Box>
-                        <Heading size="sm" my="2">Details</Heading>
+                        <Heading size="sm" my="2">
+                          Details
+                        </Heading>
                         <Text>{postData.postContent}</Text>
                         {/* <Text fontSize="xs" color="#6e6e6e" as="i">
                           {formatDistanceToNow(new Date(postData.createdAt))}
                           ago
                         </Text> */}
                       </Box>
-                      <Box className="sellerInfo__wrapper" mt="12px" borderTopWidth="2px">
-                        <Heading size="md" mt="8px">Seller Information</Heading>
+                      <Flex color="gray.500" align="center" gap={1}>
+                        <MapPin size={12} />
+                        <Text fontSize="sm">Around {postData.city}</Text>
+                      </Flex>
+                      <Box
+                        className="sellerInfo__wrapper"
+                        mt="12px"
+                        borderTopWidth="2px"
+                      >
+                        <Heading size="md" mt="8px">
+                          Seller Information
+                        </Heading>
+
                         <Flex m="4px 0" mt="8px" align="center" minW="410px">
                           <Avatar
                             size="md"
@@ -425,12 +587,13 @@ const ItemModal = () => {
                             width="100%"
                           >
                             <Button
-                              leftIcon={<Edit3 />}
+                              // leftIcon={<Edit3 />}
                               // colorScheme="teal"
-                              color="#d00000"
-                              border="2px"
-                              borderColor="#d00000"
-                              fontWeight="bold"
+                              bg="#FEECB3"
+                              color="#0f0f0f"
+                              border="1px solid #FFC947"
+                              borderColor="#FFC947"
+                              fontWeight="500"
                               // mb={4} // Adds spacing between the button and the counts
                               onClick={handleAuthorClick}
                             >

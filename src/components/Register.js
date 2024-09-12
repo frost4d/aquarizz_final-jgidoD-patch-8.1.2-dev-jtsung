@@ -31,6 +31,7 @@ import {
   onAuthStateChanged,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  sendEmailVerification,
 } from "firebase/auth";
 
 const Register = () => {
@@ -108,6 +109,8 @@ const Register = () => {
             duration: 4000,
           });
       }
+    } finally {
+      await sendEmailVerification(user.user);
     }
 
     reset();
@@ -231,7 +234,7 @@ const Register = () => {
                       })}
                       aria-invalid={errors.phoneNumber ? "true" : "false"}
                     />
-                    <Button onClick={sendOTP}>Send OTP</Button>
+                    {/* <Button onClick={sendOTP}>Send OTP</Button> */}
                   </InputGroup>
                 </Stack>
                 {errors.phoneNumber?.type === "required" && (
@@ -245,7 +248,7 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
-              <Flex gap="1">
+              {/* <Flex gap="1">
                 <Input
                   onChange={(e) => {
                     setOtp(e.target.value);
@@ -263,7 +266,7 @@ const Register = () => {
                     OTP is required
                   </p>
                 )}
-              </Flex>
+              </Flex> */}
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input

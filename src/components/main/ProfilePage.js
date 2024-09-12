@@ -580,26 +580,6 @@ function ProfilePage() {
                     <FollowButton userId={userId} currentUserId={user?.uid} />
                     <MessageButton userId={userData?.userID} />
                   </Flex>
-                  <Flex mt="4">
-                    <Box mr="4">
-                      <Text fontSize="lg" fontWeight="bold">
-                        {followersCount}
-                      </Text>
-                      <Text>Followers</Text>
-                    </Box>
-                    <Box mr="4">
-                      <Text fontSize="lg" fontWeight="bold">
-                        {followingCount}
-                      </Text>
-                      <Text>Following</Text>
-                    </Box>
-                    <Box>
-                      <Text fontSize="lg" fontWeight="bold">
-                        {friendsCount}
-                      </Text>
-                      <Text>Friends</Text>
-                    </Box>
-                  </Flex>
                 </Flex>
                 <Box display={userData.userID !== user.uid ? "none" : ""}>
                   {/* <Button
@@ -972,16 +952,7 @@ function ProfilePage() {
                                         {post.postContent}
                                       </Text>
                                     </Box>
-                                    <Box mr="24px">
-                                      {!post.price ? (
-                                        <Text>₱ 0.00</Text>
-                                      ) : (
-                                        <>
-                                          <strong>₱ </strong>
-                                          {post.price}
-                                        </>
-                                      )}
-                                    </Box>
+                        
                                   </Flex>
                                   <Flex
                                     w="100%"

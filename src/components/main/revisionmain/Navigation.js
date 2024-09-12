@@ -35,6 +35,7 @@ import {
   DrawerBody,
   DrawerHeader,
   Avatar,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   User,
@@ -124,7 +125,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
       } catch (err) {
         console.log(err.message);
       } finally {
-        window.location.reload();
+        navigate("/");
       }
     }
   };
@@ -526,7 +527,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                               {loginModal.onOpen()}
                               <LoginModal
                                 isOpen={loginModal.isOpen}
-                                onClose={loginModal.onClose}  
+                                onClose={loginModal.onClose}
                               />
                             </>
                           );

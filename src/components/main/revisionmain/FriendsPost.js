@@ -576,9 +576,22 @@ const FollowingPost = () => {
                                 textAlign="justify"
                                 fontSize="13px"
                                 mr="3"
+                                fontWeight="bold"
                                 // color="#6e6e6e"
                               >
                                 {post.postContent}
+                              </Text>
+                            </Box>
+                            <Box className="postContent">
+                              <Text
+                                as="i"
+                                className="truncate"
+                                textAlign="justify"
+                                fontSize="13px"
+                                mr="3"
+                                // color="#6e6e6e"
+                              >
+                                {post.tag}
                               </Text>
                             </Box>
                           </GridItem>

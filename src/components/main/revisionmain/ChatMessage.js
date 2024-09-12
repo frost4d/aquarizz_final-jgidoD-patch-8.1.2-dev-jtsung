@@ -31,6 +31,7 @@ import {
   getDocs,
   getDoc,
   doc,
+  limit
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useParams, useNavigate } from "react-router-dom";
@@ -89,46 +90,45 @@ const ChatMessage = () => {
         orderBy("createdAt", "desc")
       );
 
-      // const sentMessagesQuery = query(
-      //   collection(db, `users1/${currentUserId}/messages`),
-      //   orderBy("createdAt", "desc")
-      // );
+      // Real-time listener for messages
+      const unsubscribe = onSnapshot(receivedMessagesQuery, async (snapshot) => {
+        const receivedUserIds = snapshot.docs.map(
+          (doc) => doc.data().senderId
+        );
+        const sentUserIds = snapshot.docs.map((doc) => doc.data().receiverId);
+        const allUserIds = new Set([...receivedUserIds, ...sentUserIds]);
 
-      const unsubscribeReceived = onSnapshot(
-        receivedMessagesQuery,
-        (snapshot) => {
-          const receivedUserIds = snapshot.docs.map(
-            (doc) => doc.data().senderId
+        // Remove the current user from the list
+        const userPromises = Array.from(allUserIds)
+          .filter(id => id && id !== currentUserId) // Exclude currentUserId
+          .map(id => getDoc(doc(db, "users1", id)));
+        const userDocs = await Promise.all(userPromises);
+        const userList = userDocs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Fetch the most recent message for each user
+        const updatedUserList = await Promise.all(userList.map(async (user) => {
+          const lastMessageQuery = query(
+            collection(db, `users1/${user.id}/messages`),
+            where("receiverId", "==", currentUserId),
+            orderBy("createdAt", "desc"),
+            limit(1)
           );
-          const sentUserIds = snapshot.docs.map((doc) => doc.data().receiverId);
-          const allUserIds = new Set([...receivedUserIds, ...sentUserIds]);
-
-          const fetchUsers = async () => {
-            try {
-              const userPromises = Array.from(allUserIds)
-                .filter(id => id) // Make sure id is not null or undefined
-                .map(id => getDoc(doc(db, "users1", id)));
-              const userDocs = await Promise.all(userPromises);
-              const userList = userDocs.map(doc => ({ id: doc.id, ...doc.data() }));
-              setUsers(userList);
-            } catch (error) {
-              console.error('Error fetching users:', error);
-            }
+          const lastMessageSnapshot = await getDocs(lastMessageQuery);
+          const lastMessage = lastMessageSnapshot.docs.length > 0
+            ? lastMessageSnapshot.docs[0].data()
+            : null;
+          return {
+            ...user,
+            lastMessageTime: lastMessage ? lastMessage.createdAt.toMillis() : 0,
           };
-          
+        }));
 
-          fetchUsers();
-        }
-      );
+        // Sort users by last message time
+        updatedUserList.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
+        setUsers(updatedUserList);
+      });
 
-      // const unsubscribeSent = onSnapshot(sentMessagesQuery, (snapshot) => {
-      //   // Optionally handle updates from sent messages
-      // });
-
-      return () => {
-        unsubscribeReceived();
-        // unsubscribeSent();
-      };
+      return () => unsubscribe();
     }
   }, [currentUserId]);
 
@@ -492,12 +492,6 @@ const ChatMessage = () => {
   ))}
 </Box>
 
-
-              {showEmojiPicker && (
-                <Box position="absolute" bottom="80px" zIndex={10}>
-                  <EmojiPicker onEmojiClick={onEmojiClick} />
-                </Box>
-              )}
               <HStack spacing={2} p={4}>
                 <IconButton
                   icon={<FaSmile />}
@@ -505,6 +499,11 @@ const ChatMessage = () => {
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   mr={2}
                 />
+                {showEmojiPicker && (
+                <Box position="absolute" bottom="80px" zIndex={10}>
+                  <EmojiPicker onEmojiClick={onEmojiClick} />
+                </Box>
+              )}
 
                 <Input
                   value={inputValue}
