@@ -18,6 +18,8 @@ import {
   updateDoc,
   getDoc,
   onSnapshot,
+  setDoc,
+  deleteDoc
 } from "firebase/firestore";
 import {
   Box,
@@ -94,6 +96,9 @@ import {
   ChevronUp,
   ShoppingCart,
   Edit2,
+  Edit3,
+  UserCheck,
+  UserPlus
 } from "react-feather";
 import Comment from "./mainComponents/Comment";
 import { useForm } from "react-hook-form";
@@ -135,7 +140,7 @@ function ProfilePage() {
   const { user } = UserAuth();
   const [userData, setUserData] = useState(null);
   const [postData, setPostData] = useState(null);
-  const [newPassword, setNewPassword] = useState();
+  // const [newPassword, setNewPassword] = useState();
   const [profileImage, setProfileImage] = useState();
   const [imageUrl, setImageUrl] = useState();
   const navigate = useNavigate();
@@ -154,6 +159,14 @@ function ProfilePage() {
   const [followingCount, setFollowingCount] = useState(0);
   const [friendsCount, setFriendsCount] = useState(0);
   const [reposts, setReposts] = useState([]);
+  const profileModal = useDisclosure();
+  const [name, setName] = useState(user?.displayName || "");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
+  const [location, setLocation] = useState(user?.location || "");
+  const [newPassword, setNewPassword] = useState("");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followCount, setFollowCount] = useState(0);
+  
 
   const {
     register,
@@ -172,6 +185,212 @@ function ProfilePage() {
   let getUrl = window.location.href;
 
   let splitUrl = getUrl.split("/");
+
+  const handleFollow = async () => {
+    if (!userId || !user) return;
+  
+    try {
+      // Fetch the followed user's data
+      const followedUserDoc = await getDoc(doc(db, `users1/${userId}`));
+      if (!followedUserDoc.exists()) {
+        console.error("Followed user does not exist.");
+        return;
+      }
+  
+      const followedUserData = followedUserDoc.data();
+      const followedUserName = followedUserData.name || "Unknown User";
+      const followedUserEmail = followedUserData.email || "No email";
+      const followedUserImage = followedUserData.postImage || imageUrl || followedUserData.profileImage || "no img"; // Ensure a default value
+  
+      // Fetch current user's data (follower)
+      const currentUserDoc = await getDoc(doc(db, `users1/${user.uid}`));
+      if (!currentUserDoc.exists()) {
+        console.error("Current user does not exist.");
+        return;
+      }
+  
+      const currentUserData = currentUserDoc.data();
+      const currentUserName = currentUserData.name || user.displayName;
+      const currentUserEmail = currentUserData.email || user.email;
+      const currentUserImage = currentUserData.postImage || imageUrl || currentUserData.profileImage || "no img"; // Ensure a default value
+  
+      // Add to followers subcollection of the user being followed
+      await setDoc(doc(db, `users1/${userId}/followers`, user.uid), {
+        followerId: user.uid,
+        followedAt: new Date(),
+        name: currentUserName,
+        email: currentUserEmail,
+        postImage: currentUserImage
+      });
+  
+      // Add to following subcollection of the current user
+      await setDoc(doc(db, `users1/${user.uid}/following`, userId), {
+        followedUserId: userId,
+        followedAt: new Date(),
+        name: followedUserName,
+        email: followedUserEmail,
+        postImage: followedUserImage
+      });
+  
+      // Check if both users follow each other, then add to friends subcollection
+      const otherUserFollowersDoc = await getDoc(doc(db, `users1/${userId}/following`, user.uid));
+      if (otherUserFollowersDoc.exists()) {
+        // Add to friends subcollection of both users
+        await setDoc(doc(db, `users1/${user.uid}/friends`, userId), {
+          friendId: userId,
+          addedAt: new Date(),
+          name: followedUserName,
+          email: followedUserEmail,
+          postImage: followedUserImage
+        });
+  
+        await setDoc(doc(db, `users1/${userId}/friends`, user.uid), {
+          friendId: user.uid,
+          addedAt: new Date(),
+          name: currentUserName,
+          email: currentUserEmail,
+          postImage: currentUserImage
+        });
+  
+        // Update friend count
+        const updatedFriendCount = await fetchFriendsCount(user.uid);
+        setFriendsCount(updatedFriendCount);
+      }
+  
+      // Update follow count
+      const updatedFollowerCount = await fetchFollowerCount(user.uid);
+      setFollowersCount(updatedFollowerCount);
+  
+      setIsFollowing(true);
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
+  
+  // Function to fetch updated follower count
+  const fetchFollowerCount = async (userId) => {
+    const followersSnapshot = await getDocs(collection(db, `users1/${userId}/followers`));
+    return followersSnapshot.size;
+  };
+  
+  // Function to fetch updated friend count
+  const fetchFriendsCount = async (userId) => {
+    const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+    return friendsSnapshot.size;
+  };
+  
+
+  // const handleFollow = async () => {
+  //   if (!userId || !user) return;
+  
+  //   try {
+  //     // Fetch the followed user's data
+  //     const followedUserDoc = await getDoc(doc(db, `users1/${userId}`));
+  //     if (!followedUserDoc.exists()) {
+  //       console.error("Followed user does not exist.");
+  //       return;
+  //     }
+  
+  //     const followedUserData = followedUserDoc.data();
+  //     const followedUserName = followedUserData.name || "Unknown User";
+  //     const followedUserEmail = followedUserData.email || "No email";
+  //     const followedUserImage = followedUserData.postImage || "no img"; // Ensure a default value
+  
+  //     // Fetch current user's data (follower)
+  //     const currentUserDoc = await getDoc(doc(db, `users1/${user.uid}`));
+  //     if (!currentUserDoc.exists()) {
+  //       console.error("Current user does not exist.");
+  //       return;
+  //     }
+  
+  //     const currentUserData = currentUserDoc.data();
+  //     const currentUserName = currentUserData.name || user.displayName;
+  //     const currentUserEmail = currentUserData.email || user.email;
+  //     const currentUserImage = currentUserData.postImage || "no img"; // Ensure a default value
+  
+  //     // Add to followers subcollection of the user being followed
+  //     await setDoc(doc(db, `users1/${userId}/followers`, user.uid), {
+  //       followerId: user.uid,
+  //       followedAt: new Date(),
+  //       name: currentUserName,
+  //       email: currentUserEmail,
+  //       postImage: currentUserImage
+  //     });
+  
+  //     // Add to following subcollection of the current user
+  //     await setDoc(doc(db, `users1/${user.uid}/following`, userId), {
+  //       followedUserId: userId,
+  //       followedAt: new Date(),
+  //       name: followedUserName,
+  //       email: followedUserEmail,
+  //       postImage: followedUserImage
+  //     });
+  
+  //     // Check if both users follow each other, then add to friends subcollection
+  //     const otherUserFollowersDoc = await getDoc(doc(db, `users1/${userId}/following`, user.uid));
+  //     if (otherUserFollowersDoc.exists()) {
+  //       // Add to friends subcollection of both users
+  //       await setDoc(doc(db, `users1/${user.uid}/friends`, userId), {
+  //         friendId: userId,
+  //         addedAt: new Date(),
+  //         name: followedUserName,
+  //         email: followedUserEmail,
+  //         postImage: followedUserImage
+  //       });
+  
+  //       await setDoc(doc(db, `users1/${userId}/friends`, user.uid), {
+  //         friendId: user.uid,
+  //         addedAt: new Date(),
+  //         name: currentUserName,
+  //         email: currentUserEmail,
+  //         postImage: currentUserImage
+  //       });
+  
+  //       setFriendsCount((prevCount) => prevCount + 1);
+  //     }
+  
+  //     setIsFollowing(true);
+  //     setFollowersCount((prevCount) => prevCount + 1);
+  //   } catch (error) {
+  //     console.error("Error following user:", error);
+  //   }
+  // };  
+  
+
+  const handleUnfollow = async () => {
+    if (!userId || !user) return;
+
+    try {
+      await deleteDoc(doc(db, `users1/${userId}/followers`, user.uid));
+      await deleteDoc(doc(db, `users1/${user.uid}/following`, userId));
+
+      const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+      const friendIds = friendsSnapshot.docs.map(doc => doc.id);
+      if (friendIds.includes(user.uid)) {
+        await deleteDoc(doc(db, `users1/${user.uid}/friends`, userId));
+        await deleteDoc(doc(db, `users1/${userId}/friends`, user.uid));
+        setFriendsCount((prevCount) => prevCount - 1);
+      }
+
+      setIsFollowing(false);
+      setFollowersCount((prevCount) => prevCount - 1);
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!userId || !user) return;
+
+    // Check if the current user is following the profile's user
+    const checkIfFollowing = async () => {
+      const docRef = doc(db, `users1/${user.uid}/following`, userId);
+      const docSnap = await getDoc(docRef);
+      setIsFollowing(docSnap.exists());
+    };
+
+    checkIfFollowing();
+  }, [userId, user]);
 
   const loadData = async () => {
     if (!userId) return;
@@ -363,6 +582,15 @@ function ProfilePage() {
       console.log(err.message);
     }
   };
+
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers and a max length of 10
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setPhoneNumber(value);
+    }
+  };
+
   const handleSubmitProfilePicture = async (e) => {
     e.preventDefault();
     const userRef = doc(db, "users1", userData.userID);
@@ -386,10 +614,246 @@ function ProfilePage() {
     }
     window.location.reload();
   };
+
+  const handleSubmitProfile = async () => {
+    const userRef = doc(db, "users1", user.uid);
+
+    try {
+      // Update profile image
+      await updateProfile(user, { photoURL: imageUrl });
+
+      // Update Firestore
+      await updateDoc(userRef, {
+        profileImage: imageUrl,
+        displayName: name,
+        phoneNumber,
+        location,
+      });
+
+      // Update password if provided
+      if (newPassword) {
+        await updatePassword(user, newPassword);
+      }
+
+      toast({
+        title: "Profile Updated!",
+        description: "Your profile has been updated successfully.",
+        status: "success",
+        duration: 3000,
+        position: "top",
+      });
+    } catch (err) {
+      toast({
+        title: "Update Failed!",
+        description: "There was an error updating your profile.",
+        status: "error",
+        duration: 3000,
+        position: "top",
+      });
+    }
+  };
+
+  // const handleFollow = async () => {
+  //   if (!userId || !user) return;
+  
+  //   try {
+  //     // Fetch the followed user's data
+  //     const followedUserDoc = await getDoc(doc(db, `users1/${userId}`));
+  //     if (!followedUserDoc.exists()) {
+  //       console.error("Followed user does not exist.");
+  //       return;
+  //     }
+  
+  //     const followedUserData = followedUserDoc.data();
+  //     const followedUserName = followedUserData.name || "Unknown User";
+  //     const followedUserEmail = followedUserData.email || "No email";
+  //     const followedUserImage = followedUserData.postImage || "no img"; // Ensure a default value
+  
+  //     // Fetch current user's data (follower)
+  //     const currentUserDoc = await getDoc(doc(db, `users1/${user.uid}`));
+  //     if (!currentUserDoc.exists()) {
+  //       console.error("Current user does not exist.");
+  //       return;
+  //     }
+  
+  //     const currentUserData = currentUserDoc.data();
+  //     const currentUserName = currentUserData.name || user.displayName;
+  //     const currentUserEmail = currentUserData.email || user.email;
+  //     const currentUserImage = currentUserData.postImage || "no img"; // Ensure a default value
+  
+  //     // Add to followers subcollection of the user being followed
+  //     await setDoc(doc(db, `users1/${userId}/followers`, user.uid), {
+  //       followerId: user.uid,
+  //       followedAt: new Date(),
+  //       name: currentUserName,
+  //       email: currentUserEmail,
+  //       postImage: currentUserImage
+  //     });
+  
+  //     // Add to following subcollection of the current user
+  //     await setDoc(doc(db, `users1/${user.uid}/following`, userId), {
+  //       followedUserId: userId,
+  //       followedAt: new Date(),
+  //       name: followedUserName,
+  //       email: followedUserEmail,
+  //       postImage: followedUserImage
+  //     });
+  
+  //     // Check if both users follow each other, then add to friends subcollection
+  //     const otherUserFollowersDoc = await getDoc(doc(db, `users1/${userId}/following`, user.uid));
+  //     if (otherUserFollowersDoc.exists()) {
+  //       // Add to friends subcollection of both users
+  //       await setDoc(doc(db, `users1/${user.uid}/friends`, userId), {
+  //         friendId: userId,
+  //         addedAt: new Date(),
+  //         name: followedUserName,
+  //         email: followedUserEmail,
+  //         postImage: followedUserImage
+  //       });
+  
+  //       await setDoc(doc(db, `users1/${userId}/friends`, user.uid), {
+  //         friendId: user.uid,
+  //         addedAt: new Date(),
+  //         name: currentUserName,
+  //         email: currentUserEmail,
+  //         postImage: currentUserImage
+  //       });
+  
+  //       // Update friend count
+  //       const updatedFriendCount = await fetchFriendsCount(user.uid);
+  //       setFriendsCount(updatedFriendCount);
+  //     }
+  
+  //     // Update follow count
+  //     const updatedFollowerCount = await fetchFollowerCount(user.uid);
+  //     setFollowersCount(updatedFollowerCount);
+  
+  //     setIsFollowing(true);
+  //   } catch (error) {
+  //     console.error("Error following user:", error);
+  //   }
+  // };
+  
+  // // Function to fetch updated follower count
+  // const fetchFollowerCount = async (userId) => {
+  //   const followersSnapshot = await getDocs(collection(db, `users1/${userId}/followers`));
+  //   return followersSnapshot.size;
+  // };
+  
+  // // Function to fetch updated friend count
+  // const fetchFriendsCount = async (userId) => {
+  //   const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+  //   return friendsSnapshot.size;
+  // };
+  
+
+  // // const handleFollow = async () => {
+  // //   if (!userId || !user) return;
+  
+  // //   try {
+  // //     // Fetch the followed user's data
+  // //     const followedUserDoc = await getDoc(doc(db, `users1/${userId}`));
+  // //     if (!followedUserDoc.exists()) {
+  // //       console.error("Followed user does not exist.");
+  // //       return;
+  // //     }
+  
+  // //     const followedUserData = followedUserDoc.data();
+  // //     const followedUserName = followedUserData.name || "Unknown User";
+  // //     const followedUserEmail = followedUserData.email || "No email";
+  // //     const followedUserImage = followedUserData.postImage || "no img"; // Ensure a default value
+  
+  // //     // Fetch current user's data (follower)
+  // //     const currentUserDoc = await getDoc(doc(db, `users1/${user.uid}`));
+  // //     if (!currentUserDoc.exists()) {
+  // //       console.error("Current user does not exist.");
+  // //       return;
+  // //     }
+  
+  // //     const currentUserData = currentUserDoc.data();
+  // //     const currentUserName = currentUserData.name || user.displayName;
+  // //     const currentUserEmail = currentUserData.email || user.email;
+  // //     const currentUserImage = currentUserData.postImage || "no img"; // Ensure a default value
+  
+  // //     // Add to followers subcollection of the user being followed
+  // //     await setDoc(doc(db, `users1/${userId}/followers`, user.uid), {
+  // //       followerId: user.uid,
+  // //       followedAt: new Date(),
+  // //       name: currentUserName,
+  // //       email: currentUserEmail,
+  // //       postImage: currentUserImage
+  // //     });
+  
+  // //     // Add to following subcollection of the current user
+  // //     await setDoc(doc(db, `users1/${user.uid}/following`, userId), {
+  // //       followedUserId: userId,
+  // //       followedAt: new Date(),
+  // //       name: followedUserName,
+  // //       email: followedUserEmail,
+  // //       postImage: followedUserImage
+  // //     });
+  
+  // //     // Check if both users follow each other, then add to friends subcollection
+  // //     const otherUserFollowersDoc = await getDoc(doc(db, `users1/${userId}/following`, user.uid));
+  // //     if (otherUserFollowersDoc.exists()) {
+  // //       // Add to friends subcollection of both users
+  // //       await setDoc(doc(db, `users1/${user.uid}/friends`, userId), {
+  // //         friendId: userId,
+  // //         addedAt: new Date(),
+  // //         name: followedUserName,
+  // //         email: followedUserEmail,
+  // //         postImage: followedUserImage
+  // //       });
+  
+  // //       await setDoc(doc(db, `users1/${userId}/friends`, user.uid), {
+  // //         friendId: user.uid,
+  // //         addedAt: new Date(),
+  // //         name: currentUserName,
+  // //         email: currentUserEmail,
+  // //         postImage: currentUserImage
+  // //       });
+  
+  // //       setFriendsCount((prevCount) => prevCount + 1);
+  // //     }
+  
+  // //     setIsFollowing(true);
+  // //     setFollowersCount((prevCount) => prevCount + 1);
+  // //   } catch (error) {
+  // //     console.error("Error following user:", error);
+  // //   }
+  // // };  
+  
+
+  // const handleUnfollow = async () => {
+  //   if (!userId || !user) return;
+
+  //   try {
+  //     await deleteDoc(doc(db, `users1/${userId}/followers`, user.uid));
+  //     await deleteDoc(doc(db, `users1/${user.uid}/following`, userId));
+
+  //     const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+  //     const friendIds = friendsSnapshot.docs.map(doc => doc.id);
+  //     if (friendIds.includes(user.uid)) {
+  //       await deleteDoc(doc(db, `users1/${user.uid}/friends`, userId));
+  //       await deleteDoc(doc(db, `users1/${userId}/friends`, user.uid));
+  //       setFriendsCount((prevCount) => prevCount - 1);
+  //     }
+
+  //     setIsFollowing(false);
+  //     setFollowersCount((prevCount) => prevCount - 1);
+  //   } catch (error) {
+  //     console.error("Error unfollowing user:", error);
+  //   }
+  // };
+
+
   console.log(postData);
   const handleGetId = () => {};
 
   const handleCancelUpload = () => {};
+
+  const isOwnProfile = userId === user?.uid;
+
   return (
     <>
       <Box h="auto">
@@ -545,21 +1009,21 @@ function ProfilePage() {
                       <Text>User Avatar</Text>
                     )}
                   </Flex>
-                  <Box
+                  {/* <Box
                     display="flex"
                     justifyContent="center"
                     alignItems="center"
                     ml="45%"
                     mt="10px"
                     w="250px"
-                    // borderWidth="2px" borderColor="red"
+                  
                   >
                     <StarRating rating={avgRating} avgRating={avgRating} />
 
                     <Text ml="2" fontWeight="bold">
                       {avgRating.toFixed(1)} / 5 ({reviews.length} ratings)
                     </Text>
-                  </Box>
+                  </Box> */}
                 </Box>
 
                 <Flex mx="100px" flexDirection="column">
@@ -577,8 +1041,102 @@ function ProfilePage() {
 
                   <br />
                   <Flex>
-                    <FollowButton userId={userId} currentUserId={user?.uid} />
+                  {isOwnProfile ? (
+        <>
+        <Button colorScheme="teal" onClick={profileModal.onOpen} leftIcon={<Edit3 />}>
+          Edit Profile
+        </Button>
+  
+        <Modal isOpen={profileModal.isOpen} onClose={profileModal.onClose}>
+            <ModalOverlay />
+            <ModalContent maxW="lg" mx="auto" mt="5">
+            <ModalHeader borderBottom="2px" borderColor="#e1e5ee">Edit Profile</ModalHeader>
+              <ModalBody>
+                <Flex direction="column" align="center" p="6">
+                  <Box mb="4">
+                    <FormLabel>Profile Image</FormLabel>
+                    <Input type="file" accept="image/*" onChange={handleProfileChange} />
+                    {profileImage && (
+                      <Image
+                        mt="2"
+                        borderRadius="full"
+                        boxSize="150px"
+                        src={imageUrl}
+                        alt="Profile Image"
+                      />
+                    )}
+                  </Box>
+                  <FormLabel mb="2">Name</FormLabel>
+                  <Input
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    mb="4"
+                  />
+                  <FormLabel mb="2">Phone Number</FormLabel>
+                  <Input
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    maxLength={10}
+                    mb="4"
+                  />
+                  <FormLabel mb="2">Location</FormLabel>
+                  <Input
+                    placeholder="Enter your location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    mb="4"
+                  />
+                  <FormLabel mb="2">New Password</FormLabel>
+                  <Input
+                    type="password"
+                    placeholder="Enter a new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    mb="6"
+                  />
+                  
+                </Flex>
+              </ModalBody>
+              <ModalFooter borderTop="2px" borderColor="#e1e5ee">
+                    <Flex justifyContent="flex-end" minWidth="410px">
+                  <Button
+                    colorScheme="blue"
+                    onClick={handleSubmitProfile}
+                    mr="24px"
+                    minWidth="100px"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={profileModal.onClose}
+                    minWidth="100px"
+                  >
+                    Cancel
+                  </Button>
+                  </Flex>
+                  </ModalFooter>
+            </ModalContent>
+          </Modal>
+      </>
+      ) : (
+        <Button
+          onClick={isFollowing ? handleUnfollow : handleFollow}
+          leftIcon={isFollowing ? <UserCheck /> : <UserPlus />}
+          colorScheme={isFollowing ? "teal" : "blue"}
+          mb={4}
+        >
+          {isFollowing ? "Following" : "Follow"}
+        </Button>
+      )}
+                    {/* <FollowButton userId={userId} currentUserId={user?.uid} /> */}
                     <MessageButton userId={userData?.userID} />
+                  </Flex>
+                  <Flex position="relative" right="70%">
+                  <FollowButton userId={userId} currentUserId={user?.uid} followCount={followCount}/>
                   </Flex>
                 </Flex>
                 <Box display={userData.userID !== user.uid ? "none" : ""}>

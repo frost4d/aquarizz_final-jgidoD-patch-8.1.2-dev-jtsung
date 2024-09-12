@@ -4,11 +4,11 @@ import { UserPlus, UserCheck, Edit3, Edit2 } from 'react-feather';
 import { db, storage } from '../../../firebase/firebaseConfig'; // Adjust path if needed
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile, updatePassword } from 'firebase/auth';
-import { doc, updateDoc, getDoc, getDocs, collection, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, getDocs, collection, setDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { arrayUnion, arrayRemove } from 'firebase/firestore';
 import { UserAuth } from '../../context/AuthContext';
 
-const FollowButton = ({ userId, currentUserId }) => {
+const FollowButton = ({ userId, currentUserId, followCount }) => {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [friendsCount, setFriendsCount] = useState(0);
@@ -29,6 +29,28 @@ const FollowButton = ({ userId, currentUserId }) => {
   const [following, setFollowing] = useState([]);
   const [friends, setFriends] = useState([]);
 
+  useEffect(() => {
+    if (!userId) return;
+
+    const followersRef = collection(db, `users1/${userId}/followers`);
+    const unsubscribe = onSnapshot(followersRef, (snapshot) => {
+      setFollowersCount(snapshot.size); // Update followers count in real-time
+    });
+
+    return () => unsubscribe(); // Clean up the listener on unmount
+  }, [userId]);
+
+  // Real-time listener for friends count
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    const friendsRef = collection(db, `users1/${user?.uid}/friends`);
+    const unsubscribe = onSnapshot(friendsRef, (snapshot) => {
+      setFriendsCount(snapshot.size); // Update friends count in real-time
+    });
+
+    return () => unsubscribe(); // Clean up the listener on unmount
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!userId) return;
@@ -56,18 +78,18 @@ const FollowButton = ({ userId, currentUserId }) => {
     fetchCounts();
   }, [userId]);
 
-  useEffect(() => {
-    if (!userId || !user) return;
+  // useEffect(() => {
+  //   if (!userId || !user) return;
 
-    // Check if the current user is following the profile's user
-    const checkIfFollowing = async () => {
-      const docRef = doc(db, `users1/${user.uid}/following`, userId);
-      const docSnap = await getDoc(docRef);
-      setIsFollowing(docSnap.exists());
-    };
+  //   // Check if the current user is following the profile's user
+  //   const checkIfFollowing = async () => {
+  //     const docRef = doc(db, `users1/${user.uid}/following`, userId);
+  //     const docSnap = await getDoc(docRef);
+  //     setIsFollowing(docSnap.exists());
+  //   };
 
-    checkIfFollowing();
-  }, [userId, user]);
+  //   checkIfFollowing();
+  // }, [userId, user]);
 
   const handleFollow = async () => {
     if (!userId || !user) return;
@@ -137,90 +159,90 @@ const FollowButton = ({ userId, currentUserId }) => {
   };
   
 
-  const handleUnfollow = async () => {
-    if (!userId || !user) return;
+  // const handleUnfollow = async () => {
+  //   if (!userId || !user) return;
 
-    try {
-      await deleteDoc(doc(db, `users1/${userId}/followers`, user.uid));
-      await deleteDoc(doc(db, `users1/${user.uid}/following`, userId));
+  //   try {
+  //     await deleteDoc(doc(db, `users1/${userId}/followers`, user.uid));
+  //     await deleteDoc(doc(db, `users1/${user.uid}/following`, userId));
 
-      const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
-      const friendIds = friendsSnapshot.docs.map(doc => doc.id);
-      if (friendIds.includes(user.uid)) {
-        await deleteDoc(doc(db, `users1/${user.uid}/friends`, userId));
-        await deleteDoc(doc(db, `users1/${userId}/friends`, user.uid));
-        setFriendsCount((prevCount) => prevCount - 1);
-      }
+  //     const friendsSnapshot = await getDocs(collection(db, `users1/${userId}/friends`));
+  //     const friendIds = friendsSnapshot.docs.map(doc => doc.id);
+  //     if (friendIds.includes(user.uid)) {
+  //       await deleteDoc(doc(db, `users1/${user.uid}/friends`, userId));
+  //       await deleteDoc(doc(db, `users1/${userId}/friends`, user.uid));
+  //       setFriendsCount((prevCount) => prevCount - 1);
+  //     }
 
-      setIsFollowing(false);
-      setFollowersCount((prevCount) => prevCount - 1);
-    } catch (error) {
-      console.error("Error unfollowing user:", error);
-    }
-  };
+  //     setIsFollowing(false);
+  //     setFollowersCount((prevCount) => prevCount - 1);
+  //   } catch (error) {
+  //     console.error("Error unfollowing user:", error);
+  //   }
+  // };
 
-  const handleProfileChange = async (e) => {
-    setProfileImage(e.target.files[0]);
-    const imageRef = ref(
-      storage,
-      `profileImages/${e.target.files[0].name + "&" + user.displayName}`
-    );
-    try {
-      await uploadBytes(imageRef, e.target.files[0]);
-      const url = await getDownloadURL(imageRef);
-      setImageUrl(url);
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
+  // const handleProfileChange = async (e) => {
+  //   setProfileImage(e.target.files[0]);
+  //   const imageRef = ref(
+  //     storage,
+  //     `profileImages/${e.target.files[0].name + "&" + user.displayName}`
+  //   );
+  //   try {
+  //     await uploadBytes(imageRef, e.target.files[0]);
+  //     const url = await getDownloadURL(imageRef);
+  //     setImageUrl(url);
+  //   } catch (err) {
+  //     console.log(err.message);
+  //   }
+  // };
 
-  const handlePhoneNumberChange = (e) => {
-    const value = e.target.value;
-    // Only allow numbers and a max length of 10
-    if (/^\d*$/.test(value) && value.length <= 10) {
-      setPhoneNumber(value);
-    }
-  };
+  // const handlePhoneNumberChange = (e) => {
+  //   const value = e.target.value;
+  //   // Only allow numbers and a max length of 10
+  //   if (/^\d*$/.test(value) && value.length <= 10) {
+  //     setPhoneNumber(value);
+  //   }
+  // };
 
-  const handleSubmitProfile = async () => {
-    const userRef = doc(db, "users1", user.uid);
+  // const handleSubmitProfile = async () => {
+  //   const userRef = doc(db, "users1", user.uid);
 
-    try {
-      // Update profile image
-      await updateProfile(user, { photoURL: imageUrl });
+  //   try {
+  //     // Update profile image
+  //     await updateProfile(user, { photoURL: imageUrl });
 
-      // Update Firestore
-      await updateDoc(userRef, {
-        profileImage: imageUrl,
-        displayName: name,
-        phoneNumber,
-        location,
-      });
+  //     // Update Firestore
+  //     await updateDoc(userRef, {
+  //       profileImage: imageUrl,
+  //       displayName: name,
+  //       phoneNumber,
+  //       location,
+  //     });
 
-      // Update password if provided
-      if (newPassword) {
-        await updatePassword(user, newPassword);
-      }
+  //     // Update password if provided
+  //     if (newPassword) {
+  //       await updatePassword(user, newPassword);
+  //     }
 
-      toast({
-        title: "Profile Updated!",
-        description: "Your profile has been updated successfully.",
-        status: "success",
-        duration: 3000,
-        position: "top",
-      });
-    } catch (err) {
-      toast({
-        title: "Update Failed!",
-        description: "There was an error updating your profile.",
-        status: "error",
-        duration: 3000,
-        position: "top",
-      });
-    }
-  };
+  //     toast({
+  //       title: "Profile Updated!",
+  //       description: "Your profile has been updated successfully.",
+  //       status: "success",
+  //       duration: 3000,
+  //       position: "top",
+  //     });
+  //   } catch (err) {
+  //     toast({
+  //       title: "Update Failed!",
+  //       description: "There was an error updating your profile.",
+  //       status: "error",
+  //       duration: 3000,
+  //       position: "top",
+  //     });
+  //   }
+  // };
 
-  const isOwnProfile = userId === user?.uid;
+  // const isOwnProfile = userId === user?.uid;
 
   const fetchUsersList = async (collectionName) => {
     const snapshot = await getDocs(collection(db, `users1/${userId}/${collectionName}`));
@@ -247,7 +269,7 @@ const FollowButton = ({ userId, currentUserId }) => {
 
   return (
     <Flex direction="column" alignItems="end">
-      {isOwnProfile ? (
+      {/* {isOwnProfile ? (
         <>
         <Button colorScheme="teal" onClick={profileModal.onOpen} leftIcon={<Edit3 />}>
           Edit Profile
@@ -337,26 +359,32 @@ const FollowButton = ({ userId, currentUserId }) => {
         >
           {isFollowing ? "Following" : "Follow"}
         </Button>
-      )}
+      )} */}
 
-      <HStack spacing={8} mt="24px">
+      <HStack spacing={8} mt="24px" fontSize="lg">
         <Box textAlign="center" onClick={followersModal.onOpen}>
+          <HStack>
           <Text fontSize="lg" fontWeight="bold">
             {followersCount}
           </Text>
           <Text>Followers</Text>
+          </HStack>
         </Box>
         <Box textAlign="center" onClick={followingModal.onOpen}>
+          <HStack>
           <Text fontSize="lg" fontWeight="bold">
             {followingCount}
           </Text>
           <Text>Following</Text>
+          </HStack>
         </Box>
         <Box textAlign="center" onClick={friendsModal.onOpen}>
+          <HStack>
           <Text fontSize="lg" fontWeight="bold">
             {friendsCount}
           </Text>
           <Text>Friends</Text>
+          </HStack>
         </Box>
       </HStack>
 
