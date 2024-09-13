@@ -16,7 +16,6 @@ const VerifyEmail = (props) => {
   const verifyModal = useDisclosure();
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState();
-git 
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose}>
