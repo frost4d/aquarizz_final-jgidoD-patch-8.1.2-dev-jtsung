@@ -15,7 +15,7 @@ import {
   useToast,
   Flex,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { auth } from "../../../firebase/firebaseConfig";
@@ -24,6 +24,9 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   signOut,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  isSignInWithEmailLink,
 } from "firebase/auth";
 import { UserAuth } from "../../context/AuthContext";
 import WelcomeModal from "./components/WelcomeModal";
@@ -58,26 +61,12 @@ const LoginModal = (props) => {
     formState: { errors3 },
     reset: resetForgotPass,
   } = useForm();
+
   const handleLogin = async (data) => {
     setIsLoading(true);
     console.log(data);
     try {
       const userCred = await signIn(data.email, data.password);
-
-      const userVerify = userCred.user;
-      // handleSessionStorage();
-      // if (!userVerify.emailVerified) {
-      //   toast({
-      //     title: "Email verification was sent!",
-      //     description: "Please verify your email.",
-      //     status: "error",
-      //     duration: 4000,
-      //     position: "top",
-      //   });
-      // } else {
-      //   console.log("what??????");
-      // }
-
       setTimeout(() => {
         toast({
           description: "Welcome back!!!",
@@ -86,6 +75,7 @@ const LoginModal = (props) => {
           position: "top",
         });
       }, [1500]);
+      resetLogin();
     } catch (err) {
       switch (err.code) {
         case "auth/invalid-credential":
@@ -96,14 +86,15 @@ const LoginModal = (props) => {
             duration: 5000,
             position: "top",
           });
+          break;
       }
     } finally {
-      setIsLoading(false);
-
       navigate(window.location.pathname);
+
+      setIsLoading(false);
     }
-    resetLogin();
   };
+
   const handleForgotPass = async (data) => {
     try {
       await sendPasswordResetEmail(auth, data.emailForgot);
@@ -132,6 +123,7 @@ const LoginModal = (props) => {
       resetForgotPass();
     }
   };
+
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose}>

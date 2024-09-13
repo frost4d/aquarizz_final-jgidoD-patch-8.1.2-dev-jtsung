@@ -516,7 +516,11 @@ const Discover = () => {
               <Box flex="1"></Box> */}
               </Flex>
 
-              <Flex direction="column" align="start">
+              <Flex
+                display={user ? "flex" : "none"}
+                direction="column"
+                align="start"
+              >
                 <Link
                   p="2"
                   mb="2"

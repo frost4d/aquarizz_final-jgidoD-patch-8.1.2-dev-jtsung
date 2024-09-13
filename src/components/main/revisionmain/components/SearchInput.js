@@ -40,8 +40,11 @@ import {
   where,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { UserAuth } from "../../../context/AuthContext";
+import LoginModal from "../LoginModal";
 
 const SearchInput = (props) => {
+  const { user } = UserAuth();
   const marketData = props.data;
   const searchModal = useDisclosure();
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,6 +56,8 @@ const SearchInput = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState();
   const navigate = useNavigate();
+  const openLogin = useDisclosure();
+
   const {
     register,
     handleSubmit,
@@ -141,12 +146,15 @@ const SearchInput = (props) => {
         border="1px solid #e1e1e1"
         borderRadius="4px"
         boxShadow="0px 1px 3px #e1e1e1"
-        onClick={searchModal.onOpen}
+        onClick={() => {
+          !user ? openLogin.onOpen() : searchModal.onOpen();
+        }}
         gap={3}
       >
         <Search2Icon />
         <Text>Search {props.item}</Text>
       </Flex>
+      <LoginModal isOpen={openLogin.isOpen} onClose={openLogin.onClose} />
       <Modal
         size="xl"
         scrollBehavior="inside"
