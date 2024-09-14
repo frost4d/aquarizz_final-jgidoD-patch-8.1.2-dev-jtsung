@@ -35,6 +35,7 @@ import LoginModal from "./LoginModal";
 import Sidebar from "./Sidebar1";
 import MarketItem from "./MarketItem";
 import { ChatIcon } from "@chakra-ui/icons";
+import SearchInput from "./components/SearchInput";
 
 const Marketplace = () => {
   const primaryColor = "#FFC947";
@@ -53,7 +54,6 @@ const Marketplace = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [discoverPosts, setDiscoverPosts] = useState([]);
   const [friends, setFriends] = useState([]);
-
 
   //   get the contents of the posts posted in marketplace db
   useEffect(() => {
@@ -161,12 +161,16 @@ const Marketplace = () => {
 
   const handleFriendsClick = () => {
     // Update the filtered posts based on friends list
-    setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
+    setFilteredPosts(
+      discoverPosts.filter((post) => friends.includes(post.authorId))
+    );
     navigate("/friendsPost");
   };
   const handleFollowingClick = () => {
     // Update the filtered posts based on friends list
-    setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
+    setFilteredPosts(
+      discoverPosts.filter((post) => friends.includes(post.authorId))
+    );
     navigate("/followingPost");
   };
 
@@ -290,7 +294,11 @@ const Marketplace = () => {
               <Box flex="1"></Box> */}
             </Flex>
 
-            <Flex direction="column" align="start">
+            <Flex
+              display={user ? "flex" : "none"}
+              direction="column"
+              align="start"
+            >
               <Link
                 p="2"
                 mb="2"
@@ -355,7 +363,7 @@ const Marketplace = () => {
                     <Flex w="100%" justify="center" p="12px 24px">
                       <form onSubmit={handleSearchMarketplace}>
                         <Flex w="100%" justify="space-between">
-                          <Input
+                          {/* <Input
                             borderRadius="24px"
                             placeholder="Search"
                             value={searchTerm}
@@ -368,7 +376,11 @@ const Marketplace = () => {
                             borderRadius="24px"
                           >
                             Search
-                          </Button>
+                          </Button> */}
+                          <SearchInput
+                            item="marketplace"
+                            data={marketplacePost}
+                          />
                         </Flex>
                         {suggestions.length > 0 && (
                           <List
@@ -540,9 +552,9 @@ const Marketplace = () => {
               </>
             )}
           </Box>
-          <Footer />
         </Box>
       </Flex>
+      <Footer />
     </>
   );
 };

@@ -31,7 +31,9 @@ import {
   getDocs,
   getDoc,
   doc,
-  limit
+  limit,
+  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useParams, useNavigate } from "react-router-dom";
@@ -58,112 +60,56 @@ const ChatMessage = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [caller, setCaller] = useState(null);
   const [isReceivingCall, setIsReceivingCall] = useState(false);
+  const inputRef = useRef(null);
+  const emojiPickerRef = useRef(null);
 
   const auth = getAuth();
   const currentUserId = auth.currentUser?.uid;
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const listMediaDevices = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        console.log('All Media devices:', devices);
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
-        const cameras = devices.filter(device => device.kind === 'videoinput');
-        const microphones = devices.filter(device => device.kind === 'audioinput');
-
-        console.log('Cameras:', cameras);
-        console.log('Microphones:', microphones);
-      } catch (error) {
-        console.error('Error enumerating devices:', error);
-      }
-    };
-
-    listMediaDevices();
-  }, []);
-  // Fetch users who have messaged you and those you have messaged
+  // Real-time updates for the sender's user list
   useEffect(() => {
     if (currentUserId) {
-      const receivedMessagesQuery = query(
-        collection(db, `users1/${currentUserId}/messages`),
-        orderBy("createdAt", "desc")
+      const usersQuery = query(
+        collection(db, "users1"),
+        orderBy("lastMessageTime", "desc")
       );
 
-      // Real-time listener for messages
-      const unsubscribe = onSnapshot(receivedMessagesQuery, async (snapshot) => {
-        const receivedUserIds = snapshot.docs.map(
-          (doc) => doc.data().senderId
-        );
-        const sentUserIds = snapshot.docs.map((doc) => doc.data().receiverId);
-        const allUserIds = new Set([...receivedUserIds, ...sentUserIds]);
-
-        // Remove the current user from the list
-        const userPromises = Array.from(allUserIds)
-          .filter(id => id && id !== currentUserId) // Exclude currentUserId
-          .map(id => getDoc(doc(db, "users1", id)));
-        const userDocs = await Promise.all(userPromises);
-        const userList = userDocs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        // Fetch the most recent message for each user
-        const updatedUserList = await Promise.all(userList.map(async (user) => {
-          const lastMessageQuery = query(
-            collection(db, `users1/${user.id}/messages`),
-            where("receiverId", "==", currentUserId),
-            orderBy("createdAt", "desc"),
-            limit(1)
-          );
-          const lastMessageSnapshot = await getDocs(lastMessageQuery);
-          const lastMessage = lastMessageSnapshot.docs.length > 0
-            ? lastMessageSnapshot.docs[0].data()
-            : null;
-          return {
-            ...user,
-            lastMessageTime: lastMessage ? lastMessage.createdAt.toMillis() : 0,
-          };
+      const unsubscribe = onSnapshot(usersQuery, (snapshot) => {
+        const userList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
         }));
 
-        // Sort users by last message time
-        updatedUserList.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
-        setUsers(updatedUserList);
+        // Filter out the current user
+        const filteredUsers = userList.filter(
+          (user) => user.id !== currentUserId
+        );
+        setUsers(filteredUsers);
       });
 
       return () => unsubscribe();
     }
   }, [currentUserId]);
 
-  // Fetch user list from Firestore
+  // Fetch current user's data
   useEffect(() => {
-    if (activeUser && currentUserId) {
-      const q = query(
-        collection(db, `users1/${currentUserId}/messages`),
-        where("receiverId", "==", activeUser.id),
-        orderBy("createdAt")
-      );
-
-      const q2 = query(
-        collection(db, `users1/${activeUser.id}/messages`),
-        where("receiverId", "==", currentUserId),
-        orderBy("createdAt")
-      );
-
-      const unsubscribeCurrentUser = onSnapshot(q, (snapshot) => {
-        setMessages(snapshot.docs.map((doc) => doc.data()));
-      });
-
-      const unsubscribeActiveUser = onSnapshot(q2, (snapshot) => {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          ...snapshot.docs.map((doc) => doc.data()),
-        ]);
-      });
-
-      return () => {
-        unsubscribeCurrentUser();
-        unsubscribeActiveUser();
+    if (currentUserId) {
+      const fetchCurrentUser = async () => {
+        const userDoc = await getDoc(doc(db, "users1", currentUserId));
+        setCurrentUserName(userDoc.data()?.name || "");
       };
+      fetchCurrentUser();
     }
-  }, [activeUser, currentUserId]);
+  }, [currentUserId]);
 
   useEffect(() => {
     console.log("Fetching user with ID:", userId);
@@ -188,47 +134,98 @@ const ChatMessage = () => {
     }
   }, [userId]);
 
-  // Fetch current user's data
-  useEffect(() => {
-    if (currentUserId) {
-      const fetchCurrentUser = async () => {
-        const userDoc = await getDoc(doc(db, "users1", currentUserId));
-        setCurrentUserName(userDoc.data()?.name || "");
-      };
-      fetchCurrentUser();
-    }
-  }, [currentUserId]);
 
-  // Fetch chat messages between the current user and the active user
+
   useEffect(() => {
     if (activeUser && currentUserId) {
-      const q = query(
+      // Query messages sent by the current user to the active user
+      const q1 = query(
         collection(db, `users1/${currentUserId}/messages`),
-        where("senderId", "in", [currentUserId, activeUser.id]),
-        where("receiverId", "in", [currentUserId, activeUser.id]),
+        where("receiverId", "==", activeUser.id),
         orderBy("createdAt")
       );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        setMessages(snapshot.docs.map((doc) => doc.data()));
+
+      // Query messages sent by the active user to the current user
+      const q2 = query(
+        collection(db, `users1/${activeUser.id}/messages`),
+        where("receiverId", "==", currentUserId),
+        orderBy("createdAt")
+      );
+
+      // Combine the two sets of messages and sort them by createdAt
+      const unsubscribe1 = onSnapshot(q1, (snapshot1) => {
+        const currentUserMessages = snapshot1.docs.map((doc) => doc.data());
+
+        const unsubscribe2 = onSnapshot(q2, (snapshot2) => {
+          const activeUserMessages = snapshot2.docs.map((doc) => doc.data());
+
+          // Combine both users' messages and sort them by createdAt
+          const combinedMessages = [
+            ...currentUserMessages,
+            ...activeUserMessages,
+          ].sort((a, b) => a.createdAt?.seconds - b.createdAt?.seconds);
+
+          setMessages(combinedMessages);
+        });
+
+        return () => unsubscribe2();
       });
-      return () => unsubscribe();
+
+      return () => unsubscribe1();
     }
   }, [activeUser, currentUserId]);
 
-  // Handle sending messages
+ 
   const handleSend = async () => {
     if (inputValue.trim() && activeUser) {
-      await addDoc(collection(db, `users1/${currentUserId}/messages`), {
+      const messageData = {
         text: inputValue,
         senderId: currentUserId,
         senderName: currentUserName,
         receiverId: activeUser.id,
         receiverName: activeUser.name,
-        createdAt: new Date(),
-      });
-      setInputValue(""); // Clear input
+        createdAt: serverTimestamp(),
+      };
+
+      await Promise.all([
+        addDoc(collection(db, `users1/${currentUserId}/messages`), messageData),
+        addDoc(collection(db, `users1/${activeUser.id}/messages`), messageData),
+        updateDoc(doc(db, `users1/${currentUserId}`), {
+          lastMessageTime: serverTimestamp(),
+        }),
+        updateDoc(doc(db, `users1/${activeUser.id}`), {
+          lastMessageTime: serverTimestamp(),
+        }),
+      ]);
+
+ 
+
+      setInputValue("");
     }
   };
+
+  useEffect(() => {
+    const listMediaDevices = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        console.log("All Media devices:", devices);
+
+        const cameras = devices.filter(
+          (device) => device.kind === "videoinput"
+        );
+        const microphones = devices.filter(
+          (device) => device.kind === "audioinput"
+        );
+
+        console.log("Cameras:", cameras);
+        console.log("Microphones:", microphones);
+      } catch (error) {
+        console.error("Error enumerating devices:", error);
+      }
+    };
+
+    listMediaDevices();
+  }, []);
 
   const startCall = async () => {
     try {
@@ -248,16 +245,18 @@ const ChatMessage = () => {
       setIsCalling(true);
     } catch (error) {
       // handleMediaError(error);
-      if (error.name === 'NotAllowedError') {
-        alert('Permission to access camera and microphone was denied.');
-      } else if (error.name === 'NotFoundError') {
-        alert('Camera or microphone not found.');
-      } else if (error.name === 'NotReadableError') {
-        alert('Camera or microphone is already in use or could not be accessed.');
+      if (error.name === "NotAllowedError") {
+        alert("Permission to access camera and microphone was denied.");
+      } else if (error.name === "NotFoundError") {
+        alert("Camera or microphone not found.");
+      } else if (error.name === "NotReadableError") {
+        alert(
+          "Camera or microphone is already in use or could not be accessed."
+        );
       } else {
         alert(`An unexpected error occurred: ${error.message}`);
       }
-      console.error('Media error:', error);
+      console.error("Media error:", error);
     }
   };
 
@@ -275,7 +274,7 @@ const ChatMessage = () => {
     peer.on("stream", (stream) => setRemoteStream(stream));
     return peer;
   };
-  
+
   const handleAnswerCall = ({ signalData, from }) => {
     setCaller(from); // Set the caller info
     setIsReceivingCall(true);
@@ -325,7 +324,7 @@ const ChatMessage = () => {
       socket.off("call-rejected");
     };
   }, [peer, mediaStream]);
- 
+
   useEffect(() => {
     if (localVideoRef.current && mediaStream) {
       localVideoRef.current.srcObject = mediaStream;
@@ -335,21 +334,27 @@ const ChatMessage = () => {
     }
   }, [mediaStream, remoteStream]);
 
-  const onEmojiClick = (event, emojiObject) => {
-    console.log('Event:', event);
-    console.log('Emoji object:', emojiObject); // Inspect the emoji object
-    if (emojiObject && emojiObject.emoji) {
-      setInputValue((prev) => prev + emojiObject.emoji);
-      setShowEmojiPicker(false);
-    } else {
-      console.warn('Invalid emojiObject:', emojiObject);
-    }
+
+  const handleEmojiClick = (emojiData) => {
+    const selectedEmoji = emojiData.emoji; // Fix here: use emojiData.emoji
+    setInputValue((prev) => prev + selectedEmoji);
   };
+  
+
+  useEffect(() => {
+    if (showEmojiPicker) {
+      console.log("Emoji picker is shown");
+      // Any other side effects when emoji picker is shown
+    } else {
+      console.log("Emoji picker is hidden");
+      // Any other side effects when emoji picker is hidden
+    }
+  }, [showEmojiPicker]);
 
   const handleAuthorClick = () => {
     if (activeUser && activeUser.authorID) {
       navigate(`/profile/${activeUser.authorID}`);
-    }else {
+    } else {
       console.error("No authorID found for the active user.");
     }
   };
@@ -383,11 +388,9 @@ const ChatMessage = () => {
           {activeUser ? (
             <>
               <HStack justifyContent="space-between" alignItems="center" p={4}>
-                <HStack 
-                cursor="pointer"
-                onClick={handleAuthorClick}>
+                <HStack cursor="pointer" onClick={handleAuthorClick}>
                   {/* {activeUser && ( */}
-                    <Avatar src={activeUser.profileImage} size="md" />
+                  <Avatar src={activeUser.profileImage} size="md" />
                   {/* // )} */}
                   <Text fontWeight="bold" fontSize="xl">
                     {activeUser?.name}
@@ -430,82 +433,113 @@ const ChatMessage = () => {
                 </VStack>
               )}
 
-              {/* <Box flex="1" overflowY="auto" p={4} bg="gray.50" borderRadius="md">
-            {messages.map((msg, index) => (
-              <Box key={index} mb={2}>
-                <Flex>
-                  <Text fontWeight="bold">{msg.senderName}</Text>
-                  <Text ml={2} color="gray.500" fontSize="sm">
-                    {new Date(msg.createdAt.toDate()).toLocaleTimeString()}
-                  </Text>
-                </Flex>
-                <Text>{msg.text}</Text>
+              <Box
+                p={4}
+                bg="gray.50"
+                flex="1"
+                overflowY="scroll"
+                display="flex"
+                flexDirection="column-reverse"
+                ref={messagesEndRef}
+              >
+                {messages
+                  .slice()
+                  .reverse()
+                  .map((msg, index) => (
+                    <Flex
+                      key={index}
+                      direction="column"
+                      align={msg.senderId === currentUserId ? "end" : "start"}
+                      // mb={2}
+                    >
+                      {index < messages.length - 1 && (
+                        <Flex
+                          justify="center"
+                          mt={2}
+                          mb={2}
+                          alignItems="center"
+                          w="100%"
+                        >
+                          <Box
+                            px={2}
+                            py={1}
+                            color="gray.600"
+                            fontSize="xs"
+                            textAlign="center"
+                          >
+                            {/* {new Date(
+                            msg.createdAt.toDate()
+                          ).toLocaleTimeString()} */}
+                            <Text fontSize="sm" color="gray.500">
+                              {msg.createdAt
+                                ? new Date(
+                                    msg.createdAt.seconds * 1000
+                                  ).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "Unknown time"}
+                            </Text>
+                          </Box>
+                        </Flex>
+                      )}
+                      <Flex direction="column">
+                        <Flex direction="row">
+                          <Flex alignItems="end">
+                            {msg.senderId !== currentUserId && (
+                              <Avatar
+                                name={msg.senderName}
+                                src={activeUser.profileImage}
+                                size="sm"
+                                mr={3}
+                              />
+                            )}
+                          </Flex>
+                          <Box
+                            p={3}
+                            borderRadius="md"
+                            bg={
+                              msg.senderId === currentUserId
+                                ? "blue.400"
+                                : "gray.200"
+                            }
+                            color={
+                              msg.senderId === currentUserId ? "white" : "black"
+                            }
+                            maxWidth="650px"
+                            mt="4px"
+                            whiteSpace="normal"  // Ensure text wraps
+                            wordBreak="break-word" // Handle long words
+                          >
+                            <Text>{msg.text}</Text>
+                          </Box>
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                  ))}
               </Box>
-            ))}
-          </Box> */}
-              <Box p={4} bg="gray.50" flex="1" overflowY="scroll">
-  {messages.map((msg, index) => (
-    
-    <Flex
-      key={index}
-      direction="column"
-      align={msg.senderId === currentUserId ? "end" : "start"}
-      // mb={2}
-    
-    >
-      {index < messages.length - 1 && (
-        <Flex justify="center" mt={2} mb={2} alignItems="center" w="100%">
-          <Box
-            px={2}
-            py={1}
-            color="gray.600"
-            fontSize="xs"
-            textAlign="center"
-          
-          >
-            {new Date(msg.createdAt.toDate()).toLocaleTimeString()}
-          </Box>
-        </Flex>
-      )}
-      <Flex direction="column">
-      <Flex direction="row">
-        <Flex alignItems="end">
-      {msg.senderId !== currentUserId && (
-        <Avatar name={msg.senderName} src={activeUser.profileImage} size="sm" mr={3} />
-      )}
-      </Flex>
-      <Box
-        p={3}
-        borderRadius="md"
-        bg={msg.senderId === currentUserId ? "blue.400" : "gray.200"}
-        color={msg.senderId === currentUserId ? "white" : "black"}
-        width="100%"
-        mt="4px"
-      >
-        <Text>
-          {msg.text}
-        </Text>
-      </Box>
-      </Flex>
-        </Flex>
-    </Flex>
-  ))}
-</Box>
 
               <HStack spacing={2} p={4}>
                 <IconButton
                   icon={<FaSmile />}
                   aria-label="Emoji Picker"
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  // onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  onClick={() => setShowEmojiPicker((prev) => !prev)}
                   mr={2}
                 />
                 {showEmojiPicker && (
-                <Box position="absolute" bottom="80px" zIndex={10}>
-                  <EmojiPicker onEmojiClick={onEmojiClick} />
-                </Box>
-              )}
+                  <Box ref={emojiPickerRef} position="absolute" bottom="80px" zIndex={1000}>
+                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                    {/* <EmojiPicker
+                      onEmojiClick={(e, emoji) =>
+                        setInputValue(inputValue + emoji.emoji)
+                      }
+                    /> */}
+                  </Box>
+                )}
 
                 <Input
+                  ref={inputRef}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Type a message"
@@ -521,7 +555,9 @@ const ChatMessage = () => {
               </HStack>
             </>
           ) : (
-            <Text align="center" mt="50px">Select a user to start chatting</Text>
+            <Text align="center" mt="50px">
+              Select a user to start chatting
+            </Text>
           )}
         </Card>
       </Flex>
@@ -549,7 +585,7 @@ const ChatMessage = () => {
         </Box>
       )}
 
-<Modal isOpen={isReceivingCall} onClose={() => setIsReceivingCall(false)}>
+      <Modal isOpen={isReceivingCall} onClose={() => setIsReceivingCall(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Incoming Call</ModalHeader>
@@ -567,7 +603,7 @@ const ChatMessage = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-{/* {isCalling && (
+      {/* {isCalling && (
         <>
           <Box
             position="fixed"

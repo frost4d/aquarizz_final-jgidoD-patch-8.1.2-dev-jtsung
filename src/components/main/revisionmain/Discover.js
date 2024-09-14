@@ -36,7 +36,8 @@ import Footer from "./Footer";
 import PostModal from "./PostModal";
 import LoginModal from "./LoginModal";
 import { ChatIcon } from "@chakra-ui/icons";
-import { FaPlay } from "react-icons/fa";
+import { FaNewspaper, FaPlay } from "react-icons/fa";
+import SearchInput from "./components/SearchInput";
 
 const Discover = () => {
   const navigate = useNavigate();
@@ -565,7 +566,7 @@ const Discover = () => {
                 <Flex flexWrap="wrap" justify="space-evenly" align="center">
                   <Flex w="100%" justify="center" p="12px 24px">
                     <form onSubmit={handleSearchDiscover}>
-                      <Flex w="100%">
+                      {/* <Flex w="100%">
                         <Input
                           borderRadius="24px"
                           placeholder="Search"
@@ -576,7 +577,8 @@ const Discover = () => {
                         <Button p="12px 24px" type="submit" borderRadius="24px">
                           Search
                         </Button>
-                      </Flex>
+                      </Flex> */}
+                      <SearchInput item="Discover" data={discoverPosts} />
                       {suggestions.length > 0 && (
                         <List
                           bg="white"

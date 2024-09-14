@@ -15,7 +15,7 @@ import {
   useToast,
   Flex,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { auth } from "../../../firebase/firebaseConfig";
@@ -24,10 +24,17 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   signOut,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  isSignInWithEmailLink,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { UserAuth } from "../../context/AuthContext";
 import WelcomeModal from "./components/WelcomeModal";
 import { motion } from "framer-motion";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 
 const slideVariants = {
   hidden: { y: "-2vh" }, // Start offscreen (right)
@@ -44,6 +51,8 @@ const LoginModal = (props) => {
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
   const [showFirst, setShowFirst] = useState(true);
+  const [photoUrl, setPhotoUrl] = useState(null);
+
 
   const {
     register: login,
@@ -58,26 +67,12 @@ const LoginModal = (props) => {
     formState: { errors3 },
     reset: resetForgotPass,
   } = useForm();
+
   const handleLogin = async (data) => {
     setIsLoading(true);
     console.log(data);
     try {
       const userCred = await signIn(data.email, data.password);
-
-      const userVerify = userCred.user;
-      // handleSessionStorage();
-      // if (!userVerify.emailVerified) {
-      //   toast({
-      //     title: "Email verification was sent!",
-      //     description: "Please verify your email.",
-      //     status: "error",
-      //     duration: 4000,
-      //     position: "top",
-      //   });
-      // } else {
-      //   console.log("what??????");
-      // }
-
       setTimeout(() => {
         toast({
           description: "Welcome back!!!",
@@ -86,6 +81,7 @@ const LoginModal = (props) => {
           position: "top",
         });
       }, [1500]);
+      resetLogin();
     } catch (err) {
       switch (err.code) {
         case "auth/invalid-credential":
@@ -96,14 +92,15 @@ const LoginModal = (props) => {
             duration: 5000,
             position: "top",
           });
+          break;
       }
     } finally {
-      setIsLoading(false);
-
       navigate(window.location.pathname);
+
+      setIsLoading(false);
     }
-    resetLogin();
   };
+
   const handleForgotPass = async (data) => {
     try {
       await sendPasswordResetEmail(auth, data.emailForgot);
@@ -132,6 +129,55 @@ const LoginModal = (props) => {
       resetForgotPass();
     }
   };
+
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    setIsLoading(true);
+  
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      let photoURL = null;
+      if (photoUrl) {
+        photoURL = photoUrl;
+      }
+      const userRef = doc(db, 'users2', user.uid);
+        await setDoc(userRef, {
+          displayName: user.displayName,
+          email: user.email,
+          profileImage: photoURL,
+          // photoURL: user.photoURL,
+          dateCreated: Date.now(),
+          createdAt: serverTimestamp(),
+          lastLogin: new Date().toISOString() // Add more fields as needed
+        });
+  
+      toast({
+        description: `Welcome back, ${user.displayName}!`,
+        status: "success",
+        duration: 5000,
+        position: "top",
+      });
+  
+      resetLogin();
+      navigate("/discover"); // Navigate to the Discover page
+    } catch (err) {
+      toast({
+        title: "Login Error",
+        description: "There was an issue signing in with Google.",
+        status: "error",
+        duration: 5000,
+        position: "top",
+      });
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose}>
@@ -181,6 +227,17 @@ const LoginModal = (props) => {
                     </Button>
                   </FormLabel>
                 </form>
+
+                <Button
+                  onClick={handleGoogleLogin}
+                  isLoading={isLoading}
+                  w="100%"
+                  bg="#4285F4"
+                  color="white"
+                  mt="12px"
+                >
+                  Sign in with Google
+                </Button>
 
                 <Flex justify="space-between" align="center">
                   <Box>
