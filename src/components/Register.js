@@ -20,6 +20,7 @@ import { UserAuth } from "./context/AuthContext";
 import { doc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db, storage, auth } from "../firebase/firebaseConfig";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   ref,
   uploadBytes,
@@ -36,6 +37,7 @@ import {
   signInWithEmailLink,
   isSignInWithEmailLink,
 } from "firebase/auth";
+import { text } from "body-parser";
 
 const Register = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -159,26 +161,90 @@ const Register = () => {
 
     reset();
   };
+  let number = `+63${phoneNumber}`;
+
+  const data = {
+    body: {
+      phone_number: number,
+      service_name: "Aquarizz otp",
+    },
+  };
 
   const sendOTP = async () => {
+    console.log(number);
+    //textflow
     try {
-      const recaptcha = new RecaptchaVerifier(auth, "recaptcha", {});
-      console.log(phoneNumber);
-      // recaptcha.render()
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        `+63${phoneNumber}`,
-        recaptcha
-      );
-      if (!/^\+63\d{10}$/.test(phoneNumber)) {
-        console.log("Invalid phone number format. Please check the number.");
-        return;
-      }
-      setVerification(confirmation);
-      console.log(confirmation);
+      console.log("trying");
+      axios.post("https://textflow.me/api/send-code", { data });
+      console.log("tried");
     } catch (err) {
       console.log(err.message);
     }
+    //phone.email
+    // try {
+    //   const response = await axios.post(
+    //     "https://api.phone.email/otp/send",
+    //     {
+    //       phone_number: number,
+    //     },
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer YOUR_API_KEY`,
+    //       },
+    //     }
+    //   );
+    //   toast({
+    //     title: "OTP sent.",
+    //     description: response.data.message,
+    //     status: "success",
+    //     duration: 9000,
+    //     isClosable: true,
+    //   });
+    // } catch (error) {
+    //   toast({
+    //     title: "Error sending OTP.",
+    //     description: error.response.data.message,
+    //     status: "error",
+    //     duration: 9000,
+    //     isClosable: true,
+    //   });
+    // }
+
+    //twilio
+    // try {
+    //   const response = await axios.post("http://localhost:5000/send-otp", {
+    //     number,
+    //   });
+    //   // setIsOtpSent(true);
+    //   // setOtp(response.data.otp); // For demo purposes, we display the OTP
+    //   // setMessage("OTP sent to your phone.");
+    //   console.log(response.data.otp);
+    //   alert("otp has been sent");
+    // } catch (error) {
+    //   console.log(error.message);
+    //   console.log(number);
+    //   console.log("Failed to send OTP.");
+    // }
+
+    //firebase
+    // try {
+    //   const recaptcha = new RecaptchaVerifier(auth, "recaptcha", {});
+    //   console.log(phoneNumber);
+    //   // recaptcha.render()
+    //   const confirmation = await signInWithPhoneNumber(
+    //     auth,
+    //     `+63${phoneNumber}`,
+    //     recaptcha
+    //   );
+    //   if (!/^\+63\d{10}$/.test(phoneNumber)) {
+    //     console.log("Invalid phone number format. Please check the number.");
+    //     return;
+    //   }
+    //   setVerification(confirmation);
+    //   console.log(confirmation);
+    // } catch (err) {
+    //   console.log(err.message);
+    // }
   };
 
   const verifyOTP = async () => {
@@ -278,7 +344,7 @@ const Register = () => {
                       })}
                       aria-invalid={errors.phoneNumber ? "true" : "false"}
                     />
-                    {/* <Button onClick={sendOTP}>Send OTP</Button> */}
+                    <Button onClick={sendOTP}>Send OTP</Button>
                   </InputGroup>
                 </Stack>
                 {errors.phoneNumber?.type === "required" && (
@@ -292,7 +358,7 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
-              {/* <Flex gap="1">
+              <Flex gap="1">
                 <Input
                   onChange={(e) => {
                     setOtp(e.target.value);
@@ -310,7 +376,7 @@ const Register = () => {
                     OTP is required
                   </p>
                 )}
-              </Flex> */}
+              </Flex>
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input
