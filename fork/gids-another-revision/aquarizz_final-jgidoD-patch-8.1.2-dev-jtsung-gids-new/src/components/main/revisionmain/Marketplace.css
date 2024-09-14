@@ -1,0 +1,7 @@
+.item__wrapper:hover .item__image {
+  scale: 1.1;
+}
+
+.item__image {
+  transition: all 0.4s cubic-bezier(0.16, 0.68, 0.42, 0.88);
+}
