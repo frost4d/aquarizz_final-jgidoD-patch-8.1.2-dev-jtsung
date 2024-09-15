@@ -207,6 +207,19 @@ const LandingPageMarket = () => {
             align="center"
             mr="24px"
           >
+            <NavLink to="/discover">
+              <Button
+                variant="none"
+                color="#000"
+                rightIcon={<Compass size={16} />}
+                // _hover={{
+                //   bg: "rgba(255,255,255,.3)",
+                // }}
+              >
+                Discover
+              </Button>
+            </NavLink>
+            
             <NavLink to="/marketplace">
               <Button
                 variant="none"
@@ -221,18 +234,6 @@ const LandingPageMarket = () => {
               </Button>
             </NavLink>
 
-            <NavLink to="/discover">
-              <Button
-                variant="none"
-                color="#000"
-                rightIcon={<Compass size={16} />}
-                // _hover={{
-                //   bg: "rgba(255,255,255,.3)",
-                // }}
-              >
-                Discover
-              </Button>
-            </NavLink>
 
             {userProfile ? (
               <>

@@ -141,11 +141,11 @@ const AddDiscover = (props) => {
                 flexDirection="column"
                 justify="center"
               >
-                <Box mb={4}>
+                {/* <Box mb={4}>
                   <FormLabel>Title</FormLabel>
                   <Input {...register("title", { required: true })} />
                   {errors.title && <Text color="red">Title is required</Text>}
-                </Box>
+                </Box> */}
 
                 <Box>
                   <Textarea

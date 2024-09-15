@@ -34,13 +34,13 @@ import ContactUs from "./components/main/revisionmain/ContactUs.js";
 import TransactionPage from "./components/main/revisionmain/TransactionPage.js";
 import ReviewsPage from "./components/main/revisionmain/ReviewsPage.js";
 import ChatMessage from "./components/main/revisionmain/ChatMessage.js";
-<<<<<<< Updated upstream
-
-=======
 import Marketplace from "./components/main/revisionmain/Marketplace.js";
 import MarketItem from "./components/main/revisionmain/MarketItem.js";
 import ItemModal from "./components/main/revisionmain/ItemModal.js";
->>>>>>> Stashed changes
+import PostModal from "./components/main/revisionmain/PostModal.js";
+import DiscoverModal from "./components/main/revisionmain/DiscoverModal.js";
+import FriendsPost from "./components/main/revisionmain/FriendsPost.js";
+import FollowingPost from "./components/main/revisionmain/FollowingPost.js";
 
 function App() {
   return (
@@ -53,9 +53,15 @@ function App() {
               path="/category/:categoryName"
               element={<FilteredItemsPage />}
             />
+            <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/createListing" element={<Create />} />
+            <Route path="/discover/:postId" element={<Discover />} />
             <Route path="/discover" element={<Discover />} />
+            <Route
+              path="/discover/post/:discoverId"
+              element={<DiscoverModal />}
+            />
             <Route path="/shop" element={<Shop />} />
             <Route path="/AddToCart/:id" element={<AddToCartPage />} />
             <Route path="/CartItem/:id" element={<CartItem />} />
@@ -76,6 +82,8 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/chatMessage/:userId" element={<ChatMessage />} />
             <Route path="/marketplace/item/:postId" element={<ItemModal />} />
+            <Route path="/friendsPost" element={<FriendsPost />} />
+            <Route path="/followingPost" element={<FollowingPost />} />
 
             {/* <Route path="/AddToCart" element={<AddToCartPage />} /> */}
             <Route path="/register" element={<Register />} />

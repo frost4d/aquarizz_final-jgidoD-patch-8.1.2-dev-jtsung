@@ -15,17 +15,26 @@ import {
   useToast,
   Flex,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { auth } from "../../../firebase/firebaseConfig";
 import {
   fetchSignInMethodsForEmail,
   sendPasswordResetEmail,
+  sendEmailVerification,
+  signOut,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  isSignInWithEmailLink,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { UserAuth } from "../../context/AuthContext";
 import WelcomeModal from "./components/WelcomeModal";
 import { motion } from "framer-motion";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 
 const slideVariants = {
   hidden: { y: "-2vh" }, // Start offscreen (right)
@@ -33,7 +42,8 @@ const slideVariants = {
   exit: { y: "-5vh" }, // Slide offscreen (left)
 };
 
-const LoginModal = (props, { onNext }) => {
+const LoginModal = (props) => {
+  const [isVerified, setIsVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, user, userProfile } = UserAuth();
   const toast = useToast();
@@ -41,6 +51,8 @@ const LoginModal = (props, { onNext }) => {
   const loginModal = useDisclosure();
   const primaryColor = "#FFC947";
   const [showFirst, setShowFirst] = useState(true);
+  const [photoUrl, setPhotoUrl] = useState(null);
+
 
   const {
     register: login,
@@ -55,12 +67,12 @@ const LoginModal = (props, { onNext }) => {
     formState: { errors3 },
     reset: resetForgotPass,
   } = useForm();
+
   const handleLogin = async (data) => {
     setIsLoading(true);
     console.log(data);
     try {
-      await signIn(data.email, data.password);
-      // handleSessionStorage();
+      const userCred = await signIn(data.email, data.password);
       setTimeout(() => {
         toast({
           description: "Welcome back!!!",
@@ -69,6 +81,7 @@ const LoginModal = (props, { onNext }) => {
           position: "top",
         });
       }, [1500]);
+      resetLogin();
     } catch (err) {
       switch (err.code) {
         case "auth/invalid-credential":
@@ -79,13 +92,15 @@ const LoginModal = (props, { onNext }) => {
             duration: 5000,
             position: "top",
           });
+          break;
       }
     } finally {
-      setIsLoading(false);
       navigate(window.location.pathname);
+
+      setIsLoading(false);
     }
-    resetLogin();
   };
+
   const handleForgotPass = async (data) => {
     try {
       await sendPasswordResetEmail(auth, data.emailForgot);
@@ -114,6 +129,58 @@ const LoginModal = (props, { onNext }) => {
       resetForgotPass();
     }
   };
+
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    setIsLoading(true);
+  
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // let photoURL = null;
+      // if (photoUrl) {
+      //   photoURL = photoUrl;
+      // }
+      const photoURL = user.photoURL || photoUrl;
+      const userRef = doc(db, 'users1', user.uid);
+        await setDoc(userRef, {
+          name: user.displayName,
+          email: user.email,
+          profileImage: photoURL,
+          userID: user.uid,
+          // photoURL: user.photoURL,
+          dateCreated: Date.now(),
+          createdAt: serverTimestamp(),
+          lastLogin: new Date().toISOString() // Add more fields as needed
+        });
+  
+      toast({
+        description: `Welcome back, ${user.displayName}!`,
+        status: "success",
+        duration: 5000,
+        position: "top",
+      });
+  
+      // resetLogin();
+      navigate("/discover"); // Navigate to the Discover page
+    } catch (err) {
+      toast({
+        title: "Login Error",
+        description: "There was an issue signing in with Google.",
+        status: "error",
+        duration: 5000,
+        position: "top",
+      });
+      console.error(err);
+    } finally {
+      resetLogin();
+      setIsLoading(false);
+    }
+  };
+  
+
   return (
     <>
       <Modal isOpen={props.isOpen} onClose={props.onClose}>
@@ -157,11 +224,23 @@ const LoginModal = (props, { onNext }) => {
                       w="100%"
                       type="submit"
                       bg={primaryColor}
+                      isDisabled={isVerified}
                     >
                       Login
                     </Button>
                   </FormLabel>
                 </form>
+
+                <Button
+                  onClick={handleGoogleLogin}
+                  isLoading={isLoading}
+                  w="100%"
+                  bg="#4285F4"
+                  color="white"
+                  mt="12px"
+                >
+                  Sign in with Google
+                </Button>
 
                 <Flex justify="space-between" align="center">
                   <Box>
