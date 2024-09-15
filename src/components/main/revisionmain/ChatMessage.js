@@ -82,23 +82,47 @@ const ChatMessage = () => {
         collection(db, "users1"),
         orderBy("lastMessageTime", "desc")
       );
-
-      const unsubscribe = onSnapshot(usersQuery, (snapshot) => {
+  
+      const unsubscribe = onSnapshot(usersQuery, async (snapshot) => {
         const userList = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-
-        // Filter out the current user
-        const filteredUsers = userList.filter(
-          (user) => user.id !== currentUserId
+  
+        // Create an array of promises to filter users asynchronously
+        const filteredUsersPromises = userList.map(async (user) => {
+          if (user.id !== currentUserId) {
+            // Check if the user has exchanged messages with the current user
+            const sentMessages = await getDocs(
+              query(
+                collection(db, `users1/${currentUserId}/messages`),
+                where("receiverId", "==", user.id)
+              )
+            );
+            const receivedMessages = await getDocs(
+              query(
+                collection(db, `users1/${user.id}/messages`),
+                where("receiverId", "==", currentUserId)
+              )
+            );
+  
+            return !sentMessages.empty || !receivedMessages.empty ? user : null;
+          }
+          return null;
+        });
+  
+        // Resolve all promises and filter out null values
+        const filteredUsers = (await Promise.all(filteredUsersPromises)).filter(
+          (user) => user !== null
         );
+  
         setUsers(filteredUsers);
       });
-
+  
       return () => unsubscribe();
     }
   }, [currentUserId]);
+  
 
   // Fetch current user's data
   useEffect(() => {

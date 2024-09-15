@@ -139,15 +139,17 @@ const LoginModal = (props) => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      let photoURL = null;
-      if (photoUrl) {
-        photoURL = photoUrl;
-      }
-      const userRef = doc(db, 'users2', user.uid);
+      // let photoURL = null;
+      // if (photoUrl) {
+      //   photoURL = photoUrl;
+      // }
+      const photoURL = user.photoURL || photoUrl;
+      const userRef = doc(db, 'users1', user.uid);
         await setDoc(userRef, {
-          displayName: user.displayName,
+          name: user.displayName,
           email: user.email,
           profileImage: photoURL,
+          userID: user.uid,
           // photoURL: user.photoURL,
           dateCreated: Date.now(),
           createdAt: serverTimestamp(),
@@ -161,7 +163,7 @@ const LoginModal = (props) => {
         position: "top",
       });
   
-      resetLogin();
+      // resetLogin();
       navigate("/discover"); // Navigate to the Discover page
     } catch (err) {
       toast({
@@ -173,6 +175,7 @@ const LoginModal = (props) => {
       });
       console.error(err);
     } finally {
+      resetLogin();
       setIsLoading(false);
     }
   };
