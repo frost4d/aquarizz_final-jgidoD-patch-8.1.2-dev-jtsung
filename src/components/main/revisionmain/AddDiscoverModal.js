@@ -91,7 +91,7 @@ const AddDiscover = (props) => {
     const obj = {
       authorName: userProfile.name,
       authorID: user?.uid,
-      postTitle: data.title,
+      // postTitle: data.title,
       postContent: data.text,
       postImage: file ? imageUrl : "", // Optional chaining to avoid null value
       postVideo: videoFile ? videoUrl : "",
@@ -182,7 +182,7 @@ const AddDiscover = (props) => {
                     onChange={handleVideoChange}
                   />
                 </Box>
-                <Box>
+                {/* <Box>
                   <Input
                     placeholder="e.g. #tag"
                     {...register("tag", { required: true })}
@@ -193,7 +193,7 @@ const AddDiscover = (props) => {
                       Tag is required
                     </p>
                   )}
-                </Box>
+                </Box> */}
 
                 <Button
                   type="submit"

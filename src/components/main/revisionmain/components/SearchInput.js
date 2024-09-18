@@ -54,6 +54,7 @@ const SearchInput = (props) => {
   const [filteredPosts, setFilteredPosts] = useState();
   const [filteredUser, setFilteredUser] = useState();
   const [tabIndex, setTabIndex] = useState(0);
+  const [users, setUsers] = useState();
   const [loading, setLoading] = useState();
   const navigate = useNavigate();
   const openLogin = useDisclosure();
@@ -100,14 +101,31 @@ const SearchInput = (props) => {
     }
     console.log(data);
   };
-
+  useEffect(() => {
+    const handleGetUsers = async () => {
+      setLoading(true);
+      try {
+        const userCollection = collection(db, "users1");
+        const snapShot = await getDocs(userCollection);
+        const tempUsers = [];
+        snapShot.forEach((doc) => {
+          tempUsers.push({ id: doc.id, ...doc.data() });
+        });
+        setUsers(tempUsers);
+        setLoading(false);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    handleGetUsers();
+  }, []);
   const handleSearchChangePeople = (e) => {
     const input = e.target.value.toLowerCase();
     setSearchUser(input);
 
     if (input) {
-      const filteredData = marketData.filter((item) => {
-        return item.authorName.toLowerCase().includes(input);
+      const filteredData = users.filter((item) => {
+        return item.name.toLowerCase().includes(input);
         //  || item.authorName.toLowerCase().includes(input)
       });
 
@@ -144,7 +162,7 @@ const SearchInput = (props) => {
         // justify="space-around"
         cursor="pointer"
         border="1px solid #e1e1e1"
-        borderRadius="4px"
+        borderRadius="6px"
         boxShadow="0px 1px 3px #e1e1e1"
         onClick={() => {
           !user ? openLogin.onOpen() : searchModal.onOpen();
@@ -227,7 +245,9 @@ const SearchInput = (props) => {
                                       </Flex>
                                       <Box m="2px 8px">
                                         <Text fontWeight="500" fontSize="sm">
-                                          {data.postTitle}
+                                          {props.item === "Marketplace"
+                                            ? ""
+                                            : data.postTitle}
                                         </Text>
                                         <Text fontSize="xs" color="gray.500">
                                           {data.postContent}
@@ -265,7 +285,7 @@ const SearchInput = (props) => {
                           return (
                             <>
                               <Card
-                                onClick={() => handleCardClick(data.id)}
+                                onClick={() => navigate(`/profile/${data.id}`)}
                                 border="1px solid #f2f2f2"
                                 _hover={{ cursor: "pointer", bg: "#f2f2f2" }}
                                 key={data.id}
@@ -276,25 +296,32 @@ const SearchInput = (props) => {
                                     <Box>
                                       <Flex align="center" gap={2}>
                                         <Avatar
-                                          size="xs"
-                                          name={data.authorName}
+                                          size="md"
+                                          name={data.name}
                                           src={
                                             data.profileImage ||
                                             "/path/to/avatar.jpg"
                                           }
                                         />
-                                        <Heading size="sm" color="#191919">
-                                          {data.authorName}
-                                        </Heading>
-                                      </Flex>
-                                      <Flex align="center" m="2px 8px">
-                                        <Text fontSize="sm" color="gray.500">
-                                          {data.postContent}
-                                        </Text>
+                                        <Box>
+                                          <Heading size="sm" color="#191919">
+                                            {data.name}
+                                          </Heading>
+                                          <Flex align="center">
+                                            <Text
+                                              fontSize="sm"
+                                              color="gray.500"
+                                            >
+                                              {!data.location
+                                                ? ""
+                                                : `Lives around ${data.location}`}
+                                            </Text>
+                                          </Flex>
+                                        </Box>
                                       </Flex>
                                     </Box>
 
-                                    <Box overflow="hidden">
+                                    {/* <Box overflow="hidden">
                                       {!data.postImage ? (
                                         ""
                                       ) : (
@@ -309,7 +336,7 @@ const SearchInput = (props) => {
                                           }
                                         />
                                       )}
-                                    </Box>
+                                    </Box> */}
                                   </Flex>
                                 </CardBody>
                               </Card>

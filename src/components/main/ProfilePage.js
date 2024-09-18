@@ -19,7 +19,9 @@ import {
   getDoc,
   onSnapshot,
   setDoc,
-  deleteDoc
+  deleteDoc,
+  arrayUnion,
+  increment
 } from "firebase/firestore";
 import {
   Box,
@@ -100,6 +102,7 @@ import {
   UserCheck,
   UserPlus
 } from "react-feather";
+import { FaEllipsisH } from "react-icons/fa";
 import Comment from "./mainComponents/Comment";
 import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -198,7 +201,7 @@ function ProfilePage() {
       }
   
       const followedUserData = followedUserDoc.data();
-      const followedUserName = followedUserData.name || "Unknown User";
+      const followedUserName = followedUserData.name || user.displayName || "Unknown User";
       const followedUserEmail = followedUserData.email || "No email";
       const followedUserImage = followedUserData.postImage || imageUrl || followedUserData.profileImage || "no img"; // Ensure a default value
   
@@ -546,9 +549,9 @@ function ProfilePage() {
   }, [userId]);
 
   useEffect(() => {
-    const fetchUserShopPosts = async () => {
+    const fetchMarketplace = async () => {
       if (!userId) return;
-      const docRef = collection(db, "shop");
+      const docRef = collection(db, "marketplace");
       const docSnap = query(docRef, where("authorID", "==", userId));
       const postDataVar = await getDocs(docSnap);
       let tempArr = [];
@@ -557,8 +560,22 @@ function ProfilePage() {
       });
       setShopPosts(tempArr);
     };
-    fetchUserShopPosts();
+    fetchMarketplace();
   }, [userId]);
+  // useEffect(() => {
+  //   const fetchUserShopPosts = async () => {
+  //     if (!userId) return;
+  //     const docRef = collection(db, "shop");
+  //     const docSnap = query(docRef, where("authorID", "==", userId));
+  //     const postDataVar = await getDocs(docSnap);
+  //     let tempArr = [];
+  //     postDataVar.forEach((doc) => {
+  //       tempArr.push({ ...doc.data(), id: doc.id });
+  //     });
+  //     setShopPosts(tempArr);
+  //   };
+  //   fetchUserShopPosts();
+  // }, [userId]);
 
   const handleProfileChange = async (e) => {
     setProfileImage(e.target.files[0]);
@@ -646,6 +663,38 @@ function ProfilePage() {
       toast({
         title: "Update Failed!",
         description: "There was an error updating your profile.",
+        status: "error",
+        duration: 3000,
+        position: "top",
+      });
+    }
+  };
+
+  const onReportUser = async () => {
+    if (!user || !userData?.userID) return;
+  
+    try {
+      // Reference to the reports collection
+      const reportsRef = doc(db, "reports", userData.userID);
+  
+      // Update the reports document
+      await updateDoc(reportsRef, {
+        reportedBy: arrayUnion(user.uid),
+        reportCount: increment(1),
+      });
+  
+      toast({
+        title: "User Reported",
+        description: "Thank you for reporting. We will review this report.",
+        status: "success",
+        duration: 3000,
+        position: "top",
+      });
+    } catch (error) {
+      console.error("Error reporting user: ", error);
+      toast({
+        title: "Report Failed",
+        description: "There was an issue reporting the user. Please try again.",
         status: "error",
         duration: 3000,
         position: "top",
@@ -1139,6 +1188,16 @@ function ProfilePage() {
                   <FollowButton userId={userId} currentUserId={user?.uid} followCount={followCount}/>
                   </Flex>
                 </Flex>
+
+                {/* Conditionally render the Report User option */}
+                {user && user.uid !== userData.userID && (
+                   <Menu>
+                   <MenuButton as={IconButton} icon={<FaEllipsisH />} />
+                   <MenuList>
+                   <MenuItem onClick={onReportUser} color="red.500">Report User</MenuItem>
+                   </MenuList>
+                   </Menu>
+                 )} 
                 <Box display={userData.userID !== user.uid ? "none" : ""}>
                   {/* <Button
                     onClick={() => {
@@ -1306,7 +1365,7 @@ function ProfilePage() {
                     <TabList mb="1em">
                       <Tab w="8%">Posts</Tab>
                       <Tab w="8%">Reposts</Tab>
-                      <Tab w="8%">Shop</Tab>
+                      <Tab w="8%">Marketplace</Tab>
                       <Tab w="8%">About</Tab>
                     </TabList>
                     <TabPanels>

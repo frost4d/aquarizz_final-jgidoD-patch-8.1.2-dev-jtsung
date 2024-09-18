@@ -507,9 +507,9 @@ const DiscoverModal = () => {
                         color="white"
                         bg="none"
                         _hover={{ bg: "none" }}
-                        onClick={() => {
-                          handleAddComment();
-                        }}
+                        // onClick={() => {
+                        //   handleAddComment();
+                        // }}
                       />
                       <Text color="white" fontSize="lg">
                         {comments.length}

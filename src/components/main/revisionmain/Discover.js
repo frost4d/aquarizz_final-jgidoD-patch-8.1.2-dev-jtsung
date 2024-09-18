@@ -1,7 +1,17 @@
 import "./Discover.css";
 import { useEffect, useState } from "react";
 import { db } from "../../../firebase/firebaseConfig";
-import { doc, getDocs, collection, addDoc, getDoc, setDoc, updateDoc, increment, where } from "firebase/firestore";
+import {
+  doc,
+  getDocs,
+  collection,
+  addDoc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  increment,
+  where,
+} from "firebase/firestore";
 import {
   Box,
   Button,
@@ -42,7 +52,6 @@ import SearchInput from "./components/SearchInput";
 const Discover = () => {
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
-  console.log("userProfile:", userProfile);
   const primaryColor = "#FFC947";
   const primaryFont = '"Poppins", sans-serif';
   const tertiaryColor = "#6e6e6e";
@@ -84,7 +93,6 @@ const Discover = () => {
     };
     fetchDiscoverPosts();
   }, [userProfile]);
-  console.log("userProfile:", userProfile);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -274,33 +282,38 @@ const Discover = () => {
       return timer;
     }
   };
-  
+
   useEffect(() => {
     const fetchFollowedUsers = async () => {
       if (!user || !user.uid) return;
-  
+
       try {
-        const followingCollection = collection(db, "users1", user.uid, "following");
+        const followingCollection = collection(
+          db,
+          "users1",
+          user.uid,
+          "following"
+        );
         const querySnapshot = await getDocs(followingCollection);
         const followedUsersList = [];
-  
+
         querySnapshot.forEach((doc) => {
           followedUsersList.push(doc.id); // Assuming doc.id is the userId
         });
-  
+
         setFollowedUsers(followedUsersList);
       } catch (err) {
         console.log(err.message);
       }
     };
-  
+
     fetchFollowedUsers();
   }, [user]);
 
   useEffect(() => {
     const fetchPostsFromFollowedUsers = async () => {
       if (followedUsers.length === 0) return;
-  
+
       try {
         const postsCollection = collection(db, "discover");
         const query = query(
@@ -309,78 +322,76 @@ const Discover = () => {
         );
         const querySnapshot = await getDocs(query);
         const postsList = [];
-  
+
         querySnapshot.forEach((doc) => {
           postsList.push({ id: doc.id, ...doc.data() });
         });
-  
+
         setFilteredPosts(postsList);
       } catch (err) {
         console.log(err.message);
       }
     };
-  
+
     fetchPostsFromFollowedUsers();
   }, [followedUsers]);
-
 
   useEffect(() => {
     const fetchFriends = async () => {
       if (!user || !user.uid) return;
-  
+
       try {
         const friendsCollection = collection(db, "users1", user.uid, "friends"); // Adjust path as needed
         const querySnapshot = await getDocs(friendsCollection);
-        const friendsList = querySnapshot.docs.map(doc => doc.id); // Assuming doc.id is friendId
-  
+        const friendsList = querySnapshot.docs.map((doc) => doc.id); // Assuming doc.id is friendId
+
         setFriends(friendsList);
       } catch (err) {
         console.log(err.message);
       }
     };
-  
+
     fetchFriends();
   }, [user]);
-  
+
   useEffect(() => {
     const fetchPostsFromFriends = async () => {
       if (friends.length === 0) return;
-  
+
       try {
         const postsCollection = collection(db, "discover");
-        const query = query(
-          postsCollection,
-          where("authorId", "in", friends)
-        );
+        const query = query(postsCollection, where("authorId", "in", friends));
         const querySnapshot = await getDocs(query);
         const postsList = [];
-  
+
         querySnapshot.forEach((doc) => {
           postsList.push({ id: doc.id, ...doc.data() });
         });
-  
+
         setFilteredPosts(postsList);
       } catch (err) {
         console.log(err.message);
       }
     };
-  
+
     fetchPostsFromFriends();
   }, [friends]);
 
   const handleFriendsClick = () => {
     // Update the filtered posts based on friends list
-    setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
+    setFilteredPosts(
+      discoverPosts.filter((post) => friends.includes(post.authorId))
+    );
     navigate("/friendsPost");
   };
   const handleFollowingClick = () => {
     // Update the filtered posts based on friends list
-    setFilteredPosts(discoverPosts.filter(post => friends.includes(post.authorId)));
+    setFilteredPosts(
+      discoverPosts.filter((post) => friends.includes(post.authorId))
+    );
     navigate("/followingPost");
   };
-  
-  console.log(discoverPosts);
-  console.log(userProfile);
+
   return (
     <>
       <Box h="100vh" overflowY="auto">
@@ -738,19 +749,21 @@ const Discover = () => {
 
                             <Flex justify="space-between" mt="10px">
                               <Flex>
-                              <Avatar
-                                size="xs"
-                                name={post.authorName}
-                                src={post.profileImage || "/path/to/avatar.jpg"}
-                              />
-                              <Button
-                                ml="6px"
-                                fontSize="18px"
-                                variant="link"
-                                color="#333333"
-                              >
-                                {post.authorName}
-                              </Button>
+                                <Avatar
+                                  size="xs"
+                                  name={post.authorName}
+                                  src={
+                                    post.profileImage || "/path/to/avatar.jpg"
+                                  }
+                                />
+                                <Button
+                                  ml="6px"
+                                  fontSize="18px"
+                                  variant="link"
+                                  color="#333333"
+                                >
+                                  {post.authorName}
+                                </Button>
                               </Flex>
                               <Text fontSize="xs" color="#6e6e6e" as="i">
                                 {formatDistanceToNow(post.createdAt)} ago

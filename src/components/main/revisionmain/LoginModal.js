@@ -14,6 +14,7 @@ import {
   useDisclosure,
   useToast,
   Flex,
+  Image
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -231,7 +232,27 @@ const LoginModal = (props) => {
                   </FormLabel>
                 </form>
 
-                <Button
+                <Flex
+                  onClick={handleGoogleLogin}
+                  _hover={{ bg: "#e6ecf2" }}
+                  cursor="pointer"
+                  borderRadius="6px"
+                  p="6px"
+                  border="1px solid #ededed"
+                  gap={1}
+                  textAlign="center"
+                  justify="center"
+                >
+                  <Text fontWeight="500">Sign in with</Text>
+                  <Image
+                    src={"/google_png.png"}
+                    alt="My Image"
+                    required
+                    w="47px"
+                  />
+                </Flex>
+
+                {/* <Button
                   onClick={handleGoogleLogin}
                   isLoading={isLoading}
                   w="100%"
@@ -240,7 +261,7 @@ const LoginModal = (props) => {
                   mt="12px"
                 >
                   Sign in with Google
-                </Button>
+                </Button> */}
 
                 <Flex justify="space-between" align="center">
                   <Box>
