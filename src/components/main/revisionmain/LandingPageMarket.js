@@ -252,9 +252,13 @@ const LandingPageMarket = () => {
                       </Flex>
                     </MenuButton>
                     <MenuList>
-                      <MenuGroup title="Profile">
+                      <MenuGroup title="Profile"
+                      onClick={() => {
+                        navigate(`/profile/${user.uid}`);
+                      }}
+                      >
                         <MenuItem>My Account</MenuItem>
-                        <MenuItem>My Shop</MenuItem>
+                        {/* <MenuItem>My Shop</MenuItem> */}
                       </MenuGroup>
                       <MenuDivider />
                       <MenuGroup title="Support">
@@ -357,7 +361,7 @@ const LandingPageMarket = () => {
                           <MenuList>
                             <MenuGroup title="Profile">
                               <MenuItem>My Account</MenuItem>
-                              <MenuItem>My Shop</MenuItem>
+                              {/* <MenuItem>My Shop</MenuItem> */}
                             </MenuGroup>
                             <MenuDivider />
                             <MenuGroup title="Support">

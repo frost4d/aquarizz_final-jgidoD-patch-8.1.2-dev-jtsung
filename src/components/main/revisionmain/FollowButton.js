@@ -320,6 +320,7 @@ const moveToTop = (usersList) => {
                         >
                           <HStack 
                           onClick={() => navigateToProfile(follower.followerId)}
+                          cursor="pointer"
                           >
                             <Avatar src={follower.postImage} name={follower.name} />
                             <VStack my="12px" ml="4px">
@@ -357,7 +358,8 @@ const moveToTop = (usersList) => {
                   {following.length > 0 ? (
                     <VStack align="start">
                       {moveToTop(following).map((follow, index) => (
-                        <HStack key={index} width="100%" justifyContent="space-between" 
+                        <HStack key={index} width="100%" justifyContent="space-between"
+                        cursor="pointer"
                         >
                           <HStack
                           onClick={() => navigateToProfile(follow.followedUserId)}
@@ -402,6 +404,7 @@ const moveToTop = (usersList) => {
                         >
                           <HStack
                           onClick={() => navigateToProfile(friend.friendId)}
+                          cursor="pointer"
                           >
                             <Avatar src={friend.postImage} name={friend.name} />
                             <VStack my="12px" ml="4px">

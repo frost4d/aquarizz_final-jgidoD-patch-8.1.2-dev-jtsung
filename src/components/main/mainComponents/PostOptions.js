@@ -63,7 +63,7 @@ const PostOptions = (props) => {
   const handleDelete = async () => {
     console.log(postId)
     try {
-      const shopRef = doc(db, "shop", postId); // Assuming postId is the document ID in the "shop" collection
+      const shopRef = doc(db, "marketplace", postId); // Assuming postId is the document ID in the "shop" collection
       const discoverRef = doc(db, "discover", postId); // Assuming postId is the document ID in the "discover" collection
       await deleteDoc(shopRef);
       await deleteDoc(discoverRef);

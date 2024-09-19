@@ -251,12 +251,12 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                         >
                           My Account
                         </MenuItem>
-                        <MenuItem>
+                        {/* <MenuItem>
                           <Link to="/ItemStatusPage">Check Item Status</Link>
-                        </MenuItem>
+                        </MenuItem> */}
                         <MenuDivider />
                       </MenuGroup>
-                      <MenuGroup title="My Shop">
+                      {/* <MenuGroup title="My Shop">
                         <MenuItem
                           onClick={() => {
                             navigate(`/reports`);
@@ -272,7 +272,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                           Transactions
                         </MenuItem>
                       </MenuGroup>
-                      <MenuDivider />
+                      <MenuDivider /> */}
                       <MenuGroup title="Support">
                         <MenuItem onClick={() => setIsContactModalOpen(true)}>
                           Contact Us
@@ -428,7 +428,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                             <MenuList>
                               <MenuGroup title="Profile">
                                 <MenuItem>My Account</MenuItem>
-                                <MenuItem>My Shop</MenuItem>
+                                {/* <MenuItem>My Shop</MenuItem> */}
                               </MenuGroup>
                               <MenuDivider />
                               <MenuGroup title="Support">

@@ -169,8 +169,16 @@ function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
+  const [updating, setUpdating] = useState(false);
+  const {
+    register: registerUpdate,
+    handleSubmit: updateProfile,
+    reset: resetUpdate,
+    formState: { errors: errorUpdate },
+    setValue,
+    watch: watchUpdate,
+  } = useForm();
   
-
   const {
     register,
     reset,
@@ -702,6 +710,44 @@ function ProfilePage() {
     }
   };
 
+  const handleUpdateProfile = async (data) => {
+    // setValue("name", data.name);
+    // setValue("phone", data.phone);
+    // setValue("location", data.location);
+    setUpdating(true);
+    try {
+      const userRef = doc(db, "users1", userId);
+      // const docSnap = doc(userRef, where("userID", "==", userId));
+
+      await updateDoc(userRef, {
+        name: data.name,
+        phone: data.phone,
+        location: data.location,
+      });
+      console.log(data);
+      toast({
+        title: "Success!",
+        description: "Profile successfully updated.",
+        status: "success",
+        duration: 2000,
+        position: "top",
+      });
+    } catch (err) {
+      console.log(err.message);
+      toast({
+        title: "Oops!",
+        description:
+          "Failed to update profile. Please contact customer service.",
+        status: "error",
+        duration: 2000,
+        position: "top",
+      });
+    } finally {
+      setUpdating(false);
+      window.location.reload();
+    }
+  };
+
   // const handleFollow = async () => {
   //   if (!userId || !user) return;
   
@@ -1096,80 +1142,84 @@ function ProfilePage() {
           Edit Profile
         </Button>
   
-        <Modal isOpen={profileModal.isOpen} onClose={profileModal.onClose}>
-            <ModalOverlay />
-            <ModalContent maxW="lg" mx="auto" mt="5">
-            <ModalHeader borderBottom="2px" borderColor="#e1e5ee">Edit Profile</ModalHeader>
-              <ModalBody>
-                <Flex direction="column" align="center" p="6">
-                  <Box mb="4">
-                    <FormLabel>Profile Image</FormLabel>
-                    <Input type="file" accept="image/*" onChange={handleProfileChange} />
-                    {profileImage && (
-                      <Image
-                        mt="2"
-                        borderRadius="full"
-                        boxSize="150px"
-                        src={imageUrl}
-                        alt="Profile Image"
-                      />
-                    )}
-                  </Box>
-                  <FormLabel mb="2">Name</FormLabel>
-                  <Input
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    mb="4"
-                  />
-                  <FormLabel mb="2">Phone Number</FormLabel>
-                  <Input
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    value={phoneNumber}
-                    onChange={handlePhoneNumberChange}
-                    maxLength={10}
-                    mb="4"
-                  />
-                  <FormLabel mb="2">Location</FormLabel>
-                  <Input
-                    placeholder="Enter your location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    mb="4"
-                  />
-                  <FormLabel mb="2">New Password</FormLabel>
-                  <Input
-                    type="password"
-                    placeholder="Enter a new password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    mb="6"
-                  />
-                  
-                </Flex>
-              </ModalBody>
-              <ModalFooter borderTop="2px" borderColor="#e1e5ee">
-                    <Flex justifyContent="flex-end" minWidth="410px">
-                  <Button
-                    colorScheme="blue"
-                    onClick={handleSubmitProfile}
-                    mr="24px"
-                    minWidth="100px"
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={profileModal.onClose}
-                    minWidth="100px"
-                  >
-                    Cancel
-                  </Button>
-                  </Flex>
-                  </ModalFooter>
-            </ModalContent>
-          </Modal>
+        <Modal
+                          isOpen={profileModal.isOpen}
+                          onClose={profileModal.onClose}
+                        >
+                          <ModalOverlay />
+                          <ModalContent maxW="lg" mx="auto" mt="5">
+                            <ModalHeader
+                              borderBottom="2px"
+                              borderColor="#e1e5ee"
+                            >
+                              Edit Profile
+                            </ModalHeader>
+                            <ModalBody>
+                              <form
+                                onSubmit={updateProfile(handleUpdateProfile)}
+                              >
+                                <Box p="6">
+                                  {/* <Box mb="4">
+                                    <FormLabel>Profile Image</FormLabel>
+                                    <Input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleProfileChange}
+                                    />
+                                    {profileImage && (
+                                      <Image
+                                        mt="2"
+                                        borderRadius="full"
+                                        boxSize="150px"
+                                        src={imageUrl}
+                                        alt="Profile Image"
+                                      />
+                                    )}
+                                  </Box> */}
+                                  <FormLabel mb="2">Name</FormLabel>
+                                  <Input mb="4" {...registerUpdate("name")} />
+                                  <FormLabel mb="2">Phone Number</FormLabel>
+                                  <Input
+                                    type="tel"
+                                    mb="4"
+                                    {...registerUpdate("phone")}
+                                  />
+                                  <FormLabel mb="2">Location</FormLabel>
+                                  <Input
+                                    mb="4"
+                                    {...registerUpdate("location")}
+                                  />
+                                  {/* <FormLabel mb="2">New Password</FormLabel>
+                                  <Input
+                                    type="password"
+                                    placeholder="Enter a new password"
+                                  /> */}
+                                </Box>
+                                <Flex
+                                  justifyContent="flex-end"
+                                  gap={2}
+                                  p="4px 0"
+                                >
+                                  <Button
+                                    colorScheme="blue"
+                                    minWidth="100px"
+                                    type="submit"
+                                    isLoading={updating}
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    onClick={profileModal.onClose}
+                                    minWidth="100px"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </Flex>
+                              </form>
+                            </ModalBody>
+                          </ModalContent>
+                        </Modal>
       </>
       ) : (
         <Button
@@ -1665,119 +1715,125 @@ function ProfilePage() {
                               //   // my="16px"
                               //   border="1px solid #e1e1e1"
                               // >
-
-                              <GridItem
-                                className="gridItem"
-                                p="6px"
-                                key={post.id}
-                                colSpan={1}
-                                rowSpan={1}
-                                _hover={{
-                                  boxShadow: "0 3px 2px #e9e9e9",
-                                  transform: "translateY(-3px)",
-                                }}
-                                onClick={() => {
-                                  console.log(post.id);
-                                }}
-                              >
-                                <Flex flexDirection="column">
-                                  <Box>
-                                    <Profile
-                                      name={post.name}
-                                      authorId={post.authorId}
-                                    />
-                                  </Box>
-                                  <PostOptions
+                              // <PostOptions
+                              //       postId={post.id}
+                              //       authorId={post.authorId}
+                              //     />
+                              <Flex ml="50px">
+                              <Flex position="relative" left="100%" top="85%" zIndex="1000">
+                                <PostOptions
                                     postId={post.id}
                                     authorId={post.authorId}
                                   />
+                              </Flex>
+                              <GridItem
+                            className="item__wrapper"
+                            overflow="hidden"
+                            border="1px solid #E9EFEC"
+                            borderRadius="12px"
+                            key={post.id}
+                            colSpan={1}
+                            rowSpan={1}
+                            onClick={() => {
+                              user
+                                ? window.open(
+                                    `/marketplace/item/${post.id}`,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                  )
+                                : toast({
+                                    title: "Oops!",
+                                    description: "Please login first.",
+                                    status: "error",
+                                    duration: 1500,
+                                    position: "top",
+                                  });
+                            }}
+                            maxW="250px"
+                            cursor="pointer"
+                          >
+                            <Flex justify="center" align="center">
+                              {post.postImage && (
+                                <Box overflow="hidden">
+                                  <Image
+                                    className="item__image"
+                                    objectFit="cover"
+                                    // maxWidth="300px"
+                                    w="300px"
+                                    h="300px"
+                                    src={post.postImage}
+                                    alt="Post Image"
+                                  />
+                                </Box>
+                              )}
 
-                                  {/* <Text
-                                    as="kbd"
-                                    fontSize="10px"
-                                    color="gray.500"
-                                  >
-                                    {formatDistanceToNow(post.createdAt)} ago
-                                  </Text>
-                                  <Button variant="link" color="#333333">
-                                    {post.authorName}
-                                  </Button> */}
-
-                                  <Flex
-                                    w="100%"
-                                    align="center"
-                                    justify="center"
-                                  >
-                                    <Image
-                                      src={post.postImage}
-                                      objectFit="cover"
-                                      w="100%"
-                                      h="250px"
-                                      alt="post image"
-                                      onError={(e) =>
-                                        (e.target.style.display = "none")
-                                      }
-                                    />
-                                  </Flex>
-                                  <Flex
-                                    pl="32px"
-                                    py="32px"
-                                    justify="space-between"
-                                  >
-                                    <Box>
-                                      <Link to={"/AddToCart/" + post.id}>
-                                        <Heading size="md">
-                                          {post.postTitle}
-                                        </Heading>
-                                      </Link>
-                                      <br />
-
-                                      <Text
-                                        className="truncate"
-                                        fontSize="16px"
-                                        textAlign="justify"
-                                      >
-                                        {post.postContent}
-                                      </Text>
-                                    </Box>
-
-                                    <Box mr="34px">
-                                      {!post.price ? (
-                                        <Text>₱ 0.00</Text>
-                                      ) : (
-                                        <>
-                                          <strong>₱ </strong>
-                                          {post.price}
-                                        </>
-                                      )}
-                                    </Box>
-                                  </Flex>
-
-                                  {/* <Flex
-                                    w="100%"
-                                    align="center"
-                                    justify="center"
-                                  >
-                                    <Image
-                                      src={post.postImage}
-                                      objectFit="cover"
-                                      w="100%"
-                                      h="250px"
-                                      alt="post image"
-                                      onError={(e) =>
-                                        (e.target.style.display = "none")
-                                      }
-                                    />
-                                  </Flex> */}
-                                  {/* <Box w="100%">
-                                    <Comment
-                                      postID={post.id}
-                                      authorId={post.authorId}
-                                    />
-                                  </Box> */}
-                                </Flex>
-                                {/* </Card> */}
-                              </GridItem>
+                              {post.postVideo && (
+                                <video
+                                  controls
+                                  onLoadedMetadata={(e) => {
+                                    e.target.volume = 0.75;
+                                  }}
+                                  style={{
+                                    borderRadius: "8px",
+                                    // maxWidth:"500px",
+                                    width: "300px",
+                                    height: "370px",
+                                    objectFit: "cover",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (e.target.paused) {
+                                      e.target.play();
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.pause();
+                                  }}
+                                  // onMouseEnter={(e) => e.target.play()}
+                                  // onMouseLeave={(e) => e.target.pause()}
+                                >
+                                  <source
+                                    src={post.postVideo}
+                                    type="video/mp4"
+                                  />
+                                  Your browser does not support the video tag.
+                                </video>
+                              )}
+                            </Flex>
+                            <Flex p="8px 16px 0 " justify="space-between">
+                              <Text
+                                fontWeight="600"
+                                color="#333333"
+                                fontSize="lg"
+                              >
+                                {post.postTitle}
+                              </Text>
+                              <Text fontSize="xs" color="#6e6e6e" as="i">
+                                {formatDistanceToNow(new Date(post.createdAt))}
+                                ago
+                              </Text>
+                            </Flex>
+                            <Box p="0 16px 0" className="postContent">
+                              <Text
+                                className="truncate"
+                                textAlign="justify"
+                                fontSize="xs"
+                                mr="3"
+                                color="#6e6e6e"
+                              >
+                                {post.postContent}
+                              </Text>
+                            </Box>
+                            <Flex p="0 16px 12px" justify="space-between">
+                              <Text
+                                fontSize="md"
+                                fontWeight="600"
+                                color="#333333"
+                              >
+                                &#8369;{post.price}
+                              </Text>
+                            </Flex>
+                          </GridItem>
+                          </Flex>
                             ))
                           )}
 
