@@ -420,7 +420,7 @@ const ChatMessage = () => {
                     {activeUser?.name}
                   </Text>
                 </HStack>
-                <HStack spacing={4}>
+                {/* <HStack spacing={4}>
                   <IconButton
                     icon={<FaPhone />}
                     aria-label="Start Call"
@@ -433,7 +433,7 @@ const ChatMessage = () => {
                     onClick={startCall}
                     disabled={isCalling}
                   />
-                </HStack>
+                </HStack> */}
               </HStack>
 
               {isCalling && (

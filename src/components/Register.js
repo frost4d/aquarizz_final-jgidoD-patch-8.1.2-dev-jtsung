@@ -126,6 +126,7 @@ const Register = () => {
         profileImage: photoURL,
       });
       // user.updateProfile({ displayName: data.name });
+      navigate("/");
     } catch (err) {
       switch (err.code) {
         case "auth/email-already-in-use":
