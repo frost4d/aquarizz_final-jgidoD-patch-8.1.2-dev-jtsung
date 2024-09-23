@@ -82,7 +82,7 @@ const ItemModal = () => {
   //   let history = useHistory();
   const handleLike = async () => {
     if (!user || !post || !post.id) return;
-    const postRef = doc(db, "discover", post.id);
+    const postRef = doc(db, "marketplace", post.id);
 
     if (!isLiked) {
       await updateDoc(postRef, {

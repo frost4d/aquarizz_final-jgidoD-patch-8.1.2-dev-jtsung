@@ -16,6 +16,7 @@ import {
   FormLabel,
   Text,
   Heading,
+  Image
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 // import { UserAuth } from "../context/AuthContext";
@@ -51,6 +52,8 @@ const AddDiscover = (props) => {
   const [imageUrl, setImageUrl] = useState();
   const [videoFile, setVideoFile] = useState();
   const [videoUrl, setVideoUrl] = useState();
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [isImageReady, setIsImageReady] = useState(false);
 
   const handleImageChange = async (e) => {
     setFile(e.target.files[0]);
@@ -70,6 +73,8 @@ const AddDiscover = (props) => {
         console.log("error");
       }
       setImageUrl(url);
+    setIsImageReady(true);
+
     });
     console.log(file);
   };
@@ -85,6 +90,7 @@ const AddDiscover = (props) => {
     await uploadBytes(videoRef, video);
     const url = await getDownloadURL(videoRef);
     setVideoUrl(url);
+    setIsVideoReady(true);
   };
 
   const handleSubmitPost = async (data) => {
@@ -95,7 +101,7 @@ const AddDiscover = (props) => {
       postContent: data.text,
       postImage: file ? imageUrl : "", // Optional chaining to avoid null value
       postVideo: videoFile ? videoUrl : "",
-      tag: data.tag,
+      // tag: data.tag,
       createdAt: data.createdAt || Date.now(),
     };
     try {
@@ -171,6 +177,20 @@ const AddDiscover = (props) => {
                     multiple
                     onChange={handleImageChange}
                   />
+                  {imageUrl && (
+                    <Box mt={2}>
+                      <Text>Video Preview:</Text>
+                      <Image
+                        width="100%"
+                        controls
+                        src={imageUrl}
+                        style={{ marginTop: "10px" }}
+                      />
+                      <Text mt={2} color={isImageReady ? "green" : "red"}>
+                        {isImageReady ? "Image ready to publish!" : "Processing video..."}
+                      </Text>
+                    </Box>
+                  )}
                 </Box>
                 <Box p="12px 0">
                   <Text>Upload Video</Text>
@@ -181,6 +201,20 @@ const AddDiscover = (props) => {
                     multiple={false}
                     onChange={handleVideoChange}
                   />
+                  {videoUrl && (
+                    <Box mt={2}>
+                      <Text>Video Preview:</Text>
+                      <video
+                        width="100%"
+                        controls
+                        src={videoUrl}
+                        style={{ marginTop: "10px" }}
+                      />
+                      <Text mt={2} color={isVideoReady ? "green" : "red"}>
+                        {isVideoReady ? "Video ready to publish!" : "Processing video..."}
+                      </Text>
+                    </Box>
+                  )}
                 </Box>
                 {/* <Box>
                   <Input
@@ -200,6 +234,7 @@ const AddDiscover = (props) => {
                   bg={primaryColor}
                   onClick={props.fetchData}
                   isLoading={isLoading}
+                  isDisabled={!isVideoReady && videoFile} 
                 >
                   Publish
                 </Button>
