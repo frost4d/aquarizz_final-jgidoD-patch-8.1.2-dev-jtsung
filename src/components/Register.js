@@ -31,6 +31,10 @@ import {
   onAuthStateChanged,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  sendEmailVerification,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  isSignInWithEmailLink,
 } from "firebase/auth";
 
 const Register = () => {
@@ -53,6 +57,33 @@ const Register = () => {
     watch,
     formState: { errors },
   } = useForm();
+
+  // handle passwordless sign in using email link
+  const actionCodeSettings = {
+    url: "http://localhost:3000",
+    handleCodeInApp: true,
+  };
+  useEffect(() => {
+    const email = window.localStorage.getItem("emailForSignIn");
+
+    if (!email) {
+      console.log("No email found in local storage.");
+      // setLoading(false);
+      return;
+    }
+
+    // Confirm the sign-in link is valid and complete the sign-in
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      signInWithEmailLink(auth, email, window.location.href)
+        .then(() => {
+          window.localStorage.removeItem("emailForSignIn"); // Clean up
+          navigate("/"); // Redirect after successful sign-in
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
+  }, [navigate]);
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
@@ -95,7 +126,6 @@ const Register = () => {
         profileImage: photoURL,
       });
       // user.updateProfile({ displayName: data.name });
-
       navigate("/");
     } catch (err) {
       switch (err.code) {
@@ -107,7 +137,25 @@ const Register = () => {
             description: "Sorry, email is already in use.",
             duration: 4000,
           });
+        case "auth/quota-exceeded":
+          return toast({
+            position: "top",
+            status: "error",
+            title: "Sorry email link not available.",
+            description: "Please proceed to 'login' then verify your email.",
+            duration: 4000,
+          });
       }
+    } finally {
+      await sendSignInLinkToEmail(auth, data.email, actionCodeSettings);
+      window.localStorage.setItem("emailForSignIn", data.email);
+      toast({
+        description: "A sign-in link has been sent to your email.",
+        status: "success",
+        duration: 3000,
+        position: "top",
+      });
+      // await sendEmailVerification(user.user);
     }
 
     reset();
@@ -231,7 +279,7 @@ const Register = () => {
                       })}
                       aria-invalid={errors.phoneNumber ? "true" : "false"}
                     />
-                    <Button onClick={sendOTP}>Send OTP</Button>
+                    {/* <Button onClick={sendOTP}>Send OTP</Button> */}
                   </InputGroup>
                 </Stack>
                 {errors.phoneNumber?.type === "required" && (
@@ -245,7 +293,7 @@ const Register = () => {
                   </p>
                 )}
               </FormControl>
-              <Flex gap="1">
+              {/* <Flex gap="1">
                 <Input
                   onChange={(e) => {
                     setOtp(e.target.value);
@@ -263,7 +311,7 @@ const Register = () => {
                     OTP is required
                   </p>
                 )}
-              </Flex>
+              </Flex> */}
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input

@@ -18,6 +18,7 @@ import {
   ModalBody,
   Link,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import "./Marketplace.css";
 import { Edit, Plus, Users, UserPlus } from "react-feather";
@@ -34,8 +35,10 @@ import LoginModal from "./LoginModal";
 import Sidebar from "./Sidebar1";
 import MarketItem from "./MarketItem";
 import { ChatIcon } from "@chakra-ui/icons";
+import SearchInput from "./components/SearchInput";
 
 const Marketplace = () => {
+  const primaryColor = "#FFC947";
   const toast = useToast();
   const navigate = useNavigate();
   const { user, userProfile } = UserAuth();
@@ -49,6 +52,8 @@ const Marketplace = () => {
   const [suggestions, setSuggestions] = useState([]);
   const { itemModal } = useDisclosure();
   const [selectedPost, setSelectedPost] = useState(null);
+  const [discoverPosts, setDiscoverPosts] = useState([]);
+  const [friends, setFriends] = useState([]);
 
   //   get the contents of the posts posted in marketplace db
   useEffect(() => {
@@ -154,12 +159,26 @@ const Marketplace = () => {
     setSelectedPost(post);
   };
 
+  const handleFriendsClick = () => {
+    // Update the filtered posts based on friends list
+    setFilteredPosts(
+      discoverPosts.filter((post) => friends.includes(post.authorId))
+    );
+    navigate("/friendsPost");
+  };
+  const handleFollowingClick = () => {
+    // Update the filtered posts based on friends list
+    setFilteredPosts(
+      discoverPosts.filter((post) => friends.includes(post.authorId))
+    );
+    navigate("/followingPost");
+  };
+
   console.log(marketplacePost);
   console.log(filteredPosts);
-
   return (
     <>
-      <Navigation />
+      <Navigation isLoading={loading} />
       <Flex>
         {/* <Sidebar /> */}
         <Box>
@@ -195,7 +214,9 @@ const Marketplace = () => {
                     justify="center"
                     align="center"
                   >
-                    {!userProfile ? (
+                    {loading ? (
+                      <Spinner />
+                    ) : !userProfile ? (
                       <Button
                         p="16px 32px"
                         variant="link"
@@ -221,12 +242,12 @@ const Marketplace = () => {
                           <Avatar
                             size="xl"
                             name={userProfile.name}
-                            scr={
+                            src={
                               userProfile.profileImage || "/path/to/avatar.jpg"
                             }
                           />
 
-                          <Text fontSize="xs">
+                          <Text fontSize="xs" mt="4px">
                             {!userProfile
                               ? ""
                               : userProfile &&
@@ -244,6 +265,8 @@ const Marketplace = () => {
                               // variant="ghost"
                               rightIcon={<Edit size={16} />}
                               onClick={addMarketplace.onOpen}
+                              bg={primaryColor}
+                              _hover={{ bg: "#ffd97e" }}
                             >
                               <AddMarketplaceModal
                                 isOpen={addMarketplace.isOpen}
@@ -271,14 +294,18 @@ const Marketplace = () => {
               <Box flex="1"></Box> */}
             </Flex>
 
-            <Flex direction="column" align="start">
+            <Flex
+              display={user ? "flex" : "none"}
+              direction="column"
+              align="start"
+            >
               <Link
                 p="2"
                 mb="2"
                 w="100%"
                 fontWeight="bold"
                 _hover={{ bg: "#f0f0f0", borderRadius: "10px" }}
-                onClick={() => navigate("/following")}
+                onClick={handleFollowingClick}
               >
                 <Flex align="center" ml="12px">
                   <UserPlus size={20} />
@@ -293,7 +320,7 @@ const Marketplace = () => {
                 w="100%"
                 fontWeight="bold"
                 _hover={{ bg: "#f0f0f0", borderRadius: "10px" }}
-                onClick={() => navigate("/friends")}
+                onClick={handleFriendsClick}
               >
                 <Flex align="center" ml="12px">
                   <Users size={20} />
@@ -336,7 +363,7 @@ const Marketplace = () => {
                     <Flex w="100%" justify="center" p="12px 24px">
                       <form onSubmit={handleSearchMarketplace}>
                         <Flex w="100%" justify="space-between">
-                          <Input
+                          {/* <Input
                             borderRadius="24px"
                             placeholder="Search"
                             value={searchTerm}
@@ -349,7 +376,11 @@ const Marketplace = () => {
                             borderRadius="24px"
                           >
                             Search
-                          </Button>
+                          </Button> */}
+                          <SearchInput
+                            item="marketplace"
+                            data={marketplacePost}
+                          />
                         </Flex>
                         {suggestions.length > 0 && (
                           <List
@@ -403,12 +434,20 @@ const Marketplace = () => {
                       {filteredPosts && filteredPosts.length > 0 ? (
                         filteredPosts.map((post) => (
                           <GridItem
+                            className="item__wrapper"
+                            overflow="hidden"
+                            border="1px solid #E9EFEC"
+                            borderRadius="12px"
                             key={post.id}
                             colSpan={1}
                             rowSpan={1}
                             onClick={() => {
                               user
-                                ? navigate(`/marketplace/item/${post.id}`)
+                                ? window.open(
+                                    `/marketplace/item/${post.id}`,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                  )
                                 : toast({
                                     title: "Oops!",
                                     description: "Please login first.",
@@ -421,10 +460,10 @@ const Marketplace = () => {
                             cursor="pointer"
                           >
                             <Flex justify="center" align="center">
-                              <Flex justify="center" align="center">
-                                {post.postImage && (
+                              {post.postImage && (
+                                <Box overflow="hidden">
                                   <Image
-                                    borderRadius="8"
+                                    className="item__image"
                                     objectFit="cover"
                                     // maxWidth="300px"
                                     w="300px"
@@ -432,71 +471,74 @@ const Marketplace = () => {
                                     src={post.postImage}
                                     alt="Post Image"
                                   />
-                                )}
+                                </Box>
+                              )}
 
-                                {post.postVideo && (
-                                  <video
-                                    controls
-                                    onLoadedMetadata={(e) => {
-                                      e.target.volume = 0.75;
-                                    }}
-                                    style={{
-                                      borderRadius: "8px",
-                                      // maxWidth:"500px",
-                                      width: "300px",
-                                      height: "370px",
-                                      objectFit: "cover",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                      if (e.target.paused) {
-                                        e.target.play();
-                                      }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.target.pause();
-                                    }}
-                                    // onMouseEnter={(e) => e.target.play()}
-                                    // onMouseLeave={(e) => e.target.pause()}
-                                  >
-                                    <source
-                                      src={post.postVideo}
-                                      type="video/mp4"
-                                    />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                )}
-                              </Flex>
+                              {post.postVideo && (
+                                <video
+                                  controls
+                                  onLoadedMetadata={(e) => {
+                                    e.target.volume = 0.75;
+                                  }}
+                                  style={{
+                                    borderRadius: "8px",
+                                    // maxWidth:"500px",
+                                    width: "300px",
+                                    height: "370px",
+                                    objectFit: "cover",
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (e.target.paused) {
+                                      e.target.play();
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.target.pause();
+                                  }}
+                                  // onMouseEnter={(e) => e.target.play()}
+                                  // onMouseLeave={(e) => e.target.pause()}
+                                >
+                                  <source
+                                    src={post.postVideo}
+                                    type="video/mp4"
+                                  />
+                                  Your browser does not support the video tag.
+                                </video>
+                              )}
                             </Flex>
-                            <Flex justify="space-between">
-                              <Heading color="#333333" size="sm">
-                                &#8369;{post.price}
-                              </Heading>
+                            <Flex p="8px 16px 0 " justify="space-between">
+                              <Text
+                                fontWeight="600"
+                                color="#333333"
+                                fontSize="lg"
+                              >
+                                {post.postTitle}
+                              </Text>
                               <Text fontSize="xs" color="#6e6e6e" as="i">
                                 {formatDistanceToNow(new Date(post.createdAt))}
                                 ago
                               </Text>
                             </Flex>
-
-                            <Flex justify="space-between" mt="10px">
-                              <Button
-                                fontSize="18px"
-                                variant="link"
-                                color="#333333"
-                              >
-                                {post.authorName}
-                              </Button>
-                            </Flex>
-                            <Box className="postContent">
+                            <Box p="0 16px 0" className="postContent">
                               <Text
                                 className="truncate"
                                 textAlign="justify"
-                                fontSize="13px"
+                                fontSize="xs"
                                 mr="3"
                                 color="#6e6e6e"
                               >
                                 {post.postContent}
                               </Text>
                             </Box>
+                            <Flex p="0 16px 12px" justify="space-between">
+                              <Text
+                                fontSize="md"
+                                fontWeight="600"
+                                color="#333333"
+                              >
+                                &#8369;{post.price}
+                              </Text>
+                            </Flex>
                           </GridItem>
                         ))
                       ) : (
@@ -510,9 +552,9 @@ const Marketplace = () => {
               </>
             )}
           </Box>
-          <Footer />
         </Box>
       </Flex>
+      <Footer />
     </>
   );
 };

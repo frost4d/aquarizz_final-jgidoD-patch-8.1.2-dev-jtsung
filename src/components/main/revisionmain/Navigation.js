@@ -35,6 +35,7 @@ import {
   DrawerBody,
   DrawerHeader,
   Avatar,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   User,
@@ -53,16 +54,14 @@ import LoginModal from "./LoginModal";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import logo from "../../../assets/logo2.png";
-import { ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { BellIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../../firebase/firebaseConfig";
 import Contact from "../../Contact";
 import Create from "./listing/Create";
 import AddDiscoverModal from "./AddDiscoverModal";
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../../../firebase/firebaseConfig";
 
 const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -76,11 +75,23 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const modalShop = useDisclosure();
   const addDiscover = useDisclosure();
-<<<<<<< Updated upstream
+  const [notificationItems, setNotificationItems] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
 
-  const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
-=======
->>>>>>> Stashed changes
+  // const notificationItems = ["Notification 1", "Notification 2", "Notification 3"]; // Example notifications
+  useEffect(() => {
+    if (user && user.uid) {
+      const notificationsRef = collection(db, "users1", user.uid, "notifications");
+      const q = query(notificationsRef, where("read", "==", false));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setNotificationItems(items);
+        setNotificationCount(items.length);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [user]);
 
   useEffect(() => {
     // Get cart items from local storage
@@ -91,6 +102,22 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
     }
   }, [setCartItemCount]);
 
+  const handleNotificationClick = (notification) => {
+    // Mark the notification as read
+    // You can add code here to update the notification status in Firestore if needed
+    
+    console.log("Notification clicked:", notification);
+  
+    // Navigate to the URL specified in the notification's `link` field
+    if (notification.link) {
+      navigate(notification.link);
+    } else {
+      console.log("No link specified in the notification.");
+    }
+  };
+  
+  
+
   const handleLogout = async () => {
     if (user) {
       try {
@@ -98,7 +125,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
       } catch (err) {
         console.log(err.message);
       } finally {
-        window.location.reload();
+        navigate("/");
       }
     }
   };
@@ -136,23 +163,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
               className={({ isActive }) =>
                 isActive ? "navlink_isActive" : "navlink_inactive"
               }
-              to="/shop"
-            >
-              <Button
-                borderRadius="0"
-                variant="ghost"
-                color="#000"
-                rightIcon={<ShoppingBag size={16} />}
-                // _hover={{ bg: "rgba(249,249,249,1)" }}
-                // onClick={() => navigate("/shop")}
-              >
-                Shop
-              </Button>
-            </NavLink>
-            <NavLink
-              className={({ isActive }) =>
-                isActive ? "navlink_isActive" : "navlink_inactive"
-              }
               to="/discover"
             >
               <Button
@@ -168,17 +178,33 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                 Discover
               </Button>
             </NavLink>
-            {/* //removed cartpage */}
-            {/* {!userProfile ? (
+            <NavLink
+              className={({ isActive }) =>
+                isActive ? "navlink_isActive" : "navlink_inactive"
+              }
+              to="/marketplace"
+            >
+              <Button
+                borderRadius="0"
+                variant="ghost"
+                color="#000"
+                rightIcon={<ShoppingBag size={16} />}
+                // _hover={{ bg: "rgba(249,249,249,1)" }}
+                // onClick={() => navigate("/shop")}
+              >
+                Marketplace
+              </Button>
+            </NavLink>
+            
+            {!userProfile ? (
               ""
             ) : (
-<<<<<<< Updated upstream
               <Menu>
               <MenuButton as={Button} variant="ghost" rightIcon={
                 <>
                   <BellIcon size={16} />
                   <Badge colorScheme="red" borderRadius="full" px="2">
-                    3 {/* Replace with dynamic notification count */}
+                    {notificationCount}
                   </Badge>
                 </>
               }>
@@ -186,7 +212,11 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
               <MenuList>
                 {notificationItems.length ? (
                   notificationItems.map((item, index) => (
-                    <MenuItem key={index}>{item}</MenuItem>
+                    // <MenuItem key={index}>{item}</MenuItem>
+                    <MenuItem 
+                    key={item.id}
+                    onClick={() => handleNotificationClick(item)}
+                    >{item.message}</MenuItem>
                   ))
                 ) : (
                   <MenuItem>No new notifications</MenuItem>
@@ -195,28 +225,6 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
             </Menu>
             )}
 
-=======
-              <NavLink
-                className={({ isActive }) =>
-                  isActive ? "navlink_isActive" : "navlink_inactive"
-                }
-                to="/CartPage"
-              >
-                <Button
-                  borderRadius="0"
-                  variant="ghost"
-                  color="#000"
-                  rightIcon={
-                    <Badge colorScheme="red" borderRadius="full" px="2">
-                      {cartItemCount}
-                    </Badge>
-                  }
-                >
-                  <ShoppingCart size={16} />
-                </Button>
-              </NavLink>
-            )} */}
->>>>>>> Stashed changes
             {userProfile ? (
               <>
                 {userProfile && (
@@ -227,7 +235,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                           colorScheme={`"whiteAlpha" | "blackAlpha" | "gray"  "orange" | "yellow" | "green" | "teal" | "blue" | "cyan" | "purple" | "pink"`}
                           size="sm"
                           name={userProfile.name}
-                          scr={
+                          src={
                             userProfile.profileImage || "/path/to/avatar.jpg"
                           }
                         />
@@ -243,12 +251,12 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                         >
                           My Account
                         </MenuItem>
-                        <MenuItem>
+                        {/* <MenuItem>
                           <Link to="/ItemStatusPage">Check Item Status</Link>
-                        </MenuItem>
+                        </MenuItem> */}
                         <MenuDivider />
                       </MenuGroup>
-                      <MenuGroup title="My Shop">
+                      {/* <MenuGroup title="My Shop">
                         <MenuItem
                           onClick={() => {
                             navigate(`/reports`);
@@ -264,7 +272,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                           Transactions
                         </MenuItem>
                       </MenuGroup>
-                      <MenuDivider />
+                      <MenuDivider /> */}
                       <MenuGroup title="Support">
                         <MenuItem onClick={() => setIsContactModalOpen(true)}>
                           Contact Us
@@ -420,7 +428,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                             <MenuList>
                               <MenuGroup title="Profile">
                                 <MenuItem>My Account</MenuItem>
-                                <MenuItem>My Shop</MenuItem>
+                                {/* <MenuItem>My Shop</MenuItem> */}
                               </MenuGroup>
                               <MenuDivider />
                               <MenuGroup title="Support">
@@ -519,7 +527,7 @@ const Navigation = ({ cartItemCount, setCartItemCount }) => {
                               {loginModal.onOpen()}
                               <LoginModal
                                 isOpen={loginModal.isOpen}
-                                onClose={loginModal.onClose}  
+                                onClose={loginModal.onClose}
                               />
                             </>
                           );
