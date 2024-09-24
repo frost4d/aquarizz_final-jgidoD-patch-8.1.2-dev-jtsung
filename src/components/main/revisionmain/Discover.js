@@ -11,6 +11,7 @@ import {
   updateDoc,
   increment,
   where,
+  query
 } from "firebase/firestore";
 import {
   Box,
@@ -35,19 +36,28 @@ import {
   Link,
   IconButton,
   Spinner,
+  InputGroup,
+  InputRightAddon,
+  Tabs,
+  TabList,
+  Tab,
+  TabIndicator,
+  TabPanels,
+  TabPanel,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navigation from "./Navigation";
-import { Edit, Plus, Users, UserPlus } from "react-feather";
+import { Edit, Plus, Users, UserPlus, MapPin } from "react-feather";
 import AddDiscoverModal from "./AddDiscoverModal";
 import { UserAuth } from "../../context/AuthContext";
 import { format, formatDistanceToNow } from "date-fns";
 import Footer from "./Footer";
 import PostModal from "./PostModal";
 import LoginModal from "./LoginModal";
-import { ChatIcon } from "@chakra-ui/icons";
+import { ChatIcon, SearchIcon } from "@chakra-ui/icons";
 import { FaNewspaper, FaPlay } from "react-icons/fa";
-import SearchInput from "./components/SearchInput";
+// import SearchInput from "./components/SearchInput";
+import { useForm } from "react-hook-form";
 
 const Discover = () => {
   const navigate = useNavigate();
@@ -73,6 +83,9 @@ const Discover = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [followedUsers, setFollowedUsers] = useState([]);
   const [friends, setFriends] = useState([]);
+  const { register, reset, handleSubmit } = useForm();
+  const [tabIndex, setTabIndex] = useState(0);
+  const [filteredUsers, setFilteredUsers] = useState();
 
   useEffect(() => {
     const fetchDiscoverPosts = async () => {
@@ -85,7 +98,6 @@ const Discover = () => {
           tempPosts.push({ id: doc.id, ...doc.data() });
         });
         setDiscoverPosts(tempPosts);
-        setFilteredPosts(tempPosts);
         setLoading(false);
       } catch (err) {
         console.log(err.message);
@@ -158,23 +170,49 @@ const Discover = () => {
       fetchPost();
     }
   }, [postId]);
+  //get users for userFilter
+  useEffect(() => {
+    const handleGetUsers = async () => {
+      setLoading(true);
+      try {
+        const userCollection = collection(db, "users1");
+        const snapShot = await getDocs(userCollection);
+        const tempUsers = [];
+        snapShot.forEach((doc) => {
+          tempUsers.push({ id: doc.id, ...doc.data() });
+        });
+        setUsers(tempUsers);
+        setLoading(false);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    handleGetUsers();
+  }, []);
+  const handleCardClick = (data) => {
+    window.open(`/profile/${data}`, "_blank", "noopener,noreferrer");
+  };
 
-  const handleSearchDiscover = (e) => {
-    e.preventDefault();
-
-    const searchTermLower = searchTerm.toLowerCase();
+  const handleSearchDiscover = (data) => {
+    setSearchTerm(data.searchTerm);
+    const searchTermLower = data.searchTerm.toLowerCase();
     const filtered = discoverPosts.filter((post) => {
       return (
         // post.authorName?.toLowerCase().includes(searchTermLower) ||
         post.tag?.toLowerCase().includes(searchTermLower) ||
         post.postTitle?.toLowerCase().includes(searchTermLower) ||
-        post.postContent?.toLowerCase().includes(searchTermLower)
+        post.postContent?.toLowerCase().includes(searchTermLower) ||
+        post.authorName?.toLowerCase().includes(searchTermLower)
       );
     });
-
+    const filteredUser = users.filter((user) => {
+      return user.name?.toLowerCase().includes(searchTermLower);
+    });
     setFilteredPosts(filtered);
+    setFilteredUsers(filteredUser);
   };
 
+  console.log(filteredUsers);
   const handleSuggestionClick = (suggestion) => {
     if (suggestion.type === "user") {
       navigate(`/profile/${suggestion.id}`);
@@ -261,12 +299,12 @@ const Discover = () => {
 
     // Ensure this function only counts views for video posts
     if (!post.postVideo) {
-      console.log("This post is an image, views are not counted.");
+      // console.log("This post is an image, views are not counted.");
       return;
     }
 
     if (String(post.authorId) === String(user.uid)) {
-      console.log("Author views are not counted");
+      // console.log("Author views are not counted");
       return; // Do not increment view count if the author is viewing
     }
 
@@ -303,7 +341,7 @@ const Discover = () => {
 
         setFollowedUsers(followedUsersList);
       } catch (err) {
-        console.log(err.message);
+        // console.log(err.message);
       }
     };
 
@@ -316,11 +354,11 @@ const Discover = () => {
 
       try {
         const postsCollection = collection(db, "discover");
-        const query = query(
+        const postQuery = query(
           postsCollection,
           where("authorId", "in", followedUsers)
         );
-        const querySnapshot = await getDocs(query);
+        const querySnapshot = await getDocs(postQuery);
         const postsList = [];
 
         querySnapshot.forEach((doc) => {
@@ -329,7 +367,7 @@ const Discover = () => {
 
         setFilteredPosts(postsList);
       } catch (err) {
-        console.log(err.message);
+        // console.log(err.message);
       }
     };
 
@@ -347,7 +385,7 @@ const Discover = () => {
 
         setFriends(friendsList);
       } catch (err) {
-        console.log(err.message);
+        // console.log(err.message);
       }
     };
 
@@ -360,8 +398,8 @@ const Discover = () => {
 
       try {
         const postsCollection = collection(db, "discover");
-        const query = query(postsCollection, where("authorId", "in", friends));
-        const querySnapshot = await getDocs(query);
+        const postQuery = query(postsCollection, where("authorId", "in", friends));
+        const querySnapshot = await getDocs(postQuery);
         const postsList = [];
 
         querySnapshot.forEach((doc) => {
@@ -370,7 +408,13 @@ const Discover = () => {
 
         setFilteredPosts(postsList);
       } catch (err) {
-        console.log(err.message);
+        toast({
+          title: "Error",
+          description: err.message,
+          status: "error",
+          duration: 1500,
+          position: "top",
+        });
       }
     };
 
@@ -392,6 +436,7 @@ const Discover = () => {
     navigate("/followingPost");
   };
 
+  console.log(discoverPosts);
   return (
     <>
       <Box h="100vh" overflowY="auto">
@@ -574,9 +619,14 @@ const Discover = () => {
                   <span className="loader"></span>
                 </Flex>
               ) : (
-                <Flex flexWrap="wrap" justify="space-evenly" align="center">
-                  <Flex w="100%" justify="center" p="12px 24px">
-                    <form onSubmit={handleSearchDiscover}>
+                <Flex
+                  w="100%"
+                  flexWrap="wrap"
+                  justify="space-evenly"
+                  align="center"
+                >
+                  <Flex maxW="80vw" w="100%" justify="center" p="12px 24px">
+                    <form onSubmit={handleSubmit(handleSearchDiscover)}>
                       {/* <Flex w="100%">
                         <Input
                           borderRadius="24px"
@@ -589,8 +639,29 @@ const Discover = () => {
                           Search
                         </Button>
                       </Flex> */}
-                      <SearchInput item="Discover" data={discoverPosts} />
-                      {suggestions.length > 0 && (
+                      {/*<SearchInput item="Discover" data={discoverPosts} /> */}
+
+                      <InputGroup>
+                        <Input
+                          w="400px"
+                          borderRadius="24px"
+                          placeholder="Search"
+                          {...register("searchTerm")}
+                        />
+                        <Divider orientation="vertical" />
+                        <InputRightAddon
+                          textAlign="center"
+                          borderTopRightRadius="24px"
+                          borderBottomRightRadius="24px"
+                          type="submit"
+                          as={Button}
+                          bg="#fafafa"
+                        >
+                          <SearchIcon />
+                        </InputRightAddon>
+                      </InputGroup>
+
+                      {/* {suggestions.length > 0 && (
                         <List
                           bg="white"
                           borderRadius="8px"
@@ -615,7 +686,7 @@ const Discover = () => {
                             </ListItem>
                           ))}
                         </List>
-                      )}
+                      )} */}
                     </form>
                   </Flex>
 
@@ -631,173 +702,420 @@ const Discover = () => {
                     </Box>
                     {/* )} */}
 
-                    <Flex
-                      justify="center"
-                      align="center"
+                    <Box
+                      // justify="center"
+                      // align="center"
                       flex="16"
                       // borderWidth="2px" borderColor="red"
                       m="24px 24px"
                       className="bodyWrapper__contents"
                     >
-                      <Grid
-                        className="grid__discover"
-                        templateColumns={`repeat(4, 1fr)`}
-                        gap="4"
-                        autoRows="minmax(200px, auto)"
-                        rowGap={12}
-                      >
-                        {filteredPosts.map((post) => (
-                          <GridItem
-                            key={post.id}
-                            // border="1px solid #e1e1e1"
-                            // p="6px"
-                            colSpan={1}
-                            rowSpan={1}
-                            onClick={() =>
-                              user
-                                ? window.open(`/discover/post/${post.id}`)
-                                : toast({
-                                    title: "Oops!",
-                                    description: "Please login first.",
-                                    status: "error",
-                                    duration: 1500,
-                                    position: "top",
-                                  })
-                            }
-                            maxW="250px"
-                            cursor="pointer"
-                          >
-                            <Flex justify="center" align="center">
-                              <Flex justify="center" align="center">
-                                {post.postImage && (
-                                  <Image
-                                    borderRadius="8"
-                                    objectFit="cover"
-                                    // maxWidth="300px"
-                                    w="300px"
-                                    h="370px"
-                                    src={post.postImage}
-                                    alt="Post Image"
-                                  />
-                                )}
-
-                                {post.postVideo && (
-                                  <Box position="relative">
-                                    <video
-                                      controls
-                                      onLoadedMetadata={(e) => {
-                                        e.target.volume = 0.85;
-                                      }}
-                                      style={{
-                                        borderRadius: "8px",
-                                        // maxWidth:"500px",
-                                        width: "300px",
-                                        height: "370px",
-                                        objectFit: "cover",
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        if (e.target.paused) {
-                                          e.target.play();
-                                        }
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.target.pause();
-                                      }}
-                                      // onMouseEnter={(e) => e.target.play()}
-                                      // onMouseLeave={(e) => e.target.pause()}
+                      {searchTerm && (
+                        <Flex>
+                          <Tabs onChange={(index) => setTabIndex(index)}>
+                            <TabList>
+                              <Tab>Posts</Tab>
+                              <Tab>People</Tab>
+                            </TabList>
+                            <TabIndicator
+                              mt="-1.5px"
+                              height="2px"
+                              bg="blue.500"
+                              borderRadius="1px"
+                            />
+                            <TabPanels>
+                              <TabPanel>
+                                <Grid
+                                  className="grid__discover"
+                                  templateColumns={`repeat(4, 1fr)`}
+                                  gap="4"
+                                  autoRows="minmax(200px, auto)"
+                                  rowGap={12}
+                                >
+                                  {filteredPosts.map((post) => (
+                                    <GridItem
+                                      key={post.id}
+                                      // border="1px solid #e1e1e1"
+                                      // p="6px"
+                                      colSpan={1}
+                                      rowSpan={1}
+                                      onClick={() =>
+                                        user
+                                          ? window.open(
+                                              `/discover/post/${post.id}`
+                                            )
+                                          : toast({
+                                              title: "Oops!",
+                                              description:
+                                                "Please login first.",
+                                              status: "error",
+                                              duration: 1500,
+                                              position: "top",
+                                            })
+                                      }
+                                      maxW="250px"
+                                      cursor="pointer"
                                     >
-                                      <source
-                                        src={post.postVideo}
-                                        type="video/mp4"
-                                      />
-                                      Your browser does not support the video
-                                      tag.
-                                    </video>
-                                    {post.views !== undefined && (
-                                      <Flex
-                                        align="center"
-                                        justify="center"
-                                        position="absolute"
-                                        top="1px" // Adjust as needed
-                                        right="8px" // Adjust as needed
-                                        background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
-                                        borderRadius="12px"
-                                        p="2px 8px"
-                                      >
-                                        <IconButton
-                                          icon={<FaPlay />}
-                                          aria-label="Views"
-                                          variant="ghost"
-                                          colorScheme="white"
-                                          fontSize="sm"
-                                          isDisabled
-                                          background="transparent"
-                                        />
+                                      <Flex justify="center" align="center">
+                                        <Flex justify="center" align="center">
+                                          {post.postImage && (
+                                            <Image
+                                              borderRadius="8"
+                                              objectFit="cover"
+                                              // maxWidth="300px"
+                                              w="300px"
+                                              h="370px"
+                                              src={post.postImage}
+                                              alt="Post Image"
+                                            />
+                                          )}
+
+                                          {post.postVideo && (
+                                            <Box position="relative">
+                                              <video
+                                                controls
+                                                onLoadedMetadata={(e) => {
+                                                  e.target.volume = 0.85;
+                                                }}
+                                                style={{
+                                                  borderRadius: "8px",
+                                                  // maxWidth:"500px",
+                                                  width: "300px",
+                                                  height: "370px",
+                                                  objectFit: "cover",
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                  if (e.target.paused) {
+                                                    e.target.play();
+                                                  }
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                  e.target.pause();
+                                                }}
+                                                // onMouseEnter={(e) => e.target.play()}
+                                                // onMouseLeave={(e) => e.target.pause()}
+                                              >
+                                                <source
+                                                  src={post.postVideo}
+                                                  type="video/mp4"
+                                                />
+                                                Your browser does not support
+                                                the video tag.
+                                              </video>
+                                              {post.views !== undefined && (
+                                                <Flex
+                                                  align="center"
+                                                  justify="center"
+                                                  position="absolute"
+                                                  top="1px" // Adjust as needed
+                                                  right="8px" // Adjust as needed
+                                                  background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
+                                                  borderRadius="12px"
+                                                  p="2px 8px"
+                                                >
+                                                  <IconButton
+                                                    icon={<FaPlay />}
+                                                    aria-label="Views"
+                                                    variant="ghost"
+                                                    colorScheme="white"
+                                                    fontSize="sm"
+                                                    isDisabled
+                                                    background="transparent"
+                                                  />
+                                                  <Text
+                                                    fontSize="sm"
+                                                    color="white"
+                                                    ml="-2"
+                                                  >
+                                                    {post.views}
+                                                  </Text>
+                                                </Flex>
+                                              )}
+                                            </Box>
+                                          )}
+                                        </Flex>
+                                      </Flex>
+
+                                      <Flex justify="space-between" mt="10px">
+                                        <Flex>
+                                          <Avatar
+                                            size="xs"
+                                            name={post.authorName}
+                                            src={
+                                              post.profileImage ||
+                                              "/path/to/avatar.jpg"
+                                            }
+                                          />
+                                          <Button
+                                            ml="6px"
+                                            fontSize="18px"
+                                            variant="link"
+                                            color="#333333"
+                                          >
+                                            {post.authorName}
+                                          </Button>
+                                        </Flex>
                                         <Text
-                                          fontSize="sm"
-                                          color="white"
-                                          ml="-2"
+                                          fontSize="xs"
+                                          color="#6e6e6e"
+                                          as="i"
                                         >
-                                          {post.views}
+                                          {formatDistanceToNow(post.createdAt)}{" "}
+                                          ago
                                         </Text>
                                       </Flex>
-                                    )}
-                                  </Box>
-                                )}
-                              </Flex>
-                            </Flex>
+                                      <Box className="postContent">
+                                        <Text
+                                          as="i"
+                                          className="truncate"
+                                          textAlign="justify"
+                                          fontSize="13px"
+                                          mr="3"
+                                          fontWeight="bold"
+                                          // color="#6e6e6e"
+                                        >
+                                          {post.postContent}
+                                        </Text>
+                                      </Box>
+                                      <Box className="postContent">
+                                        <Text
+                                          as="i"
+                                          className="truncate"
+                                          textAlign="justify"
+                                          fontSize="13px"
+                                          mr="3"
+                                          // color="#6e6e6e"
+                                        >
+                                          {post.tag}
+                                        </Text>
+                                      </Box>
+                                    </GridItem>
+                                  ))}
+                                </Grid>
+                              </TabPanel>
+                              <TabPanel>
+                                {filteredUsers.map((user) => {
+                                  return (
+                                    <>
+                                      <Card
+                                        border="1px solid #f2f2f2"
+                                        // _hover={{
+                                        //   cursor: "pointer",
+                                        //   bg: "#f2f2f2",
+                                        // }}
+                                        key={user.id}
+                                        m="8px 0"
+                                        minW="50vw"
+                                      >
+                                        <CardBody>
+                                          <Box>
+                                            <Flex align="center" gap={3}>
+                                              <Avatar
+                                                size="lg"
+                                                name={user.name}
+                                                src={
+                                                  user.profileImage ||
+                                                  "/path/to/avatar.jpg"
+                                                }
+                                              />
+                                              <Button
+                                                variant="link"
+                                                size="lg"
+                                                color="#000"
+                                                onClick={() =>
+                                                  handleCardClick(user.id)
+                                                }
+                                              >
+                                                {user.name}
+                                              </Button>
+                                            </Flex>
 
-                            <Flex justify="space-between" mt="10px">
-                              <Flex>
-                                <Avatar
-                                  size="xs"
-                                  name={post.authorName}
-                                  src={
-                                    post.profileImage || "/path/to/avatar.jpg"
-                                  }
-                                />
-                                <Button
-                                  ml="6px"
-                                  fontSize="18px"
-                                  variant="link"
-                                  color="#333333"
-                                >
-                                  {post.authorName}
-                                </Button>
-                              </Flex>
-                              <Text fontSize="xs" color="#6e6e6e" as="i">
-                                {formatDistanceToNow(post.createdAt)} ago
-                              </Text>
-                            </Flex>
-                            <Box className="postContent">
-                              <Text
-                                as="i"
-                                className="truncate"
-                                textAlign="justify"
-                                fontSize="13px"
-                                mr="3"
-                                fontWeight="bold"
-                                // color="#6e6e6e"
+                                            <Flex
+                                              gap={1}
+                                              m="4px 0"
+                                              align="center"
+                                              color="gray.500"
+                                              display={
+                                                !user.location ? "none" : "flex"
+                                              }
+                                            >
+                                              <MapPin size={14} />
+                                              <Text>{user.location}</Text>
+                                            </Flex>
+                                          </Box>
+                                        </CardBody>
+                                      </Card>
+                                    </>
+                                  );
+                                })}
+                              </TabPanel>
+                            </TabPanels>
+                          </Tabs>
+                        </Flex>
+                      )}
+                      {!searchTerm && (
+                        <Grid
+                          className="grid__discover"
+                          templateColumns={`repeat(4, 1fr)`}
+                          gap="4"
+                          autoRows="minmax(200px, auto)"
+                          rowGap={12}
+                        >
+                          {discoverPosts &&
+                            discoverPosts.map((post) => (
+                              <GridItem
+                                key={post.id}
+                                // border="1px solid #e1e1e1"
+                                // p="6px"
+                                colSpan={1}
+                                rowSpan={1}
+                                onClick={() =>
+                                  user
+                                    ? window.open(`/discover/post/${post.id}`)
+                                    : toast({
+                                        title: "Oops!",
+                                        description: "Please login first.",
+                                        status: "error",
+                                        duration: 1500,
+                                        position: "top",
+                                      })
+                                }
+                                maxW="250px"
+                                cursor="pointer"
                               >
-                                {post.postContent}
-                              </Text>
-                            </Box>
-                            <Box className="postContent">
-                              <Text
-                                as="i"
-                                className="truncate"
-                                textAlign="justify"
-                                fontSize="13px"
-                                mr="3"
-                                // color="#6e6e6e"
-                              >
-                                {post.tag}
-                              </Text>
-                            </Box>
-                          </GridItem>
-                        ))}
-                      </Grid>
-                    </Flex>
+                                <Flex justify="center" align="center">
+                                  <Flex justify="center" align="center">
+                                    {post.postImage && (
+                                      <Image
+                                        borderRadius="8"
+                                        objectFit="cover"
+                                        // maxWidth="300px"
+                                        w="300px"
+                                        h="370px"
+                                        src={post.postImage}
+                                        alt="Post Image"
+                                      />
+                                    )}
+
+                                    {post.postVideo && (
+                                      <Box position="relative">
+                                        <video
+                                          controls
+                                          onLoadedMetadata={(e) => {
+                                            e.target.volume = 0.85;
+                                          }}
+                                          style={{
+                                            borderRadius: "8px",
+                                            // maxWidth:"500px",
+                                            width: "300px",
+                                            height: "370px",
+                                            objectFit: "cover",
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            if (e.target.paused) {
+                                              e.target.play();
+                                            }
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.target.pause();
+                                          }}
+                                          // onMouseEnter={(e) => e.target.play()}
+                                          // onMouseLeave={(e) => e.target.pause()}
+                                        >
+                                          <source
+                                            src={post.postVideo}
+                                            type="video/mp4"
+                                          />
+                                          Your browser does not support the
+                                          video tag.
+                                        </video>
+                                        {post.views !== undefined && (
+                                          <Flex
+                                            align="center"
+                                            justify="center"
+                                            position="absolute"
+                                            top="1px" // Adjust as needed
+                                            right="8px" // Adjust as needed
+                                            background="rgba(0, 0, 0, 0.0)" // Optional background to make text readable
+                                            borderRadius="12px"
+                                            p="2px 8px"
+                                          >
+                                            <IconButton
+                                              icon={<FaPlay />}
+                                              aria-label="Views"
+                                              variant="ghost"
+                                              colorScheme="white"
+                                              fontSize="sm"
+                                              isDisabled
+                                              background="transparent"
+                                            />
+                                            <Text
+                                              fontSize="sm"
+                                              color="white"
+                                              ml="-2"
+                                            >
+                                              {post.views}
+                                            </Text>
+                                          </Flex>
+                                        )}
+                                      </Box>
+                                    )}
+                                  </Flex>
+                                </Flex>
+
+                                <Flex justify="space-between" mt="10px">
+                                  <Flex>
+                                    <Avatar
+                                      size="xs"
+                                      name={post.authorName}
+                                      src={
+                                        post.profileImage ||
+                                        "/path/to/avatar.jpg"
+                                      }
+                                    />
+                                    <Button
+                                      ml="6px"
+                                      fontSize="18px"
+                                      variant="link"
+                                      color="#333333"
+                                    >
+                                      {post.authorName}
+                                    </Button>
+                                  </Flex>
+                                  <Text fontSize="xs" color="#6e6e6e" as="i">
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                </Flex>
+                                <Box className="postContent">
+                                  <Text
+                                    as="i"
+                                    className="truncate"
+                                    textAlign="justify"
+                                    fontSize="13px"
+                                    mr="3"
+                                    fontWeight="bold"
+                                    // color="#6e6e6e"
+                                  >
+                                    {post.postContent}
+                                  </Text>
+                                </Box>
+                                <Box className="postContent">
+                                  <Text
+                                    as="i"
+                                    className="truncate"
+                                    textAlign="justify"
+                                    fontSize="13px"
+                                    mr="3"
+                                    // color="#6e6e6e"
+                                  >
+                                    {post.tag}
+                                  </Text>
+                                </Box>
+                              </GridItem>
+                            ))}
+                        </Grid>
+                      )}
+                    </Box>
                     <Box flex="1"></Box>
                   </Flex>
                 </Flex>

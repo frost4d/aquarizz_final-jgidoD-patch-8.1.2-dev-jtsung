@@ -64,9 +64,12 @@ const PostOptions = (props) => {
     console.log(postId)
     try {
       const shopRef = doc(db, "marketplace", postId); // Assuming postId is the document ID in the "shop" collection
-      const discoverRef = doc(db, "discover", postId); // Assuming postId is the document ID in the "discover" collection
+      const discoverRef = doc(db, "discover", postId);
+      const userRef = doc(db, "users1", user.uid);
+      const repostRef = doc(userRef, "reposts", postId);
       await deleteDoc(shopRef);
       await deleteDoc(discoverRef);
+      await deleteDoc(repostRef);
       // props.fetchData();
   
       // Show toast message for successful deletion
@@ -133,8 +136,10 @@ const PostOptions = (props) => {
     shareModal.onOpen();
   };
   console.log(authorId)
+
   return (
     <>
+    {authorId === user.uid && (
       <Menu>
         <MenuButton
           style={{
@@ -171,10 +176,15 @@ const PostOptions = (props) => {
             </Modal>
           </MenuItem> */}
           <MenuItem
+            // onClick={() => {
+            //   deleteOverlay.onOpen();
+            // }}
             onClick={() => {
-              deleteOverlay.onOpen();
+              if (authorId === user.uid) {
+                deleteOverlay.onOpen();
+              }
             }}
-   
+            isDisabled={authorId !== user.uid}
           >
             Delete
           </MenuItem>
@@ -198,6 +208,7 @@ const PostOptions = (props) => {
           </MenuItem> */}
         </MenuList>
       </Menu>
+      )}
       <AlertDialog
         isOpen={deleteOverlay.isOpen}
         leastDestructiveRef={cancelRef}

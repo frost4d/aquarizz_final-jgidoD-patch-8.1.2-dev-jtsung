@@ -96,6 +96,15 @@ const DiscoverModal = () => {
         likes: arrayUnion(user.uid),
       });
       setLikes(likes + 1);
+
+      if (post.authorID && post.authorID !== user.uid) {
+        const notificationRef = collection(db, "users1", post.authorID, "notifications");
+        await addDoc(notificationRef, {
+          message: `${user.displayName || "Someone"} liked your post.`,
+          timestamp: new Date(),
+          read: false,
+        });
+      }
     } else {
       await updateDoc(postRef, {
         likes: arrayRemove(user.uid),
@@ -106,12 +115,12 @@ const DiscoverModal = () => {
   };
 
   const handleRepost = async () => {
-    if (!user || !post || !post.id) return;
+    // if (!user || !post || !post.id) return;
 
     // Repost by creating a new post under the user's profile with a reference to the original post
     const newPost = {
       ...post,
-      originalPostId: post.id,
+      originalPostId: discoverId,
       authorId: user.uid,
       authorName: user.displayName || "Unknown",
       repostedAt: new Date(),
@@ -120,7 +129,7 @@ const DiscoverModal = () => {
     await addDoc(collection(db, "users1", user.uid, "reposts"), newPost);
 
     // Increment share count only when reposting
-    const postRef = doc(db, "discover", post.id);
+    const postRef = doc(db, "discover", discoverId);
     await updateDoc(postRef, {
       shares: arrayUnion(user.uid),
     });
@@ -339,6 +348,15 @@ const DiscoverModal = () => {
 
     await addDoc(commentsRef, newComment);
 
+    if (post.authorID && post.authorID !== user.uid) {
+      const notificationRef = collection(db, "users1", post.authorID, "notifications");
+      await addDoc(notificationRef, {
+        message: `${userName} commented on your post.`,
+        timestamp: new Date(),
+        read: false,
+      });
+    }
+
     // Update the comments state immediately with the new comment
     setComments([...comments, { id: new Date().getTime(), ...newComment }]);
     setComment("");
@@ -529,15 +547,6 @@ const DiscoverModal = () => {
                         />
                         <MenuList bg="#232323" borderColor="gray.700">
                           <MenuItem
-                            icon={<FaLink />}
-                            color="white"
-                            bg="#232323"
-                            _hover={{ bg: "gray.700" }}
-                            onClick={handleCopyLink}
-                          >
-                            Copy Link
-                          </MenuItem>
-                          <MenuItem
                             icon={<FaRetweet />}
                             color="white"
                             bg="#232323"
@@ -545,6 +554,15 @@ const DiscoverModal = () => {
                             onClick={handleRepost}
                           >
                             Repost
+                          </MenuItem>
+                          <MenuItem
+                            icon={<FaLink />}
+                            color="white"
+                            bg="#232323"
+                            _hover={{ bg: "gray.700" }}
+                            onClick={handleCopyLink}
+                          >
+                            Copy Link
                           </MenuItem>
                         </MenuList>
                       </Menu>

@@ -287,6 +287,11 @@ const ItemModal = () => {
     navigate(`/profile/${postData.authorID}`);
   };
 
+  const handleMessageClick = () => {
+    // Navigate to a chat page, passing the userId as a parameter
+    navigate(`/chatMessage/${postData.authorID}`);
+  };
+
   const slideVariants = {
     hidden: (direction) => ({
       x: direction > 0 ? 1000 : -1000, // Slide in from right or left
@@ -504,7 +509,7 @@ const ItemModal = () => {
                         bg={primaryColor}
                         w="100%"
                         rightIcon={<Mail size={18} />}
-                        onClick={() => navigate("/chatMessage/:userId")}
+                        onClick={handleMessageClick}
                       >
                         Message
                       </Button>

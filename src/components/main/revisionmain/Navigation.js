@@ -51,7 +51,7 @@ import {
   ShoppingCart,
 } from "react-feather";
 import LoginModal from "./LoginModal";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, NavLink, useNavigate } from "react-router-dom";
 import { UserAuth } from "../../context/AuthContext";
 import logo from "../../../assets/logo2.png";
 import { BellIcon, ChevronDownIcon, HamburgerIcon } from "@chakra-ui/icons";

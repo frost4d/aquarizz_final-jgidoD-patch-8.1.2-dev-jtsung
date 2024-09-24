@@ -224,7 +224,7 @@ const Register = () => {
                 )}
               </FormControl>
               <FormControl>
-                <FormLabel>Name(LN,FN,MI)</FormLabel>
+                <FormLabel>Name(LastName,FirstName,MiddleInitial)</FormLabel>
                 <Input
                   type="text"
                   {...register("name", {

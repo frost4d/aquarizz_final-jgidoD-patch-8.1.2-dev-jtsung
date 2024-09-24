@@ -71,6 +71,9 @@ import {
   Grid,
   GridItem,
   Center,
+  HStack,
+  VStack,
+  Icon
 } from "@chakra-ui/react";
 import { db, auth, storage } from "../../firebase/firebaseConfig";
 import { UserAuth } from "../context/AuthContext";
@@ -108,6 +111,7 @@ import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage } from "@fortawesome/free-regular-svg-icons";
 import Footer from "./revisionmain/Footer";
+import { AiOutlineShareAlt, AiOutlineMessage, AiOutlineHeart } from 'react-icons/ai';
 import {
   ref,
   uploadBytes,
@@ -170,6 +174,8 @@ function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followCount, setFollowCount] = useState(0);
   const [updating, setUpdating] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     register: registerUpdate,
     handleSubmit: updateProfile,
@@ -682,14 +688,23 @@ function ProfilePage() {
     if (!user || !userData?.userID) return;
   
     try {
-      // Reference to the reports collection
       const reportsRef = doc(db, "reports", userData.userID);
   
-      // Update the reports document
-      await updateDoc(reportsRef, {
-        reportedBy: arrayUnion(user.uid),
-        reportCount: increment(1),
-      });
+      const docSnap = await getDoc(reportsRef);
+      
+      if (docSnap.exists()) {
+        // If the document exists, update it
+        await updateDoc(reportsRef, {
+          reportedBy: arrayUnion(user.uid),
+          reportCount: increment(1),
+        });
+      } else {
+        // If the document does not exist, create it
+        await setDoc(reportsRef, {
+          reportedBy: [user.uid],  // Start the array with the current user
+          reportCount: 1,          // Initialize report count as 1
+        });
+      }
   
       toast({
         title: "User Reported",
@@ -746,6 +761,11 @@ function ProfilePage() {
       setUpdating(false);
       window.location.reload();
     }
+  };
+
+  const handlePostClick = (post) => {
+    setSelectedPost(post);
+    onOpen();
   };
 
   // const handleFollow = async () => {
@@ -1177,17 +1197,21 @@ function ProfilePage() {
                                     )}
                                   </Box> */}
                                   <FormLabel mb="2">Name</FormLabel>
-                                  <Input mb="4" {...registerUpdate("name")} />
+                                  <Input mb="4" {...registerUpdate("name")}
+                                  defaultValue={userData.name || "Enter your name"}
+                                  />
                                   <FormLabel mb="2">Phone Number</FormLabel>
                                   <Input
                                     type="tel"
                                     mb="4"
                                     {...registerUpdate("phone")}
+                                    defaultValue={userData.phone || "Enter your phone number"}
                                   />
                                   <FormLabel mb="2">Location</FormLabel>
                                   <Input
                                     mb="4"
                                     {...registerUpdate("location")}
+                                    defaultValue={userData.location || "Enter your location"}
                                   />
                                   {/* <FormLabel mb="2">New Password</FormLabel>
                                   <Input
@@ -1419,12 +1443,18 @@ function ProfilePage() {
                       <Tab w="8%">About</Tab>
                     </TabList>
                     <TabPanels>
-                      <TabPanel>
+                    <TabPanel>
                         <Flex
                           flexDirection="column"
                           w="100%"
                           align="center"
                           justify="center"
+                          maxW="1500px"
+                          // border="1px solid #e1e1e1"
+                          // borderRadius="md"
+                          mb="4"
+                          overflow="hidden"
+                          // boxShadow="md"
                         >
                           {discoverPosts.length === 0 ? (
                             <Flex
@@ -1440,14 +1470,33 @@ function ProfilePage() {
                           ) : (
                             discoverPosts.map((post) => (
                               <Card
-                                key={post.id}
-                                w="50%"
-                                p="24px 24px"
+                                key={post.id}                       
+                                w="100%" // Ensures card takes full width within the container
+                                maxW="600px" // Sets a max width similar to Facebook posts
+                                p="6px"
                                 my="16px"
                                 border="1px solid #e1e1e1"
+                                borderRadius="lg"
+                                boxShadow="lg"
                                 //  borderWidth="2px"
                                 // borderColor="red"
                               >
+
+                              <Flex align="center" >
+                               <Image
+                               src={userData.profileImage}
+                               borderRadius="full"
+                               boxSize="50px"
+                               mr="2"
+                              />
+                              <VStack align="start" spacing="1">                                         
+                              <Text fontWeight="bold">{post.authorName}</Text>
+                              <Text fontSize="sm" color="gray.500">
+                              {formatDistanceToNow(post.createdAt)} ago
+                              </Text>
+                              </VStack>
+                              </Flex>
+        
                                 <Flex flexDirection="column">
                                   <Box>
                                     <Profile
@@ -1456,29 +1505,26 @@ function ProfilePage() {
                                     />
                                   </Box>
                                   <PostOptions
-                                    postId={post.id}
-                                    authorId={post.authorId}
+                                  postId={post.id}
+                                  authorId={post.authorId}
                                   />
                                   <Text
                                     as="kbd"
                                     fontSize="10px"
                                     color="gray.500"
                                   >
-                                    {formatDistanceToNow(post.createdAt)} ago
                                   </Text>
-                                  <Button variant="link" color="#333333">
-                                    {post.authorName}
-                                  </Button>
-
+                        
                                   <Flex
-                                    pl="32px"
-                                    py="32px"
+                                    pl="4px"
+                                    py="10px"
+                                    mt="-10"
                                     justify="space-between"
                                   >
                                     <Box>
                                       <Link to={"/AddToCart/" + post.id}>
                                         <Heading size="md">
-                                          {post.postTitle}
+                                          {/* {post.postTitle} */}
                                         </Heading>
                                       </Link>
                                       <br />
@@ -1507,12 +1553,19 @@ function ProfilePage() {
                                     w="100%"
                                     align="center"
                                     justify="center"
+                                    mb="2"
                                   >
                                     {post.postImage && (
                                       <Image
                                         src={post.postImage}
-                                        w="40em"
+                                        w="100%"
+                                        maxH="500px" // Limits height to keep post size consistent
+                                        objectFit="cover"                                        
+                                        borderRadius="lg"
                                         alt="post image"
+                                        _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
+                                        transition="all 0.3s ease"
+                                        onClick={() => handlePostClick(post)} // Open modal only when image is clicked
                                         onError={(e) =>
                                           (e.target.style.display = "none")
                                         }
@@ -1524,11 +1577,12 @@ function ProfilePage() {
                                         controls
                                         style={{
                                           width: "100%",
-                                          height: "350px",
+                                          height: "500px",
                                           objectFit: "cover",
                                         }}
                                         onMouseEnter={(e) => e.target.play()}
                                         onMouseLeave={(e) => e.target.pause()}
+                                        onClick={() => handlePostClick(post)} // Open modal only when video is clicked
                                       >
                                         <source
                                           src={post.postVideo}
@@ -1539,12 +1593,28 @@ function ProfilePage() {
                                       </video>
                                     )}
                                   </Flex>
-                                  <Box w="100%">
+                                  {/* <Box w="100%">
                                     <Comment
                                       postID={post.id}
                                       authorId={post.authorId}
                                     />
-                                  </Box>
+                                  </Box> */}
+                                    {/* Interactions */}
+                                   </Flex>
+                                   <Flex justify="Left" align="center" mt="-1" p="3">
+                                   <HStack spacing="10">
+          
+                                   {/* Comment button with text */}
+                                   <Flex align="center">
+                                   <IconButton
+                                   aria-label="Like post"
+                                   icon={<Icon as={AiOutlineMessage} boxSize={6} />}
+                                   variant="ghost"    
+                                   onClick={() => handlePostClick(post)}
+                                   />
+                                  </Flex>
+
+                                  </HStack>
                                 </Flex>
                               </Card>
                             ))
@@ -1723,7 +1793,7 @@ function ProfilePage() {
                               <Flex position="relative" left="100%" top="85%" zIndex="1000">
                                 <PostOptions
                                     postId={post.id}
-                                    authorId={post.authorId}
+                                    authorId={post.authorID}
                                   />
                               </Flex>
                               <GridItem
@@ -1875,7 +1945,7 @@ function ProfilePage() {
                                   </Text>
                                   <Text fontSize="lg">
                                     <strong>Phone Number: </strong>
-                                    {userData.phoneNumber}
+                                    {userData.phone}
                                   </Text>
                                 </Box>
                               </Flex>
