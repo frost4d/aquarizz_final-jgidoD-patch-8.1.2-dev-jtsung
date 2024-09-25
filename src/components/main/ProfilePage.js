@@ -1469,6 +1469,16 @@ function ProfilePage() {
                             </Flex>
                           ) : (
                             discoverPosts.map((post) => (
+                              <Flex ml="50px" 
+                              w="100%"
+                              maxW="600px" 
+                              >
+                              <Flex position="relative" mt="8px" left="100%" top="85%" zIndex="1">
+                                <PostOptions
+                                    postId={post.id}
+                                    authorId={post.authorID}
+                                  />
+                              </Flex>
                               <Card
                                 key={post.id}                       
                                 w="100%" // Ensures card takes full width within the container
@@ -1478,6 +1488,214 @@ function ProfilePage() {
                                 border="1px solid #e1e1e1"
                                 borderRadius="lg"
                                 boxShadow="lg"
+                                onClick={() =>
+                                  user
+                                    ? window.open(`/discover/post/${post.id}`)
+                                    : toast({
+                                        title: "Oops!",
+                                        description: "Please login first.",
+                                        status: "error",
+                                        duration: 1500,
+                                        position: "top",
+                                      })
+                                }
+                                cursor="pointer"
+                                //  borderWidth="2px"
+                                // borderColor="red"
+                              >
+
+                              <Flex align="center" >
+                               <Image
+                               src={userData.profileImage}
+                               borderRadius="full"
+                               boxSize="50px"
+                               mr="2"
+                              />
+                              <VStack align="start" spacing="1">                                         
+                              <Text fontWeight="bold">{post.authorName}</Text>
+                              <Text fontSize="sm" color="gray.500">
+                              {formatDistanceToNow(post.createdAt)} ago
+                              </Text>
+                              </VStack>
+                              </Flex>
+        
+                                <Flex flexDirection="column">
+                                  <Box>
+                                    <Profile
+                                      name={post.name}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box>
+                                  {/* <PostOptions
+                                  postId={post.id}
+                                  authorId={post.authorId}
+                                  /> */}
+                                  <Text
+                                    as="kbd"
+                                    fontSize="10px"
+                                    color="gray.500"
+                                  >
+                                  </Text>
+                        
+                                  <Flex
+                                    pl="4px"
+                                    py="10px"
+                                    mt="-10"
+                                    justify="space-between"
+                                  >
+                                    <Box>
+                                      <Link to={"/AddToCart/" + post.id}>
+                                        <Heading size="md">
+                                          {/* {post.postTitle} */}
+                                        </Heading>
+                                      </Link>
+                                      <br />
+
+                                      <Text
+                                        className="truncate"
+                                        fontSize="16px"
+                                        textAlign="justify"
+                                      >
+                                        {post.postContent}
+                                      </Text>
+                                    </Box>
+
+                                    {/* <Box mr="24px">
+                                    {!post.price ? (
+                                      <Text>₱ 0.00</Text>
+                                    ) : (
+                                      <>
+                                        <strong>₱ </strong>
+                                        {post.price}
+                                      </>
+                                    )}
+                                  </Box> */}
+                                  </Flex>
+                                  <Flex
+                                    w="100%"
+                                    align="center"
+                                    justify="center"
+                                    mb="2"
+                                  >
+                                    {post.postImage && (
+                                      <Image
+                                        src={post.postImage}
+                                        w="100%"
+                                        maxH="500px" // Limits height to keep post size consistent
+                                        objectFit="cover"                                        
+                                        borderRadius="lg"
+                                        alt="post image"
+                                        _hover={{ transform: 'scale(1.02)', boxShadow: 'lg' }}
+                                        transition="all 0.3s ease"
+                                        onClick={() => handlePostClick(post)} // Open modal only when image is clicked
+                                        onError={(e) =>
+                                          (e.target.style.display = "none")
+                                        }
+                                      />
+                                    )}
+                                    {post.postVideo && (
+                                      <video
+                                        muted={true}
+                                        controls
+                                        style={{
+                                          width: "100%",
+                                          height: "500px",
+                                          objectFit: "cover",
+                                          borderRadius: "8px"
+                                        }}
+                                        onMouseEnter={(e) => e.target.play()}
+                                        onMouseLeave={(e) => e.target.pause()}
+                                        onClick={() => handlePostClick(post)} // Open modal only when video is clicked
+                                      >
+                                        <source
+                                          src={post.postVideo}
+                                          type="video/mp4"
+                                        />
+                                        Your browser does not support the video
+                                        tag.
+                                      </video>
+                                    )}
+                                  </Flex>
+                                  {/* <Box w="100%">
+                                    <Comment
+                                      postID={post.id}
+                                      authorId={post.authorId}
+                                    />
+                                  </Box> */}
+                                    {/* Interactions */}
+                                   </Flex>
+                                   <Flex justify="Left" align="center" mt="-1" p="3">
+                                   <HStack spacing="10">
+          
+                                   {/* Comment button with text */}
+                                   <Flex align="center">
+                                   <IconButton
+                                   aria-label="Like post"
+                                   icon={<Icon as={AiOutlineMessage} boxSize={6} />}
+                                   variant="ghost"    
+                                   onClick={() => handlePostClick(post)}
+                                   />
+                                  </Flex>
+
+                                  </HStack>
+                                </Flex>
+                              </Card>
+                              </Flex>
+                            ))
+                          )}
+                        </Flex>
+                      </TabPanel>
+
+                      <TabPanel>
+                        {/* New Panel for Reposts */}
+                        <Flex
+                          flexDirection="column"
+                          w="100%"
+                          align="center"
+                          justify="center"
+                        >
+                          {reposts.length === 0 ? (
+                            <Flex
+                              justify="center"
+                              align="center"
+                              p="10"
+                              mb="20"
+                            >
+                              <Text color="#7f7f7f">No reposts to show...</Text>
+                            </Flex>
+                          ) : (
+                            reposts.map((post) => (
+                              <Flex ml="50px" 
+                              w="100%"
+                              maxW="600px" 
+                              >
+                              {/* <Flex position="relative" mt="8px" left="100%" top="85%" zIndex="1">
+                                <PostOptions
+                                    postId={post.id}
+                                    authorId={post.authorID}
+                                  />
+                              </Flex> */}
+                              <Card
+                                key={post.id}                       
+                                w="100%" // Ensures card takes full width within the container
+                                maxW="600px" // Sets a max width similar to Facebook posts
+                                p="6px"
+                                my="16px"
+                                border="1px solid #e1e1e1"
+                                borderRadius="lg"
+                                boxShadow="lg"
+                                // onClick={() =>
+                                //   user
+                                //     ? window.open(`/discover/post/${post.id}`)
+                                //     : toast({
+                                //         title: "Oops!",
+                                //         description: "Please login first.",
+                                //         status: "error",
+                                //         duration: 1500,
+                                //         position: "top",
+                                //       })
+                                // }
+                                // cursor="pointer"
                                 //  borderWidth="2px"
                                 // borderColor="red"
                               >
@@ -1579,6 +1797,7 @@ function ProfilePage() {
                                           width: "100%",
                                           height: "500px",
                                           objectFit: "cover",
+                                          borderRadius: "8px"
                                         }}
                                         onMouseEnter={(e) => e.target.play()}
                                         onMouseLeave={(e) => e.target.pause()}
@@ -1617,124 +1836,7 @@ function ProfilePage() {
                                   </HStack>
                                 </Flex>
                               </Card>
-                            ))
-                          )}
-                        </Flex>
-                      </TabPanel>
-
-                      <TabPanel>
-                        {/* New Panel for Reposts */}
-                        <Flex
-                          flexDirection="column"
-                          w="100%"
-                          align="center"
-                          justify="center"
-                        >
-                          {reposts.length === 0 ? (
-                            <Flex
-                              justify="center"
-                              align="center"
-                              p="10"
-                              mb="20"
-                            >
-                              <Text color="#7f7f7f">No reposts to show...</Text>
-                            </Flex>
-                          ) : (
-                            reposts.map((post) => (
-                              <Card
-                                key={post.id}
-                                w="50%"
-                                p="24px 24px"
-                                my="16px"
-                                border="1px solid #e1e1e1"
-                              >
-                                <Flex flexDirection="column">
-                                  <Box>
-                                    <Profile
-                                      name={post.name}
-                                      authorId={post.authorId}
-                                    />
-                                  </Box>
-                                  <PostOptions
-                                    postId={post.id}
-                                    authorId={post.authorId}
-                                  />
-                                  <Text
-                                    as="kbd"
-                                    fontSize="10px"
-                                    color="gray.500"
-                                  >
-                                    {formatDistanceToNow(post.createdAt)} ago
-                                  </Text>
-                                  <Button variant="link" color="#333333">
-                                    {post.authorName}
-                                  </Button>
-                                  <Flex
-                                    pl="32px"
-                                    py="32px"
-                                    justify="space-between"
-                                  >
-                                    <Box>
-                                      <Link to={`/AddToCart/${post.id}`}>
-                                        <Heading size="md">
-                                          {post.postTitle}
-                                        </Heading>
-                                      </Link>
-                                      <br />
-                                      <Text
-                                        className="truncate"
-                                        fontSize="16px"
-                                        textAlign="justify"
-                                      >
-                                        {post.postContent}
-                                      </Text>
-                                    </Box>
-                        
-                                  </Flex>
-                                  <Flex
-                                    w="100%"
-                                    align="center"
-                                    justify="center"
-                                  >
-                                    {post.postImage && (
-                                      <Image
-                                        src={post.postImage}
-                                        w="40em"
-                                        alt="post image"
-                                        onError={(e) =>
-                                          (e.target.style.display = "none")
-                                        }
-                                      />
-                                    )}
-                                    {post.postVideo && (
-                                      <video
-                                        muted={true}
-                                        controls
-                                        style={{
-                                          width: "100%",
-                                          height: "350px",
-                                          objectFit: "cover",
-                                        }}
-                                        onMouseEnter={(e) => e.target.play()}
-                                        onMouseLeave={(e) => e.target.pause()}
-                                      >
-                                        <source
-                                          src={post.postVideo}
-                                          type="video/mp4"
-                                        />
-                                        Your browser does not support the video
-                                        tag.
-                                      </video>
-                                    )}
-                                  </Flex>
-                                  <Box w="100%">
-                                    <Comment
-                                      postID={post.id}
-                                      authorId={post.authorId}
-                                    />
-                                  </Box>
-                                </Flex>
-                              </Card>
+                              </Flex>
                             ))
                           )}
                         </Flex>
