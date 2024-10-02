@@ -1,0 +1,9 @@
+.buttonNav_wrapper:hover > .button__left {
+  transform: translateX(-3px);
+  transition: 250ms ease;
+}
+
+.buttonNav_wrapper:hover > .button__right {
+  transform: translateX(3px);
+  transition: 250ms ease;
+}
