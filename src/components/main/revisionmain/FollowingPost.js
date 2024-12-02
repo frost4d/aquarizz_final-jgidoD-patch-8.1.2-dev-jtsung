@@ -549,12 +549,12 @@ const FollowingPost = () => {
                             <Flex justify="space-between" mt="10px">
                             <Flex>
                             <Avatar
-                              size="xs"
-                              name={userProfile.name}
-                              src={
-                                userProfile.profileImage ||
-                                "/path/to/avatar.jpg"
-                              }
+                              size="sm"
+                              name={post.authorName}
+                                      src={
+                                        post.profileImage ||
+                                        "/path/to/avatar.jpg"
+                                      }
                             />
                               <Button
                                 ml="6px"
@@ -565,9 +565,7 @@ const FollowingPost = () => {
                                 {post.authorName}
                               </Button>
                               </Flex>
-                              <Text fontSize="xs" color="#6e6e6e" as="i">
-                                {formatDistanceToNow(post.createdAt)} ago
-                              </Text>
+                          
                             </Flex>
                             <Box className="postContent">
                               <Text
@@ -582,7 +580,7 @@ const FollowingPost = () => {
                                 {post.postContent}
                               </Text>
                             </Box>
-                            <Box className="postContent">
+                            {/* <Box className="postContent">
                               <Text
                                 as="i"
                                 className="truncate"
@@ -593,7 +591,12 @@ const FollowingPost = () => {
                               >
                                 {post.tag}
                               </Text>
-                            </Box>
+                            </Box> */}
+                            <Flex>
+                                  <Text fontSize="xs" color="#6e6e6e" as="i">
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                  </Flex>
                           </GridItem>
                         ))}
                       </Grid>

@@ -34,6 +34,8 @@ import {
   MenuItem,
   IconButton,
   Input,
+  ModalHeader,
+  ModalFooter
 } from "@chakra-ui/react";
 import MarketItem from "./MarketItem";
 import { useEffect, useState } from "react";
@@ -42,7 +44,7 @@ import { db, auth, storage } from "./../../../firebase/firebaseConfig";
 import { useLocation } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion, useAnimation } from "framer-motion";
-
+import { FaEllipsisH } from "react-icons/fa";
 import {
   collection,
   getDocs,
@@ -57,6 +59,7 @@ import {
   addDoc,
   arrayUnion,
   arrayRemove,
+  increment
 } from "firebase/firestore";
 import { ArrowLeft, ArrowRight, Mail, MapPin } from "react-feather";
 import { UserAuth } from "../../context/AuthContext";
@@ -84,8 +87,9 @@ const DiscoverModal = () => {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [userAvatar, setUserAvatar] = useState("");
-
-
+  const [userData, setUserData] = useState(null);
+  const [selectedReason, setSelectedReason] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
   //   const location = useLocation();
   //   let history = useHistory();
   const handleLike = async () => {
@@ -122,9 +126,13 @@ const DiscoverModal = () => {
       ...post,
       originalPostId: discoverId,
       authorId: user.uid,
-      authorName: user.displayName || "Unknown",
+      authorName: post?.authorName,
       repostedAt: new Date(),
     };
+    console.log("User object:", user);
+    console.log("AuthorName:", post.authorName);
+    console.log("User displayName:", user?.displayName);
+
 
     await addDoc(collection(db, "users1", user.uid, "reposts"), newPost);
 
@@ -392,6 +400,94 @@ const DiscoverModal = () => {
     }
   };
 
+
+  const onReportPost = async () => {
+    if (!user || !post || !selectedReason) {
+      toast({
+        title: "Report Failed",
+        description: "Please select a reason before reporting.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+  
+    try {
+      const postRef = doc(db, "discover", discoverId); // Fetch the post
+      const reportsRef = doc(db, "postReports", discoverId); // Reference for the report document
+
+      const userRef = doc(db, "users1", user.uid);  // Assuming your users collection is called "users"
+      const userSnap = await getDoc(userRef);
+      const reporterUsername = userSnap.exists() ? userSnap.data().name : "Unknown";
+  
+      const postSnap = await getDoc(postRef);
+  
+      if (!postSnap.exists()) {
+        toast({
+          title: "Report Failed",
+          description: "The post could not be found.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+  
+      const reportData = {
+        reportedBy: arrayUnion({
+          uid: user.uid,
+          name: reporterUsername,
+        }),
+        reportCount: increment(1),
+        reportReasons: arrayUnion(selectedReason),
+        postDetails: {
+          id: discoverId,
+          title: postSnap.data()?.postTitle || "Untitled Post",
+          postContent: postSnap.data()?.postContent || "Untitled Post",
+          authorId: postSnap.data()?.authorID || "Unknown",
+        },
+        reportedAt: new Date(),
+      };
+  
+      // Check if the report document already exists
+      const docSnap = await getDoc(reportsRef);
+      if (docSnap.exists()) {
+        // Update the existing report document
+        await updateDoc(reportsRef, reportData);
+      } else {
+        // Create a new report document
+        await setDoc(reportsRef, reportData);
+      }
+  
+      toast({
+        title: "Report Submitted",
+        description: "Thank you for reporting the post. We will review it shortly.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error("Error reporting post: ", error);
+      toast({
+        title: "Report Failed",
+        description: "There was an issue reporting the post. Please try again.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+  
+
+  const getButtonStyle = (reason) => {
+    return selectedReason === reason
+      ? { backgroundColor: "#3182ce", color: "white" } // Active button style
+      : {}; // Default style
+  };
+
+  
+
   return (
     <>
       <Modal
@@ -468,7 +564,9 @@ const DiscoverModal = () => {
                   display="flex"
                   flexDirection="column"
                   justifyContent="space-between"
+                  border="2px"
                 >
+                  <Flex justify="space-between">
                   <Flex align="center">
                     <Avatar
                       size="md"
@@ -488,6 +586,116 @@ const DiscoverModal = () => {
                       {post.authorName}
                     </Text>
                   </Flex>
+
+                  <Box>
+                  {user && post && user.uid !== post.authorID && (
+                    <Menu>
+                      <MenuButton as={IconButton} icon={<FaEllipsisH />} />
+                      <MenuList>
+                        {/* Open the Report Modal */}
+                        <MenuItem onClick={onOpen} color="red.500">Report Post</MenuItem>
+                      </MenuList>
+                    </Menu>
+                  )}
+
+<Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent maxW="lg" mx="auto" mt="10">
+          <ModalHeader borderBottom="2px" borderColor="#e1e5ee">
+            Report Post
+          </ModalHeader>
+          <ModalBody>
+            <Box my="2">
+            <p>Why are you reporting this post?</p>
+            </Box>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Problem involving someone under 18")}
+              mb={2}
+              style={getButtonStyle("Problem involving someone under 18")}
+            >
+              Problem involving someone under 18
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Bullying, harassment or abuse")}
+              mb={2}
+              style={getButtonStyle("Bullying, harassment or abuse")}
+            >
+              Bullying, harassment or abuse
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Suicide or self-harm")}
+              mb={2}
+              style={getButtonStyle("Suicide or self-harm")}
+            >
+              Suicide or self-harm
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Violent, hateful or disturbing content")}
+              mb={2}
+              style={getButtonStyle("Violent, hateful or disturbing content")}
+            >
+              Violent, hateful or disturbing content
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Selling or promoting restricted items")}
+              mb={2}
+              style={getButtonStyle("Selling or promoting restricted items")}
+            >
+              Selling or promoting restricted items
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Adult content")}
+              mb={2}
+              style={getButtonStyle("Adult content")}
+            >
+              Adult content
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Scam, fraud or false information")}
+              mb={2}
+              style={getButtonStyle("Scam, fraud or false information")}
+            >
+              Scam, fraud or false information
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Something else")}
+              mb={2}
+              style={getButtonStyle("Something else")}
+            >
+              Something else
+            </Button>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={onReportPost} isDisabled={!selectedReason}>
+              Submit Report
+            </Button>
+            <Button variant="outline" onClick={onClose} ml={3}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      </Box>
+      </Flex>
+
+
                   <Flex w="100%" h="auto">
                     <Text fontSize="lg">{post.postContent}</Text>
                   </Flex>

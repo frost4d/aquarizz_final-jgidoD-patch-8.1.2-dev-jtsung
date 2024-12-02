@@ -855,14 +855,14 @@ const Discover = () => {
                                             {post.authorName}
                                           </Button>
                                         </Flex>
-                                        <Text
+                                        {/* <Text
                                           fontSize="xs"
                                           color="#6e6e6e"
                                           as="i"
                                         >
                                           {formatDistanceToNow(post.createdAt)}{" "}
                                           ago
-                                        </Text>
+                                        </Text> */}
                                       </Flex>
                                       <Box className="postContent">
                                         <Text
@@ -877,7 +877,7 @@ const Discover = () => {
                                           {post.postContent}
                                         </Text>
                                       </Box>
-                                      <Box className="postContent">
+                                      {/* <Box className="postContent">
                                         <Text
                                           as="i"
                                           className="truncate"
@@ -888,7 +888,12 @@ const Discover = () => {
                                         >
                                           {post.tag}
                                         </Text>
-                                      </Box>
+                                      </Box> */}
+                                      <Flex>
+                                  <Text fontSize="xs" color="#6e6e6e" as="i">
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                  </Flex>
                                     </GridItem>
                                   ))}
                                 </Grid>
@@ -1019,6 +1024,7 @@ const Discover = () => {
                                           onMouseLeave={(e) => {
                                             e.target.pause();
                                           }}
+                                          onPlay={() => handleVideoPlay(post)}
                                           // onMouseEnter={(e) => e.target.play()}
                                           // onMouseLeave={(e) => e.target.pause()}
                                         >
@@ -1066,7 +1072,7 @@ const Discover = () => {
                                 <Flex justify="space-between" mt="10px">
                                   <Flex>
                                     <Avatar
-                                      size="xs"
+                                      size="sm"
                                       name={post.authorName}
                                       src={
                                         post.profileImage ||
@@ -1082,10 +1088,13 @@ const Discover = () => {
                                       {post.authorName}
                                     </Button>
                                   </Flex>
-                                  <Text fontSize="xs" color="#6e6e6e" as="i">
+                                  {/* <Flex>
+                                  <Text fontSize="xs" color="#6e6e6e" as="i" border="2px">
                                     {formatDistanceToNow(post.createdAt)} ago
                                   </Text>
+                                  </Flex> */}
                                 </Flex>
+                              
                                 <Box className="postContent">
                                   <Text
                                     as="i"
@@ -1099,7 +1108,7 @@ const Discover = () => {
                                     {post.postContent}
                                   </Text>
                                 </Box>
-                                <Box className="postContent">
+                                {/* <Box className="postContent">
                                   <Text
                                     as="i"
                                     className="truncate"
@@ -1110,7 +1119,12 @@ const Discover = () => {
                                   >
                                     {post.tag}
                                   </Text>
-                                </Box>
+                                </Box> */}
+                                <Flex>
+                                  <Text fontSize="xs" color="#6e6e6e" as="i">
+                                    {formatDistanceToNow(post.createdAt)} ago
+                                  </Text>
+                                  </Flex>
                               </GridItem>
                             ))}
                         </Grid>

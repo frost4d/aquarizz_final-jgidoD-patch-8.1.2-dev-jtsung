@@ -31,6 +31,9 @@ import {
   MenuList,
   MenuItem,
   IconButton,
+  ModalHeader,
+  FormLabel,
+  Input
 } from "@chakra-ui/react";
 import MarketItem from "./MarketItem";
 import { Suspense, useEffect, useState } from "react";
@@ -39,7 +42,7 @@ import { db, auth, storage } from "./../../../firebase/firebaseConfig";
 import { useLocation } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
 import { motion, useAnimation } from "framer-motion";
-
+import { useForm } from "react-hook-form";
 import {
   collection,
   getDocs,
@@ -77,7 +80,16 @@ const ItemModal = () => {
   const [isLiked, setIsLiked] = useState(
     post?.likes?.includes(user?.uid) || false
   );
-
+  const itemModal = useDisclosure();
+  const [updating, setUpdating] = useState(false);
+  const {
+    register: registerUpdate,
+    handleSubmit: updateItem,
+    reset: resetUpdate,
+    formState: { errors: errorUpdate },
+    setValue,
+    watch: watchUpdate,
+  } = useForm();
   //   const location = useLocation();
   //   let history = useHistory();
   const handleLike = async () => {
@@ -243,7 +255,8 @@ const ItemModal = () => {
     }
   };
 
-  const isOwnProfile = userId === user?.uid;
+  const isOwnProfile = user && postData && user.uid === postData.authorID;
+  // const isOwnProfile = userId === user?.uid;
 
   useEffect(() => {
     modalContainer.onOpen();
@@ -321,6 +334,41 @@ const ItemModal = () => {
 
   const handlePrev = () => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + count) % count);
+  };
+
+  const handleUpdateItem = async (data) => {
+    setUpdating(true);
+    try {
+      const userRef = doc(db, "marketplace", postId);
+      // const docSnap = doc(userRef, where("userID", "==", userId));
+
+      await updateDoc(userRef, {
+        postTitle: data.title,
+        postContent: data.text,
+        price: data.price,
+      });
+      console.log(data);
+      toast({
+        title: "Success!",
+        description: "Profile successfully updated.",
+        status: "success",
+        duration: 2000,
+        position: "top",
+      });
+    } catch (err) {
+      console.log(err.message);
+      toast({
+        title: "Oops!",
+        description:
+          "Failed to update profile. Please contact customer service.",
+        status: "error",
+        duration: 2000,
+        position: "top",
+      });
+    } finally {
+      setUpdating(false);
+      window.location.reload();
+    }
   };
 
   return (
@@ -407,43 +455,6 @@ const ItemModal = () => {
                       </Box>
                     </Flex>
                   </Flex>
-                  {/* {postData && (
-                      <motion.div
-                        key={postData.postImage[count]}
-                        variants={slideVariants}
-                        // custom={direction}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        position="absolute"
-                        top="0"
-                        left="0"
-                        w="full"
-                        h="full"
-                      >
-                        <Flex
-                          justify="center"
-                          w="100%"
-                          className="image__market__bg"
-                        >
-                          <Image
-                            position="absolute"
-                            h="120%"
-                            objectFit="cover"
-                            src={postData.postImage[0]}
-                            alt={postData.title}
-                            filter="blur(8px)" // Apply blur effect
-                            zIndex="-2" // Send the blurred image to the back
-                            bgRepeat="no-repeat"
-                          />
-                          <Image
-                            objectFit="contain"
-                            src={postData.postImage[0]}
-                            alt={postData.title}
-                          />
-                        </Flex>
-                      </motion.div>
-                    )} */}
 
                   {postData && !Array.isArray(postData.postImage) ? (
                     <>
@@ -503,7 +514,74 @@ const ItemModal = () => {
                       ago
                     </Text>
                     <Flex minW="410px">
-                      <Button
+                    {isOwnProfile ? (
+        <>
+        <Button w="100%" colorScheme="teal" onClick={itemModal.onOpen} leftIcon={<Edit3 />}>
+          Edit Post
+        </Button>
+  
+        <Modal
+                          isOpen={itemModal.isOpen}
+                          onClose={itemModal.onClose}
+                        >
+                          <ModalOverlay />
+                          <ModalContent maxW="lg" mx="auto" mt="5">
+                            <ModalHeader
+                              borderBottom="2px"
+                              borderColor="#e1e5ee"
+                            >
+                              Edit Post
+                            </ModalHeader>
+                            <ModalBody>
+                              <form
+                                onSubmit={updateItem(handleUpdateItem)}
+                              >
+                                <Box> 
+                                <FormLabel mb="2">Title</FormLabel>
+                                  <Input mb="4" {...registerUpdate("postTitle")}
+                                  defaultValue={postData.postTitle || "Enter your title"}
+                                  />
+                                  <FormLabel mb="2">Description</FormLabel>
+                                  <Input mb="4" {...registerUpdate("postContent")}
+                                  defaultValue={postData.postContent || "Enter your description"}
+                                  />
+                                  <FormLabel>Price</FormLabel>
+                                    <Input
+                                      type="number"
+                                      // placeholder="Unit Price"
+                                      {...registerUpdate("price")}
+                                      defaultValue={postData.price || "Enter Amount"}
+                                    />
+                                </Box>
+                                
+                                <Flex
+                                  justifyContent="flex-end"
+                                  gap={2}
+                                  p="4px 0"
+                                >
+                                  <Button
+                                    colorScheme="blue"
+                                    minWidth="100px"
+                                    type="submit"
+                                    isLoading={updating}
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    onClick={itemModal.onClose}
+                                    minWidth="100px"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </Flex>
+                              </form>
+                            </ModalBody>
+                          </ModalContent>
+                        </Modal>
+      </>
+      ) : (
+        <Button
                         m="8px 0"
                         textAlign="center"
                         bg={primaryColor}
@@ -513,6 +591,17 @@ const ItemModal = () => {
                       >
                         Message
                       </Button>
+      )}
+                      {/* <Button
+                        m="8px 0"
+                        textAlign="center"
+                        bg={primaryColor}
+                        w="100%"
+                        rightIcon={<Mail size={18} />}
+                        onClick={handleMessageClick}
+                      >
+                        Message
+                      </Button> */}
 
                       <Flex
                         // mb="2"

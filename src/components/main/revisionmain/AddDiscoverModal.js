@@ -16,8 +16,10 @@ import {
   FormLabel,
   Text,
   Heading,
-  Image
+  Image,
+  Progress
 } from "@chakra-ui/react";
+import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { useForm } from "react-hook-form";
 // import { UserAuth } from "../context/AuthContext";
 import { UserAuth } from "../../context/AuthContext";
@@ -35,6 +37,9 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+
+const MAX_VIDEO_SIZE_MB = 100; // Maximum size in MB
+const MAX_VIDEO_WIDTH = 1280; // 720p width (HD)
 
 const AddDiscover = (props) => {
   const primaryColor = "#FFC947";
@@ -54,6 +59,7 @@ const AddDiscover = (props) => {
   const [videoUrl, setVideoUrl] = useState();
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [isImageReady, setIsImageReady] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0); 
 
   const handleImageChange = async (e) => {
     setFile(e.target.files[0]);
@@ -79,19 +85,105 @@ const AddDiscover = (props) => {
     console.log(file);
   };
 
+  // const handleVideoChange = async (e) => {
+  //   const video = e.target.files[0];
+  //   setVideoFile(video);
+
+  //   const videoRef = ref(
+  //     storage,
+  //     `postVideos/${video.name + "&" + userProfile.name}`
+  //   );
+  //   await uploadBytes(videoRef, video);
+  //   const url = await getDownloadURL(videoRef);
+  //   setVideoUrl(url);
+  //   setIsVideoReady(true);
+  // };
+
   const handleVideoChange = async (e) => {
     const video = e.target.files[0];
-    setVideoFile(video);
+    const videoSizeMB = video.size / (1024 * 1024); // Size in MB
 
-    const videoRef = ref(
-      storage,
-      `postVideos/${video.name + "&" + userProfile.name}`
+    if (videoSizeMB > MAX_VIDEO_SIZE_MB) {
+      alert(`File size exceeds ${MAX_VIDEO_SIZE_MB}MB. Please upload a smaller video.`);
+      return;
+    }
+
+    const videoElement = document.createElement('video');
+    videoElement.src = URL.createObjectURL(video);
+    await new Promise((resolve) => {
+      videoElement.onloadedmetadata = () => resolve();
+    });
+
+    const videoWidth = videoElement.videoWidth;
+    const videoHeight = videoElement.videoHeight;
+
+    // Check if the video resolution is higher than 720p (1280px width)
+    if (videoWidth > MAX_VIDEO_WIDTH) {
+      // Resize video to 720p using ffmpeg
+      alert('The video resolution is higher than 720p, resizing to 720p...');
+      const resizedVideo = await resizeVideoTo720p(video);
+      setVideoFile(resizedVideo);
+    } else {
+      setVideoFile(video);
+    }
+
+    // Create a reference for video upload
+    const videoRef = ref(storage, `postVideos/${video.name + "&" + userProfile.name}`);
+    
+    // Use uploadBytesResumable to track upload progress
+    const uploadTask = uploadBytesResumable(videoRef, video);
+
+    uploadTask.on('state_changed', 
+      (snapshot) => {
+        // Get upload progress percentage
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress); // Update progress state
+      }, 
+      (error) => {
+        console.error('Error uploading video:', error);
+        alert('Error uploading video. Please try again.');
+      },
+      async () => {
+        // Get video URL after successful upload
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+        setVideoUrl(url);
+        setIsVideoReady(true);
+      }
     );
-    await uploadBytes(videoRef, video);
-    const url = await getDownloadURL(videoRef);
-    setVideoUrl(url);
-    setIsVideoReady(true);
+
+    // // Proceed with the upload if the file is valid
+    // const videoRef = ref(storage, `postVideos/${video.name + "&" + userProfile.name}`);
+    // await uploadBytes(videoRef, video);
+    // const url = await getDownloadURL(videoRef);
+    // setVideoUrl(url);
+    // setIsVideoReady(true);
   };
+
+  const resizeVideoTo720p = async (videoFile) => {
+    const ffmpeg = new FFmpeg({ log: true });
+  
+    await ffmpeg.load(); // Load the ffmpeg.wasm library
+  
+    const reader = new FileReader();
+    const videoData = await new Promise((resolve) => {
+      reader.onload = () => resolve(reader.result);
+      reader.readAsArrayBuffer(videoFile);
+    });
+  
+    // Use the video as input to ffmpeg
+    const fileName = "input.mp4";
+    ffmpeg.FS('writeFile', fileName, new Uint8Array(videoData));
+  
+    // Run ffmpeg command to resize the video to 720p
+    await ffmpeg.run('-i', fileName, '-vf', 'scale=1280:-1', '-c:a', 'aac', '-b:a', '192k', '-y', 'output.mp4');
+  
+    // Get the result and convert it back to a Blob
+    const outputData = ffmpeg.FS('readFile', 'output.mp4');
+    const resizedVideoBlob = new Blob([outputData.buffer], { type: 'video/mp4' });
+  
+    return resizedVideoBlob;
+  };
+  
 
   const handleSubmitPost = async (data) => {
     const obj = {
@@ -206,15 +298,24 @@ const AddDiscover = (props) => {
                       <Text>Video Preview:</Text>
                       <video
                         width="100%"
+                        height="auto"
                         controls
                         src={videoUrl}
-                        style={{ marginTop: "10px" }}
+                        style={{ marginTop: "10px", aspectRatio: "16 / 9" }}
                       />
                       <Text mt={2} color={isVideoReady ? "green" : "red"}>
                         {isVideoReady ? "Video ready to publish!" : "Processing video..."}
                       </Text>
                     </Box>
                   )}
+
+                   {/* Show progress bar if uploading */}
+                {uploadProgress > 0 && uploadProgress < 100 && (
+                  <Box mt={4}>
+                    <Progress value={uploadProgress} size="sm" colorScheme="teal" />
+                    <Text mt={2} color="teal">{Math.round(uploadProgress)}% Uploading...</Text>
+                  </Box>
+                )}
                 </Box>
                 {/* <Box>
                   <Input

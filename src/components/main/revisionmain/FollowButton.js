@@ -80,6 +80,42 @@ const FollowButton = ({ userId, currentUserId }) => {
       ]);
     }
   }, [profileModal.isOpen, userId]);
+  
+// Real-time listener for followers, following, and friends counts
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsubscribeFollowers = onSnapshot(
+      collection(db, `users1/${userId}/followers`),
+      (snapshot) => {
+        setFollowersCount(snapshot.size);
+        setFollowers(snapshot.docs.map(doc => doc.data()));
+      }
+    );
+
+    const unsubscribeFollowing = onSnapshot(
+      collection(db, `users1/${userId}/following`),
+      (snapshot) => {
+        setFollowingCount(snapshot.size);
+        setFollowing(snapshot.docs.map(doc => doc.data()));
+      }
+    );
+
+    const unsubscribeFriends = onSnapshot(
+      collection(db, `users1/${userId}/friends`),
+      (snapshot) => {
+        setFriendsCount(snapshot.size);
+        setFriends(snapshot.docs.map(doc => doc.data()));
+      }
+    );
+
+    // Clean up the listeners when the component is unmounted
+    return () => {
+      unsubscribeFollowers();
+      unsubscribeFollowing();
+      unsubscribeFriends();
+    };
+  }, [userId]);
 
   // Check if the current user is following each other user
   useEffect(() => {
@@ -97,14 +133,30 @@ const FollowButton = ({ userId, currentUserId }) => {
     checkFollowStatus();
   }, [user, userId]);
 
-  // Check if mutual following exists
   const checkMutualFollowing = async (otherUserId) => {
+    const otherUserFollowingSnapshot = await getDocs(collection(db, `users1/${user.uid}/following`));
     const otherUserFollowersSnapshot = await getDocs(collection(db, `users1/${otherUserId}/followers`));
-    return otherUserFollowersSnapshot.docs.some(doc => doc.id === user.uid); // Check if the other user is already following the current user
+  
+    const isFollowingBack = otherUserFollowersSnapshot.docs.some(doc => doc.id === user.uid);
+    const isMutualFollow = otherUserFollowingSnapshot.docs.some(doc => doc.id === otherUserId);
+  
+    return isFollowingBack && isMutualFollow; // Ensure both users follow each other
   };
-
+  
   // Add both users to each other's friends collection
   const addToFriends = async (otherUserId) => {
+    const otherUserFollowersSnapshot = await getDocs(collection(db, `users1/${otherUserId}/followers`));
+    const mutualFollow = otherUserFollowersSnapshot.docs.some(doc => doc.id === user.uid); // Check if the other user is following the current user
+
+    if (!mutualFollow) {
+      toast({
+        title: 'Cannot add to friends. No mutual following.',
+        status: 'warning',
+        duration: 2000,
+      });
+      return; // Don't add to friends if mutual following doesn't exist
+    }
+
     const otherUserDoc = await getDoc(doc(db, `users1/${otherUserId}`));
     const currentUserDoc = await getDoc(doc(db, `users1/${user.uid}`));
 
@@ -181,8 +233,12 @@ const FollowButton = ({ userId, currentUserId }) => {
           [otherUserId]: true, // Mark the user as followed
         }));
 
-        setFollowersCount((prevCount) => prevCount + 1);
-
+        // setFollowersCount((prevCount) => prevCount + 1);
+        if (selectedTabIndex === 0) {
+          setFollowersCount((prevCount) => prevCount + 1);
+        } else if (selectedTabIndex === 1) {
+          setFollowingCount((prevCount) => prevCount + 1);
+        }
         // Check for mutual following
         const isMutualFollowing = await checkMutualFollowing(otherUserId);
         if (isMutualFollowing) {
@@ -212,8 +268,14 @@ const FollowButton = ({ userId, currentUserId }) => {
         [otherUserId]: false, // Mark the user as not followed
       }));
 
-      setFollowersCount((prevCount) => prevCount - 1);
-
+      // setFollowersCount((prevCount) => prevCount - 1);
+      // setFollowingCount((prevCount) => prevCount - 1);
+      if (selectedTabIndex === 0) {
+        setFollowersCount((prevCount) => prevCount - 1);
+      } else if (selectedTabIndex === 1) {
+        setFollowingCount((prevCount) => prevCount - 1);
+      }
+      
       // Optionally, remove from friends if unfollowed
       await deleteDoc(doc(db, `users1/${otherUserId}/friends`, user.uid));
       await deleteDoc(doc(db, `users1/${user.uid}/friends`, otherUserId));

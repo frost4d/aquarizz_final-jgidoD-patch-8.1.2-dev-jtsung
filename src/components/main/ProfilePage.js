@@ -73,7 +73,11 @@ import {
   Center,
   HStack,
   VStack,
-  Icon
+  Icon,
+  Select,
+  RadioGroup,
+  Radio,
+  Avatar
 } from "@chakra-ui/react";
 import { db, auth, storage } from "../../firebase/firebaseConfig";
 import { UserAuth } from "../context/AuthContext";
@@ -176,6 +180,8 @@ function ProfilePage() {
   const [updating, setUpdating] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [gender, setGender] = useState("male");
+  const [selectedReason, setSelectedReason] = useState("");
   const {
     register: registerUpdate,
     handleSubmit: updateProfile,
@@ -685,9 +691,13 @@ function ProfilePage() {
   };
 
   const onReportUser = async () => {
-    if (!user || !userData?.userID) return;
+    if (!user || !userData?.userID || !selectedReason) return;
   
     try {
+      const userRef = doc(db, "users1", user.uid);  // Assuming your users collection is called "users"
+      const userSnap = await getDoc(userRef);
+      const reporterUsername = userSnap.exists() ? userSnap.data().name : "Unknown";
+
       const reportsRef = doc(db, "reports", userData.userID);
   
       const docSnap = await getDoc(reportsRef);
@@ -695,14 +705,19 @@ function ProfilePage() {
       if (docSnap.exists()) {
         // If the document exists, update it
         await updateDoc(reportsRef, {
-          reportedBy: arrayUnion(user.uid),
+          reportedBy: arrayUnion({
+            uid: user.uid,
+            name: reporterUsername,
+          }),
           reportCount: increment(1),
+          reportReasons: arrayUnion(selectedReason),
         });
       } else {
         // If the document does not exist, create it
         await setDoc(reportsRef, {
           reportedBy: [user.uid],  // Start the array with the current user
-          reportCount: 1,          // Initialize report count as 1
+          reportCount: 1,    
+          reportReasons: [selectedReason],      // Initialize report count as 1
         });
       }
   
@@ -767,6 +782,13 @@ function ProfilePage() {
     setSelectedPost(post);
     onOpen();
   };
+
+  const getButtonStyle = (reason) => {
+    return selectedReason === reason
+      ? { backgroundColor: "#3182ce", color: "white" } // Active button style
+      : {}; // Default style
+  };
+
 
   // const handleFollow = async () => {
   //   if (!userId || !user) return;
@@ -1144,10 +1166,10 @@ function ProfilePage() {
                 <Flex mx="100px" flexDirection="column">
                   <Box>
                     <Heading>{userData.name}</Heading>
-                    <Text fontSize="sm">
+                    {/* <Text fontSize="sm">
                       <strong>UID: </strong>
                       {userData.userID}
-                    </Text>
+                    </Text> */}
                     <Text color="#9c9c9c" fontSize="xs" as="i">
                       Member since {formatDistanceToNow(userData.dateCreated)}{" "}
                       ago
@@ -1200,19 +1222,97 @@ function ProfilePage() {
                                   <Input mb="4" {...registerUpdate("name")}
                                   defaultValue={userData.name || "Enter your name"}
                                   />
+                                  <FormLabel mb="2">Email</FormLabel>
+                                  <Input mb="4" {...registerUpdate("email")}
+                                  defaultValue={userData.email || "Enter your email"}
+                                  />
+                                  <Flex width="100%">
+                                    <Flex direction="column" width="100%" mr="5%">
                                   <FormLabel mb="2">Phone Number</FormLabel>
+                                  <InputGroup>
+                                  <InputLeftAddon children="+63" />
                                   <Input
                                     type="tel"
                                     mb="4"
                                     {...registerUpdate("phone")}
-                                    defaultValue={userData.phone || "Enter your phone number"}
+                                    defaultValue={userData.phoneNumber || "Enter your phone number"}
                                   />
+                                  </InputGroup>
+                                  </Flex>
+                                  <Flex direction="column" width="100%">
                                   <FormLabel mb="2">Location</FormLabel>
                                   <Input
                                     mb="4"
                                     {...registerUpdate("location")}
                                     defaultValue={userData.location || "Enter your location"}
                                   />
+                                  </Flex>
+                                  </Flex>
+                                  <FormLabel mb="2">Education</FormLabel>
+                                  <Input
+                                    mb="4"
+                                    {...registerUpdate("education")}
+                                    defaultValue={userData.education || ""}
+                                  />
+
+<FormLabel>Date of Birth</FormLabel>
+              <HStack>
+                <Select
+                  placeholder="Month"
+                  {...registerUpdate("month")}
+              defaultValue={userData?.dateOfBirth?.month || "Month"}
+                >
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                  {/* Add the rest of the months */}
+                </Select>
+                <Select
+                  placeholder="Day"
+                  {...registerUpdate("day")}
+              defaultValue={userData?.dateOfBirth?.day || "Day"}
+                >
+                  {Array.from({ length: 31 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </Select>
+                <Select
+                  placeholder="Year"
+                  {...registerUpdate("year")}
+              defaultValue={userData?.dateOfBirth?.year || "Year"}
+                >
+                  {Array.from({ length: 105 }, (_, i) => (
+                    <option key={i + 1920} value={i + 1920}>
+                      {i + 1920}
+                    </option>
+                  ))}
+                </Select>
+              </HStack>
+              {errors.month || errors.day || errors.year ? (
+                <p style={{ color: "#d9534f", fontSize: "12px" }}>
+                  Date of Birth is required.
+                </p>
+              ) : null}
+
+            <FormLabel>Gender</FormLabel>
+            <RadioGroup {...registerUpdate("gender")} defaultValue={userData?.gender}>
+                <HStack>
+                  <Radio value="male">Male</Radio>
+                  <Radio value="female">Female</Radio>
+                  <Radio value="custom">Custom</Radio>
+                </HStack>
+              </RadioGroup>
                                   {/* <FormLabel mb="2">New Password</FormLabel>
                                   <Input
                                     type="password"
@@ -1268,10 +1368,82 @@ function ProfilePage() {
                    <Menu>
                    <MenuButton as={IconButton} icon={<FaEllipsisH />} />
                    <MenuList>
-                   <MenuItem onClick={onReportUser} color="red.500">Report User</MenuItem>
+                   {/* <MenuItem onClick={onReportUser} color="red.500">Report User</MenuItem> */}
+                   <MenuItem onClick={onOpen} color="red.500">Report User</MenuItem>
                    </MenuList>
                    </Menu>
                  )} 
+
+<Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent maxW="lg" mx="auto" mt="10">
+          <ModalHeader borderBottom="2px" borderColor="#e1e5ee">
+            Report User
+          </ModalHeader>
+          <ModalBody>
+            <Box my="2">
+            <p>Why are you reporting this profile?</p>
+            </Box>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Pretending to be someone")}
+              mb={2}
+              style={getButtonStyle("Pretending to be someone")}
+            >
+              Pretending to be someone
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Fake account")}
+              mb={2}
+              style={getButtonStyle("Fake account")}
+            >
+              Fake account
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Fake name")}
+              mb={2}
+              style={getButtonStyle("Fake name")}
+            >
+              Fake name
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Harassment or bullying")}
+              mb={2}
+              style={getButtonStyle("Harassment or bullying")}
+            >
+              Harassment or bullying
+            </Button>
+            <Button
+              variant="outline"
+              w="100%"
+              onClick={() => setSelectedReason("Something else")}
+              mb={2}
+              style={getButtonStyle("Something else")}
+            >
+              Something else
+            </Button>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={onReportUser} isDisabled={!selectedReason}>
+              Submit Report
+            </Button>
+            <Button variant="outline" onClick={onClose} ml={3}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+
+      
                 <Box display={userData.userID !== user.uid ? "none" : ""}>
                   {/* <Button
                     onClick={() => {
@@ -1701,12 +1873,21 @@ function ProfilePage() {
                               >
 
                               <Flex align="center" >
-                               <Image
+                               {/* <Image
                                src={userData.profileImage}
                                borderRadius="full"
                                boxSize="50px"
                                mr="2"
-                              />
+                              /> */}
+                              <Avatar
+                              m="2"
+                                            size="md"
+                                            name={post.authorName}
+                                            src={
+                                              post.profileImage ||
+                                              "/path/to/avatar.jpg"
+                                            }
+                                          />
                               <VStack align="start" spacing="1">                                         
                               <Text fontWeight="bold">{post.authorName}</Text>
                               <Text fontSize="sm" color="gray.500">
@@ -2037,17 +2218,33 @@ function ProfilePage() {
                                     {formatDistanceToNow(userData.dateCreated)}{" "}
                                     ago
                                   </Text>
-                                  <Text fontSize="lg">
-                                    <strong>Location: </strong>
-                                    {userData.location}
+                                  <Text fontSize="sm">
+                                    <strong>UID: </strong>
+                                    {userData.userID}
                                   </Text>
                                   <Text fontSize="lg">
                                     <strong>Email: </strong>
                                     {userData.email}
                                   </Text>
                                   <Text fontSize="lg">
+                                    <strong>Location: </strong>
+                                    {userData.location}
+                                  </Text>                               
+                                  <Text fontSize="lg">
                                     <strong>Phone Number: </strong>
-                                    {userData.phone}
+                                    {userData.phoneNumber}
+                                  </Text>
+                                  <Text fontSize="lg">
+                                    <strong>Date of Birth: </strong>
+                                    {userData?.dateOfBirth?.month}/{userData?.dateOfBirth?.day}/{userData?.dateOfBirth?.year}
+                                  </Text>
+                                  <Text fontSize="lg">
+                                    <strong>Gender: </strong>
+                                    {userData.gender}
+                                  </Text>
+                                  <Text fontSize="lg">
+                                    <strong>Education: </strong>
+                                    {userData.education}
                                   </Text>
                                 </Box>
                               </Flex>
