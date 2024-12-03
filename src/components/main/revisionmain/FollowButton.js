@@ -177,7 +177,7 @@ const FollowButton = ({ userId, currentUserId }) => {
         email: user.email,
       });
 
-      setFriendsCount((prevCount) => prevCount + 1);
+      // setFriendsCount((prevCount) => prevCount + 1);
       toast({
         title: 'Added to friends.',
         status: 'success',
@@ -234,11 +234,11 @@ const FollowButton = ({ userId, currentUserId }) => {
         }));
 
         // setFollowersCount((prevCount) => prevCount + 1);
-        if (selectedTabIndex === 0) {
-          setFollowersCount((prevCount) => prevCount + 1);
-        } else if (selectedTabIndex === 1) {
-          setFollowingCount((prevCount) => prevCount + 1);
-        }
+        // if (selectedTabIndex === 0) {
+        //   setFollowersCount((prevCount) => prevCount + 1);
+        // } else if (selectedTabIndex === 1) {
+        //   setFollowingCount((prevCount) => prevCount + 1);
+        // }
         // Check for mutual following
         const isMutualFollowing = await checkMutualFollowing(otherUserId);
         if (isMutualFollowing) {
@@ -270,17 +270,17 @@ const FollowButton = ({ userId, currentUserId }) => {
 
       // setFollowersCount((prevCount) => prevCount - 1);
       // setFollowingCount((prevCount) => prevCount - 1);
-      if (selectedTabIndex === 0) {
-        setFollowersCount((prevCount) => prevCount - 1);
-      } else if (selectedTabIndex === 1) {
-        setFollowingCount((prevCount) => prevCount - 1);
-      }
+      // if (selectedTabIndex === 0) {
+      //   setFollowersCount((prevCount) => prevCount - 1);
+      // } else if (selectedTabIndex === 1) {
+      //   setFollowingCount((prevCount) => prevCount - 1);
+      // }
       
       // Optionally, remove from friends if unfollowed
       await deleteDoc(doc(db, `users1/${otherUserId}/friends`, user.uid));
       await deleteDoc(doc(db, `users1/${user.uid}/friends`, otherUserId));
 
-      setFriendsCount((prevCount) => prevCount - 1);
+      // setFriendsCount((prevCount) => prevCount - 1);
 
       toast({
         title: 'Unfollowed user.',

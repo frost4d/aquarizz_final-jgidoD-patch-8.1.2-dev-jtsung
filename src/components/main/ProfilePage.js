@@ -1134,17 +1134,17 @@ function ProfilePage() {
                         </Modal>
                       </Button>
                     </Box>
-                    {userData.profileImage ? (
-                      <Image
-                        h="100%"
-                        w="100%"
-                        objectFit="cover"
-                        className="profilePicture"
-                        src={userData.profileImage}
-                      />
-                    ) : (
-                      <Text>User Avatar</Text>
-                    )}
+                    <Avatar
+                      size="xl"
+                      zIndex="-1"
+                      h="100%"
+                      w="100%"
+                      objectFit="cover"
+                      className="profilePicture"
+                      name={userData.name}
+                      src={userData.profileImage || "/path/to/avatar.jpg"} // Fallback avatar image
+                      alt="Profile"
+                    />
                   </Flex>
                   {/* <Box
                     display="flex"

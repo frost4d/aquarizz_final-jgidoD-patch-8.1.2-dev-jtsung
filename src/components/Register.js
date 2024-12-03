@@ -171,6 +171,28 @@ const Register = () => {
   const handleRegister = async (data) => {
     const name = `${data.firstName} ${data.lastName}`;  // Concatenate first and last names
     console.log("Full Name:", name);
+
+     // Validate age
+  const today = new Date();
+  const birthDate = new Date(`${data.year}-${data.month}-${data.day}`);
+  const age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  const dayDiff = today.getDate() - birthDate.getDate();
+
+  // Adjust age if birth month and day are ahead in the year
+  const isUnderage =
+    age < 18 || (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)));
+
+  if (isUnderage) {
+    return toast({
+      position: "top",
+      status: "error",
+      title: "Registration Failed",
+      description: "You must be 18 years or older to register.",
+      duration: 4000,
+    });
+  }
+  
     try {
       const { user } = await createUser(data.email, data.password);
       toast({
