@@ -21,7 +21,8 @@ import {
   setDoc,
   deleteDoc,
   arrayUnion,
-  increment
+  increment,
+  addDoc
 } from "firebase/firestore";
 import {
   Box,
@@ -694,31 +695,48 @@ function ProfilePage() {
     if (!user || !userData?.userID || !selectedReason) return;
   
     try {
-      const userRef = doc(db, "users1", user.uid);  // Assuming your users collection is called "users"
+      const userRef = doc(db, "users1", user.uid);
       const userSnap = await getDoc(userRef);
       const reporterUsername = userSnap.exists() ? userSnap.data().name : "Unknown";
-
-      const reportsRef = doc(db, "reports", userData.userID);
+      const reporterEmail = userSnap.exists() ? userSnap.data().email : "Unknown";
+  
+      const reportsRef = doc(db, "reports", userData.userID);  
   
       const docSnap = await getDoc(reportsRef);
-      
+  
+      const reportData = {
+        uid: user.uid,
+        name: reporterUsername,
+        email: reporterEmail,
+      };
+  
+      const reportDetails = {
+        uid: user.uid,
+        name: reporterUsername,
+        email: reporterEmail,
+        dateReported: new Date(),
+        reason: selectedReason,
+      };
+  
       if (docSnap.exists()) {
-        // If the document exists, update it
+        const reportedByRef = collection(reportsRef, "reportedBy");  
+        await addDoc(reportedByRef, reportDetails);  
+  
         await updateDoc(reportsRef, {
-          reportedBy: arrayUnion({
-            uid: user.uid,
-            name: reporterUsername,
-          }),
           reportCount: increment(1),
           reportReasons: arrayUnion(selectedReason),
         });
       } else {
-        // If the document does not exist, create it
         await setDoc(reportsRef, {
-          reportedBy: [user.uid],  // Start the array with the current user
-          reportCount: 1,    
-          reportReasons: [selectedReason],      // Initialize report count as 1
+          uid: userData.userID,
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phoneNumber,
+          reportCount: 1,
         });
+  
+        const reportedByRef = collection(reportsRef, "reportedBy");
+        await addDoc(reportedByRef, reportDetails);  
       }
   
       toast({
@@ -739,6 +757,7 @@ function ProfilePage() {
       });
     }
   };
+  
 
   const handleUpdateProfile = async (data) => {
     // setValue("name", data.name);

@@ -414,12 +414,13 @@ const DiscoverModal = () => {
     }
   
     try {
-      const postRef = doc(db, "discover", discoverId); // Fetch the post
-      const reportsRef = doc(db, "postReports", discoverId); // Reference for the report document
-
-      const userRef = doc(db, "users1", user.uid);  // Assuming your users collection is called "users"
+      const postRef = doc(db, "discover", discoverId); 
+      const reportsRef = doc(db, "postReports", discoverId); 
+  
+      const userRef = doc(db, "users1", user.uid); 
       const userSnap = await getDoc(userRef);
       const reporterUsername = userSnap.exists() ? userSnap.data().name : "Unknown";
+      const reporterEmail = userSnap.exists() ? userSnap.data().email : "Unknown";
   
       const postSnap = await getDoc(postRef);
   
@@ -433,31 +434,52 @@ const DiscoverModal = () => {
         });
         return;
       }
+
+      const authorName = postSnap.data()?.authorName || "Unknown";
   
-      const reportData = {
-        reportedBy: arrayUnion({
-          uid: user.uid,
-          name: reporterUsername,
-        }),
-        reportCount: increment(1),
-        reportReasons: arrayUnion(selectedReason),
-        postDetails: {
-          id: discoverId,
-          title: postSnap.data()?.postTitle || "Untitled Post",
-          postContent: postSnap.data()?.postContent || "Untitled Post",
-          authorId: postSnap.data()?.authorID || "Unknown",
-        },
-        reportedAt: new Date(),
+      const reportDetails = {
+        uid: user.uid,
+        name: reporterUsername,
+        email: reporterEmail,
+        reason: selectedReason,
+        dateReported: new Date(),
       };
   
-      // Check if the report document already exists
+      const reportedByRef = collection(reportsRef, "reportedBy");
+  
       const docSnap = await getDoc(reportsRef);
       if (docSnap.exists()) {
-        // Update the existing report document
-        await updateDoc(reportsRef, reportData);
+        await addDoc(reportedByRef, reportDetails); 
+  
+        await updateDoc(reportsRef, {
+          reportCount: increment(1),
+          // reportReasons: arrayUnion(selectedReason),
+          postDetails: {
+            id: discoverId,
+            title: postSnap.data()?.postTitle || "Untitled Post",
+            postContent: postSnap.data()?.postContent || "Untitled Post",
+            authorId: postSnap.data()?.authorID || "Unknown",
+            authorName: authorName,
+          },
+          reportedAt: new Date(),
+        });
       } else {
-        // Create a new report document
-        await setDoc(reportsRef, reportData);
+        // If the document does not exist, create a new report document with the report data
+        await setDoc(reportsRef, {
+          reportCount: 1,
+          postDetails: {
+            id: discoverId,
+            title: postSnap.data()?.postTitle || "Untitled Post",
+            postContent: postSnap.data()?.postContent || "Untitled Post",
+            authorId: postSnap.data()?.authorID || "Unknown",
+            authorName: authorName,
+          },
+          reportedAt: new Date(),
+        });
+  
+        // Create the subcollection for reportedBy
+        const reportedByRef = collection(reportsRef, "reportedBy");
+        await addDoc(reportedByRef, reportDetails); 
       }
   
       toast({
@@ -478,6 +500,7 @@ const DiscoverModal = () => {
       });
     }
   };
+  
   
 
   const getButtonStyle = (reason) => {
